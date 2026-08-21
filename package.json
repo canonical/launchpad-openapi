@@ -1,0 +1,30 @@
+{
+  "name": "launchpad-openapi",
+  "private": true,
+  "license": "LGPL-3.0-only",
+  "type": "module",
+  "bin": {
+    "launchpad-openapi": "./src/index.ts"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "better-result": "^3.0.1",
+    "fast-xml-parser": "^5.11.0",
+    "yaml": "^2.9.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "@vitest/coverage-v8": "^4.1.11",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
+  }
+}
