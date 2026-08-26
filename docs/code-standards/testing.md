@@ -6,20 +6,19 @@ Standards for testing development.
 
 ## cs:testing.file.structure
 
-Unit test files live in a `__tests__/` subdirectory **within** the source folder they test, using the `.test.ts` suffix (`.test.tsx` for component tests). Keeping tests out of the source folder itself means each folder's listing shows only source code. Other test types (browser, e2e) may follow different naming conventions. Shared test infrastructure — fixtures, factory helpers, custom matchers, type definitions — lives in a `testing/` directory at the package root (not inside `src/`). This directory is excluded from coverage and from the package's public API. Integration tests that exercise multiple modules together go in `src/testing/integration/`. Do not colocate test files directly beside their source, and do not place them in a top-level directory mirroring the source tree. Do not use `.spec.ts` — the convention is `.test.ts`.
+Unit test files live directly beside the source module they test, using the same basename with the `.test.ts` suffix (`.test.tsx` for component tests). For example, `parseThing.test.ts` tests `parseThing.ts`. Other test types (browser, e2e) may follow different naming conventions. Shared test infrastructure — fixtures, factory helpers, custom matchers, type definitions — lives in a `testing/` directory at the package root (not inside `src/`). This directory is excluded from coverage and from the package's public API. Integration tests that exercise multiple modules together go in `src/testing/integration/`. Do not place unit tests in `__tests__/` directories or in a top-level directory mirroring the source tree. Do not use `.spec.ts` — the convention is `.test.ts`.
 
 ### Do
 
-Place each unit test in a `__tests__/` subdirectory beside its source, with shared infrastructure in `testing/`.
+Place each unit test directly beside the source module it covers, with shared infrastructure in `testing/`.
 ```
 packages/my-package/
 ├── src/
 │   └── parsing/
 │       ├── parseThing.ts
+│       ├── parseThing.test.ts       # tests parseThing.ts (import ./parseThing.js)
 │       ├── formatThing.ts
-│       └── __tests__/
-│           ├── parseThing.test.ts    # tests parseThing.ts (import ../parseThing.js)
-│           └── formatThing.test.ts   # tests formatThing.ts
+│       └── formatThing.test.ts      # tests formatThing.ts
 ├── testing/
 │   ├── fixtures.ts               # shared test data
 │   ├── createTestDb.ts             # factory helpers
@@ -39,17 +38,19 @@ packages/my-package/
 
 ### Don't
 
-Colocate test files directly beside their source, mirror the source tree in a top-level directory, or use `.spec.ts`.
+Place unit tests in `__tests__/`, mirror the source tree in a top-level directory, or use `.spec.ts`.
 ```
 packages/my-package/
 ├── src/
 │   └── parsing/
 │       ├── parseThing.ts
-│       ├── parseThing.test.ts     # Bad: colocated beside source, not in __tests__/
-│       └── formatThing.ts
-├── tests/                         # Bad: top-level directory mirroring the source tree
+│       ├── formatThing.ts
+│       ├── formatThing.spec.ts   # Bad: .spec.ts suffix
+│       └── __tests__/            # Bad: tests are not siblings of source
+│           └── parseThing.test.ts
+├── tests/                        # Bad: top-level directory mirroring source
 │   └── parsing/
-│       └── formatThing.spec.ts    # Bad: .spec.ts suffix
+│       └── formatThing.test.ts
 ```
 
 ---
