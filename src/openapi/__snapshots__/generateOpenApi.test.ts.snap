@@ -1,0 +1,357 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateOpenApi > complete documents > assembles the full document from the sample WADL 1`] = `
+{
+  "components": {
+    "schemas": {
+      "person-diff": {
+        "properties": {
+          "name": {
+            "type": "string",
+          },
+        },
+        "type": "object",
+      },
+      "person-full": {
+        "properties": {
+          "name": {
+            "description": "The name.",
+            "example": "ubuntu",
+            "type": "string",
+          },
+          "self_link": {
+            "description": "The canonical URL.",
+            "format": "uri",
+            "type": "string",
+            "x-lp-resource-type": "person",
+          },
+          "subscription_policy": {
+            "enum": [
+              "Open",
+              "Moderated",
+            ],
+            "example": "Open",
+            "type": "string",
+          },
+        },
+        "required": [
+          "name",
+          "subscription_policy",
+        ],
+        "type": "object",
+      },
+      "person-page": {
+        "properties": {
+          "entries": {
+            "example": [],
+            "items": {
+              "$ref": "#/components/schemas/person-full",
+            },
+            "type": "array",
+          },
+          "start": {
+            "example": 1,
+            "type": "integer",
+          },
+          "total_size": {
+            "example": 1,
+            "type": "integer",
+          },
+        },
+        "required": [
+          "total_size",
+          "start",
+          "entries",
+        ],
+        "type": "object",
+      },
+      "service-root-json": {
+        "properties": {
+          "me_link": {
+            "format": "uri",
+            "type": "string",
+            "x-lp-resource-type": "person",
+          },
+          "people_collection_link": {
+            "format": "uri",
+            "type": "string",
+            "x-lp-resource-type": "people",
+          },
+        },
+        "type": "object",
+      },
+    },
+  },
+  "info": {
+    "description": "The service. Read the guide.
+
+**About version 1.0**
+
+Version notes.
+
+Generated from the Launchpad WADL description. Launchpad exposes a hypermedia web service: resource URLs are discovered at runtime from the service root and from links in other resources. Top-level collections use their real service-root URLs; other resource types are shown at a real example instance URL (e.g. \`/ubuntu/+archive/primary\`) so requests resolve as sent. Named operations are invoked with a \`ws.op\` argument on the resource URL, and each is exposed here as its own endpoint keyed by that value (e.g. \`/people?ws.op=find\`) so it carries its own parameters and response schema. Parameter examples are placeholders.",
+    "title": "Launchpad Web Service API",
+    "version": "fixture",
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/": {
+      "get": {
+        "operationId": "service-root-get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/service-root-json",
+                },
+              },
+            },
+            "description": "Successful response",
+          },
+        },
+        "summary": "The root of the web service.",
+        "tags": [
+          "service-root",
+        ],
+      },
+    },
+    "/people": {
+      "get": {
+        "description": "Collection of people.",
+        "operationId": "people-get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/person-page",
+                },
+              },
+            },
+            "description": "Successful response",
+          },
+        },
+        "summary": "List people",
+        "tags": [
+          "people",
+        ],
+      },
+    },
+    "/people/+me": {
+      "delete": {
+        "description": "A person.",
+        "operationId": "person-delete",
+        "responses": {
+          "200": {
+            "description": "Resource deleted.",
+          },
+        },
+        "summary": "Delete person",
+        "tags": [
+          "person",
+        ],
+      },
+      "get": {
+        "description": "A person.",
+        "operationId": "person-get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/person-full",
+                },
+              },
+            },
+            "description": "Successful response",
+          },
+        },
+        "summary": "Get person",
+        "tags": [
+          "person",
+        ],
+      },
+      "patch": {
+        "description": "A person.",
+        "operationId": "person-patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/person-diff",
+              },
+            },
+          },
+          "required": true,
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/person-full",
+                },
+              },
+            },
+            "description": "Successful response",
+          },
+        },
+        "summary": "Update person",
+        "tags": [
+          "person",
+        ],
+      },
+      "put": {
+        "description": "A person.",
+        "operationId": "person-put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/person-full",
+              },
+            },
+          },
+          "required": true,
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/person-full",
+                },
+              },
+            },
+            "description": "Successful response",
+          },
+        },
+        "summary": "Replace person",
+        "tags": [
+          "person",
+        ],
+      },
+    },
+    "/people/+me?ws.op=getMembers": {
+      "get": {
+        "description": "Get members. :return: collection of URLs",
+        "operationId": "person-getMembers",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "format": "uri",
+                    "type": "string",
+                  },
+                  "type": "array",
+                },
+              },
+            },
+            "description": "collection of URLs",
+          },
+        },
+        "summary": "Get members",
+        "tags": [
+          "person",
+        ],
+      },
+    },
+    "/people?ws.op=getByName": {
+      "get": {
+        "description": "Find a person by name. :return: a string URL",
+        "operationId": "people-getByName",
+        "parameters": [
+          {
+            "description": "The person name.",
+            "in": "query",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "example": "ubuntu",
+              "type": "string",
+            },
+          },
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/person-full",
+                },
+              },
+            },
+            "description": "Successful response",
+          },
+        },
+        "summary": "Get by name",
+        "tags": [
+          "people",
+        ],
+      },
+    },
+    "/people?ws.op=newTeam": {
+      "post": {
+        "description": "Create a new team.",
+        "operationId": "people-newTeam",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "display_name": {
+                    "description": "Display name.",
+                    "example": "display_name",
+                    "type": "string",
+                  },
+                  "subscription_policy": {
+                    "description": "Membership policy.",
+                    "enum": [
+                      "Open",
+                      "Moderated",
+                    ],
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "display_name",
+                ],
+                "type": "object",
+              },
+            },
+          },
+          "required": true,
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+          },
+        },
+        "summary": "New team",
+        "tags": [
+          "people",
+        ],
+      },
+    },
+  },
+  "servers": [
+    {
+      "url": "https://api.launchpad.test/1.0",
+    },
+  ],
+  "tags": [
+    {
+      "name": "people",
+    },
+    {
+      "name": "person",
+    },
+    {
+      "name": "service-root",
+    },
+  ],
+}
+`;

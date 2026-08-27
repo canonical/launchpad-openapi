@@ -4,11 +4,9 @@
  */
 
 /**
- * Typed WADL values built at the XML parsing boundary.
+ * Typed WADL values isolate XML nodes at static `fromXml` boundaries.
  *
- * Only the static `fromXml` methods accept parser-library types. Public model
- * instances expose plain WADL values, so downstream consumers neither traverse
- * XML nor depend on the XML parser's node representation.
+ * Public instances expose plain values, keeping parser node types internal.
  */
 
 import { XmlElement } from "@rgrove/parse-xml";
@@ -180,6 +178,7 @@ export class WadlDocument {
   }
 }
 
+/** Return child XML elements with the requested local name. */
 function childElements(
   parent: XmlElement | undefined,
   name: string,
@@ -191,19 +190,23 @@ function childElements(
   );
 }
 
+/** Normalize XML text into a non-empty single line. */
 function normalizedText(element: XmlElement | undefined): string | undefined {
   if (element === undefined) return undefined;
   const text = element.text.replace(/\s+/g, " ").trim();
   return text === "" ? undefined : text;
 }
 
+/**
+ * Read and normalize the first WADL documentation child.
+ *
+ * `XmlElement.text` includes nested markup, so XML whitespace becomes prose.
+ */
 function documentationText(element: XmlElement): string | undefined {
-  // The model exposes one description per WADL element, so use its first
-  // `<doc>`. XmlElement.text includes nested markup; normalize indentation and
-  // line wrapping from the XML source into a single prose string.
   return normalizedText(childElements(element, "doc")[0]);
 }
 
+/** Extract a non-empty fragment id from a WADL reference. */
 function fragmentId(value: string | undefined): string | undefined {
   if (value === undefined) return undefined;
   const hash = value.lastIndexOf("#");

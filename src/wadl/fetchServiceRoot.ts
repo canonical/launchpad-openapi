@@ -34,6 +34,7 @@ export default async function fetchServiceRoot(
   });
 }
 
+/** Return whether a value is an absolute HTTP(S) URL. */
 function isWebUrl(value: string): boolean {
   const parsed = Result.try({
     try: () => new URL(value),

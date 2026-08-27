@@ -3,14 +3,9 @@
  * GNU Lesser General Public License version 3 (see the file LICENSE).
  */
 
-/**
- * Shared static fixtures for parser, generator, and conversion-flow tests.
- *
- * The WADL is intentionally compact but covers every supported representation,
- * operation, path, and special-resource branch used by the conversion pipeline.
- */
+/** Shared static WADL fixtures for parser and generator tests. */
 
-/** A branch-complete Launchpad-style WADL document. */
+/** Shared Launchpad-style WADL for parser and common generator behavior. */
 export const sampleWadl = `<?xml version="1.0"?>
 <!DOCTYPE application [
   <!ENTITY nbsp "\\&#160;">
@@ -133,6 +128,80 @@ export const sampleWadl = `<?xml version="1.0"?>
 export const emptyWadl = `<?xml version="1.0"?>
 <wadl:application xmlns:wadl="http://research.sun.com/wadl/2006/10">
   <wadl:resources base="https://api.launchpad.test/devel/"/>
+</wadl:application>`;
+
+/** A compact WADL document covering generator-only edge cases. */
+export const generatorEdgeWadl = `<?xml version="1.0"?>
+<wadl:application xmlns:wadl="http://research.sun.com/wadl/2006/10">
+  <wadl:resources base="https://api.launchpad.test/devel/"/>
+  <wadl:resource_type id="service-root"><wadl:method name="GET"/></wadl:resource_type>
+  <wadl:resource_type id="bug">
+    <wadl:method name="GET" id="bug-get">
+      <wadl:response>
+        <wadl:representation href="#missing"/>
+        <wadl:representation href="#edge-full"/>
+      </wadl:response>
+    </wadl:method>
+    <wadl:method name="PUT" id="bug-put">
+      <wadl:request><wadl:representation href="#missing"/></wadl:request>
+    </wadl:method>
+    <wadl:method name="POST" id="bug-post"/>
+    <wadl:method name="GET">
+      <wadl:doc>Check a bug. :return: True if active :rtype: boolean</wadl:doc>
+      <wadl:request>
+        <wadl:param name="ws.op" fixed="isActive"/>
+        <wadl:param name="policy" required="true">
+          <wadl:option value="Open"/><wadl:option value="Closed"/>
+        </wadl:param>
+        <wadl:param name="start" required="true"/>
+        <wadl:param name="entries" required="true"/>
+        <wadl:param name="target" required="true">
+          <wadl:link resource_type="#bug"/>
+        </wadl:param>
+        <wadl:param name="note"/>
+      </wadl:request>
+    </wadl:method>
+    <wadl:method name="GET">
+      <wadl:doc>Read text. :return: a string value</wadl:doc>
+      <wadl:request><wadl:param name="ws.op" fixed="getText"/></wadl:request>
+    </wadl:method>
+    <wadl:method name="GET">
+      <wadl:doc>Unknown result. :return: an opaque value</wadl:doc>
+      <wadl:request><wadl:param name="ws.op" fixed="getUnknown"/></wadl:request>
+    </wadl:method>
+    <wadl:method name="GET">
+      <wadl:request><wadl:param name="ws.op" fixed="undocumented"/></wadl:request>
+    </wadl:method>
+    <wadl:method name="POST">
+      <wadl:request>
+        <wadl:representation mediaType="application/x-www-form-urlencoded">
+          <wadl:param name="ws.op" fixed="emptyForm"/>
+        </wadl:representation>
+      </wadl:request>
+    </wadl:method>
+    <wadl:method name="POST">
+      <wadl:request>
+        <wadl:representation mediaType="application/x-www-form-urlencoded">
+          <wadl:param name="ws.op" fixed="optionalForm"/>
+          <wadl:param name="comment"/>
+        </wadl:representation>
+      </wadl:request>
+    </wadl:method>
+  </wadl:resource_type>
+  <wadl:resource_type id="unknown">
+    <wadl:method name="GET"/>
+  </wadl:resource_type>
+  <wadl:resource_type id="empty-resource">
+    <wadl:method name="POST"/>
+  </wadl:resource_type>
+  <wadl:representation mediaType="application/json" id="edge-full"/>
+  <wadl:representation mediaType="application/json" id="empty-json"/>
+  <wadl:representation mediaType="application/json" id="orphan-page">
+    <wadl:param name="entries" required="true"/>
+    <wadl:param name="entry_links" path="$['entries'][*]['self_link']">
+      <wadl:link resource_type="#missing"/>
+    </wadl:param>
+  </wadl:representation>
 </wadl:application>`;
 
 /** A document without the required WADL application root. */
