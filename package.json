@@ -16,8 +16,8 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@rgrove/parse-xml": "^4.2.3",
     "better-result": "^3.0.1",
-    "fast-xml-parser": "^5.11.0",
     "yaml": "^2.9.0",
     "zod": "^4.4.3"
   },
