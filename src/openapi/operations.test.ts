@@ -3,6 +3,7 @@
  * GNU Lesser General Public License version 3 (see the file LICENSE).
  */
 
+import type { ParameterObject } from "openapi3-ts/oas30";
 import { assert, describe, expect, it } from "vitest";
 import {
   generatorEdgeWadl,
@@ -14,7 +15,6 @@ import {
   buildStandardOperation,
 } from "./operations.js";
 import buildSchemas from "./buildSchemas.js";
-import type { ParameterObject } from "./types.js";
 
 function findMethod(methods: WadlMethod[], wsOp: string): WadlMethod {
   const method = methods.find((candidate) => candidate.wsOp === wsOp);

@@ -11,25 +11,30 @@
  * documents only its 200 success response.
  */
 
-import type { WadlMethod, WadlParam } from "../wadl/index.js";
-import { FORM_MEDIA_TYPE, JSON_MEDIA_TYPE } from "./constants.js";
-import buildParamSchema from "./buildParamSchema.js";
 import type {
-  HttpVerb,
   OperationObject,
   ParameterObject,
+  ReferenceObject,
   RequestBodyObject,
   ResponseObject,
   SchemaObject,
-} from "./types.js";
+  SchemasObject,
+} from "openapi3-ts/oas30";
+import type { WadlMethod, WadlParam } from "../wadl/index.js";
+import {
+  FORM_MEDIA_TYPE,
+  JSON_MEDIA_TYPE,
+  type SupportedHttpMethod,
+} from "./constants.js";
+import buildParamSchema from "./buildParamSchema.js";
 
 interface StandardOperationArgs {
   method: WadlMethod;
-  verb: HttpVerb;
+  verb: SupportedHttpMethod;
   resourceTypeId: string;
   resourceTypeDoc?: string;
   pathParams: ParameterObject[];
-  schemas: Record<string, SchemaObject>;
+  schemas: SchemasObject;
 }
 
 interface NamedOperationArgs {
@@ -37,7 +42,7 @@ interface NamedOperationArgs {
   wsOp: string;
   resourceTypeId: string;
   pathParams: ParameterObject[];
-  schemas: Record<string, SchemaObject>;
+  schemas: SchemasObject;
 }
 
 /** Build a standard resource operation with its parameters and schemas. */
@@ -53,7 +58,11 @@ export function buildStandardOperation({
     verb === "delete"
       ? undefined
       : findResponseSchema(method.responseRepresentationIds, schemas);
-  const action = chooseStandardAction(verb, findSchemaId(responseSchema));
+  const responseId = responseSchema?.$ref?.split("/").at(-1);
+  const action =
+    verb === "get" && responseId?.endsWith("-page")
+      ? "List"
+      : ACTION_BY_VERB[verb];
   const operation: OperationObject = {
     tags: [resourceTypeId],
     summary: `${action} ${toLowercaseWords(resourceTypeId)}`.trim(),
@@ -66,10 +75,12 @@ export function buildStandardOperation({
   };
   if (pathParams.length) operation.parameters = [...pathParams];
 
-  const requestSchema = buildSchemaRef(
-    schemas,
-    method.requestRepresentationId,
-  );
+  const requestId = method.requestRepresentationId;
+  // Reference only schemas that exist; never emit a dangling `$ref`.
+  const requestSchema =
+    requestId !== undefined && requestId in schemas
+      ? { $ref: `#/components/schemas/${requestId}` }
+      : undefined;
   if (requestSchema !== undefined) {
     operation.requestBody = {
       required: true,
@@ -80,23 +91,13 @@ export function buildStandardOperation({
 }
 
 /** CRUD summary actions per HTTP verb; Launchpad routes POST through `ws.op`. */
-const ACTION_BY_VERB: Record<HttpVerb, string> = {
+const ACTION_BY_VERB: Record<SupportedHttpMethod, string> = {
   get: "Get",
   put: "Replace",
   post: "Create",
   patch: "Update",
   delete: "Delete",
 };
-
-/** Choose a summary action from the method verb and response shape. */
-function chooseStandardAction(
-  verb: HttpVerb,
-  responseId: string | undefined,
-): string {
-  return verb === "get" && responseId?.endsWith("-page")
-    ? "List"
-    : ACTION_BY_VERB[verb];
-}
 
 /** Build a named `ws.op` operation with query or form parameters. */
 export function buildNamedOperation({
@@ -176,36 +177,22 @@ function buildQueryParameter(param: WadlParam): ParameterObject {
 
 /**
  * Resolve the first known response component; WADL may list non-JSON first.
+ *
+ * References only schemas that exist; never emits a dangling `$ref`.
  */
 function findResponseSchema(
   representationIds: string[],
-  schemas: Record<string, SchemaObject>,
-): SchemaObject | undefined {
+  schemas: SchemasObject,
+): ReferenceObject | undefined {
   for (const id of representationIds) {
-    const ref = buildSchemaRef(schemas, id);
-    if (ref !== undefined) return ref;
+    if (id in schemas) return { $ref: `#/components/schemas/${id}` };
   }
   return undefined;
 }
 
-/** Build a component reference without creating a dangling `$ref`. */
-function buildSchemaRef(
-  schemas: Record<string, SchemaObject>,
-  id: string | undefined,
-): SchemaObject | undefined {
-  return id !== undefined && id in schemas
-    ? { $ref: `#/components/schemas/${id}` }
-    : undefined;
-}
-
-/** Extract the final component id from a schema reference, when present. */
-function findSchemaId(schema: SchemaObject | undefined): string | undefined {
-  return schema?.$ref?.split("/").at(-1);
-}
-
 /** Build a successful response with an optional JSON schema. */
 function buildOkResponse(
-  schema?: SchemaObject,
+  schema?: SchemaObject | ReferenceObject,
   description = "Successful response",
 ): ResponseObject {
   const response: ResponseObject = { description };

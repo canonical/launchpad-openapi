@@ -16,6 +16,7 @@ export const ABOUT_SERVICE_DOC = "About this service";
 export const ENTRY_SELF_LINK_PATH = "$['entries'][*]['self_link']";
 export const COLLECTION_LINK_SUFFIXES = ["_collection_link", "_link"] as const;
 export const HTTP_METHODS = ["get", "put", "post", "patch", "delete"] as const;
+export type SupportedHttpMethod = (typeof HTTP_METHODS)[number];
 
 export const EXAMPLE_BY_PARAM: Record<string, string> = {
   name: "ubuntu",

@@ -3,6 +3,12 @@
  * GNU Lesser General Public License version 3 (see the file LICENSE).
  */
 
+import type {
+  InfoObject,
+  OpenAPIObject,
+  PathsObject,
+  TagObject,
+} from "openapi3-ts/oas30";
 import { Result, type Result as ResultType } from "better-result";
 import type { WadlDocument } from "../wadl/index.js";
 import {
@@ -10,17 +16,12 @@ import {
   API_TITLE,
   HYPERMEDIA_NOTE,
   OPENAPI_VERSION,
+  HTTP_METHODS,
 } from "./constants.js";
 import { ConversionError } from "./errors.js";
 import buildPaths from "./buildPaths.js";
 import buildSchemas from "./buildSchemas.js";
-import type {
-  GenerateOptions,
-  InfoObject,
-  OpenApiSpec,
-  PathItemObject,
-  TagObject,
-} from "./types.js";
+import type { GenerateOptions } from "./types.js";
 
 /**
  * Generate an OpenAPI 3.0.3 document from typed WADL values.
@@ -30,7 +31,7 @@ import type {
 export default function generateOpenApi(
   model: WadlDocument,
   options: GenerateOptions = {},
-): ResultType<OpenApiSpec, ConversionError> {
+): ResultType<OpenAPIObject, ConversionError> {
   if (!Object.keys(model.resourceTypes).length) {
     return Result.err(
       new ConversionError({
@@ -76,10 +77,11 @@ function buildInfo(model: WadlDocument, version: string): InfoObject {
 }
 
 /** Collect sorted, de-duplicated operation tags from every generated path. */
-function buildTags(paths: Record<string, PathItemObject>): TagObject[] {
+function buildTags(paths: PathsObject): TagObject[] {
   const names = new Set<string>();
   for (const path of Object.values(paths)) {
-    for (const operation of Object.values(path)) {
+    for (const method of HTTP_METHODS) {
+      const operation = path[method];
       if (operation === undefined) continue;
       for (const tag of operation.tags ?? []) names.add(tag);
     }

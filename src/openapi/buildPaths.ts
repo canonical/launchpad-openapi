@@ -4,6 +4,13 @@
  */
 
 import type {
+  ParameterObject,
+  PathItemObject,
+  PathsObject,
+  ResponseObject,
+  SchemasObject,
+} from "openapi3-ts/oas30";
+import type {
   WadlDocument,
   WadlParam,
   WadlRepresentation,
@@ -18,18 +25,12 @@ import {
   SERVICE_ROOT_REPRESENTATION,
   SERVICE_ROOT_TYPE,
   SPECIAL_RESOURCE_TYPES,
+  type SupportedHttpMethod,
 } from "./constants.js";
 import {
   buildNamedOperation,
   buildStandardOperation,
 } from "./operations.js";
-import type {
-  HttpVerb,
-  ParameterObject,
-  PathItemObject,
-  ResponseObject,
-  SchemaObject,
-} from "./types.js";
 
 interface ResourcePath {
   base: string;
@@ -46,16 +47,20 @@ const RESOURCE_PATH_PARAM_PATTERN = /^\{([^=}]+)=(.*)\}$/;
  */
 export default function buildPaths(
   model: WadlDocument,
-  schemas: Record<string, SchemaObject>,
+  schemas: SchemasObject,
   serviceRootLinks?: Record<string, string>,
-): Record<string, PathItemObject> {
+): PathsObject {
   const toplevelSegments = buildToplevelSegments(
     model.representations[SERVICE_ROOT_REPRESENTATION],
     model.baseUrl,
     serviceRootLinks,
   );
   const resourceEntries = Object.values(model.resourceTypes)
-    .filter((resourceType) => !isInternalResourceType(resourceType.id))
+    .filter(
+      (resourceType) =>
+        !SPECIAL_RESOURCE_TYPES.has(resourceType.id) &&
+        !resourceType.id.endsWith(PAGE_RESOURCE_SUFFIX),
+    )
     .flatMap((resourceType) =>
       buildResourceTypeEntries(
         resourceType,
@@ -71,16 +76,11 @@ export default function buildPaths(
   };
 }
 
-/** Whether the resource type is internal plumbing, not an API path. */
-function isInternalResourceType(id: string): boolean {
-  return SPECIAL_RESOURCE_TYPES.has(id) || id.endsWith(PAGE_RESOURCE_SUFFIX);
-}
-
 /** Build the base and `ws.op` path entries for one resource type. */
 function buildResourceTypeEntries(
   resourceType: WadlResourceType,
   segment: string | undefined,
-  schemas: Record<string, SchemaObject>,
+  schemas: SchemasObject,
 ): [string, PathItemObject][] {
   const resourcePath: ResourcePath = segment
     ? { base: `/${segment}`, pathParams: [] }
@@ -122,9 +122,13 @@ function buildResourceTypeEntries(
 
 /** Build the fixed service-root GET path. */
 function buildServiceRootGetPath(
-  schemas: Record<string, SchemaObject>,
+  schemas: SchemasObject,
 ): PathItemObject {
-  const schema = buildSchemaRef(schemas, SERVICE_ROOT_REPRESENTATION);
+  // Reference the schema only when it exists; never emit a dangling `$ref`.
+  const schema =
+    SERVICE_ROOT_REPRESENTATION in schemas
+      ? { $ref: `#/components/schemas/${SERVICE_ROOT_REPRESENTATION}` }
+      : undefined;
   const response: ResponseObject = { description: "Successful response" };
   if (schema !== undefined) {
     response.content = { [JSON_MEDIA_TYPE]: { schema } };
@@ -229,15 +233,7 @@ function buildResourcePath(
   return { base: `/${segments.join("/")}`, pathParams };
 }
 
-/** Build a component reference only when its target schema exists. */
-function buildSchemaRef(
-  schemas: Record<string, SchemaObject>,
-  id: string,
-): SchemaObject | undefined {
-  return id in schemas ? { $ref: `#/components/schemas/${id}` } : undefined;
-}
-
 /** Narrow an arbitrary WADL method name to a supported OpenAPI HTTP verb. */
-function isHttpVerb(value: string): value is HttpVerb {
+function isHttpVerb(value: string): value is SupportedHttpMethod {
   return HTTP_METHODS.some((method) => method === value);
 }

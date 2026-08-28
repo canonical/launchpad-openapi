@@ -3,17 +3,21 @@
  * GNU Lesser General Public License version 3 (see the file LICENSE).
  */
 
+import type {
+  ReferenceObject,
+  SchemaObject,
+  SchemasObject,
+} from "openapi3-ts/oas30";
 import type { WadlParam, WadlRepresentation } from "../wadl/index.js";
 import { ENTRY_SELF_LINK_PATH } from "./constants.js";
 import buildParamSchema from "./buildParamSchema.js";
-import type { SchemaObject } from "./types.js";
 
 /** Build reusable component schemas from WADL JSON representations. */
 export default function buildSchemas(
   representations: Record<string, WadlRepresentation>,
-): Record<string, SchemaObject> {
+): SchemasObject {
   const schemaIds = new Set(Object.keys(representations));
-  const schemas: Record<string, SchemaObject> = {};
+  const schemas: SchemasObject = {};
   for (const [id, representation] of Object.entries(representations)) {
     schemas[id] = buildRepresentationSchema(representation, schemaIds);
   }
@@ -50,7 +54,7 @@ function buildRepresentationSchema(
 function findEntryItemsSchema(
   fields: WadlParam[],
   schemaIds: Set<string>,
-): SchemaObject | undefined {
+): ReferenceObject | undefined {
   const entryLink = fields.find(
     (field) => field.path === ENTRY_SELF_LINK_PATH,
   );

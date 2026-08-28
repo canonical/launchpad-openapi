@@ -5,7 +5,7 @@
 
 import type { WadlParam } from "../wadl/index.js";
 import { EXAMPLE_BY_PARAM, INTEGER_PARAM_NAMES } from "./constants.js";
-import type { SchemaObject } from "./types.js";
+import type { SchemaObject } from "openapi3-ts/oas30";
 
 /** Convert a WADL parameter into an OpenAPI schema fragment. */
 export default function buildParamSchema(param: WadlParam): SchemaObject {

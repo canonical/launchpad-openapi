@@ -10,16 +10,18 @@
 
 export { default as generateOpenApi } from "./generateOpenApi.js";
 export { ConversionError } from "./errors.js";
+export type { GenerateOptions } from "./types.js";
 export type {
-  GenerateOptions,
-  HttpVerb,
   InfoObject,
-  OpenApiSpec,
+  OpenAPIObject,
   OperationObject,
   ParameterObject,
   PathItemObject,
+  PathsObject,
+  ReferenceObject,
   RequestBodyObject,
   ResponseObject,
   SchemaObject,
+  SchemasObject,
   TagObject,
-} from "./types.js";
+} from "openapi3-ts/oas30";
