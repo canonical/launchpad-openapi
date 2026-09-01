@@ -100,17 +100,6 @@ export default function parseArgs(
   }
   return parsed.map((values) => ({
     help: false,
-    raw: {
-      instance: values.instance,
-      version: values.version,
-      ...(values.environment === undefined
-        ? {}
-        : { environment: values.environment }),
-      ...(values.apiUrl === undefined ? {} : { apiUrl: values.apiUrl }),
-      ...(values.input === undefined ? {} : { input: values.input }),
-      ...(values.output === undefined ? {} : { output: values.output }),
-      stdout: values.stdout ?? false,
-      format: values.format,
-    },
+    raw: { ...values, stdout: values.stdout ?? false },
   }));
 }
