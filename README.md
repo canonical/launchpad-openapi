@@ -92,4 +92,4 @@ The test suite covers WADL parsing, OpenAPI generation, CLI behavior, local-file
 
 ## License
 
-Licensed under the [GNU Lesser General Public License version 3](LICENSE).
+Licensed under the [GNU Lesser General Public License version 3](LICENSE), which incorporates the [GNU General Public License version 3](COPYING).
