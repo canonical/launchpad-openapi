@@ -27,10 +27,7 @@ import {
   SPECIAL_RESOURCE_TYPES,
   type SupportedHttpMethod,
 } from "./constants.js";
-import {
-  buildNamedOperation,
-  buildStandardOperation,
-} from "./operations.js";
+import { buildNamedOperation, buildStandardOperation } from "./operations.js";
 
 interface ResourcePath {
   base: string;
@@ -121,9 +118,7 @@ function buildResourceTypeEntries(
 }
 
 /** Build the fixed service-root GET path. */
-function buildServiceRootGetPath(
-  schemas: SchemasObject,
-): PathItemObject {
+function buildServiceRootGetPath(schemas: SchemasObject): PathItemObject {
   // Reference the schema only when it exists; never emit a dangling `$ref`.
   const schema =
     SERVICE_ROOT_REPRESENTATION in schemas

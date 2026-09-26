@@ -2,7 +2,6 @@
   "name": "@canonical/launchpad-openapi",
   "version": "0.0.0",
   "license": "LGPL-3.0-only",
-  "type": "module",
   "bin": {
     "launchpad-openapi": "./dist/index.js"
   },
@@ -10,11 +9,9 @@
     "dist",
     "COPYING"
   ],
+  "type": "module",
   "publishConfig": {
     "access": "public"
-  },
-  "engines": {
-    "node": ">=24"
   },
   "scripts": {
     "clean": "rm -rf dist",
@@ -23,7 +20,11 @@
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "lint": "oxlint --max-warnings 0 src testing vitest.config.ts",
+    "format": "oxfmt src testing vitest.config.ts package.json tsconfig.json tsconfig.build.json .oxlintrc.json .oxfmtrc.json",
+    "format:check": "oxfmt --check src testing vitest.config.ts package.json tsconfig.json tsconfig.build.json .oxlintrc.json .oxfmtrc.json",
+    "check": "pnpm run lint && pnpm run format:check"
   },
   "dependencies": {
     "@rgrove/parse-xml": "^4.2.3",
@@ -37,7 +38,12 @@
     "@types/node": "^26.2.0",
     "@vitest/coverage-v8": "^4.1.11",
     "openapi3-ts": "^4.6.1",
+    "oxfmt": "^0.70.0",
+    "oxlint": "^1.85.0",
     "typescript": "^7.0.2",
     "vitest": "^4.1.11"
+  },
+  "engines": {
+    "node": ">=24"
   }
 }

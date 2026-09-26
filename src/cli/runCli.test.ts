@@ -32,12 +32,7 @@ describe("runCli", () => {
   });
 
   it("returns all schema validation failures as a typed error", async () => {
-    const result = await runCli([
-      "--api-url",
-      "relative",
-      "--format",
-      "toml",
-    ]);
+    const result = await runCli(["--api-url", "relative", "--format", "toml"]);
 
     assert(Result.isError(result));
     expect(result.error.message).toContain("Invalid options:");

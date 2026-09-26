@@ -21,9 +21,9 @@ describe("buildApiUrl", () => {
     expect(buildApiUrl("launchpad.test", "devel").unwrap()).toBe(
       "https://api.launchpad.test/devel/",
     );
-    expect(
-      buildApiUrl("https://api.staging.test/path", "beta").unwrap(),
-    ).toBe("https://api.staging.test/beta/");
+    expect(buildApiUrl("https://api.staging.test/path", "beta").unwrap()).toBe(
+      "https://api.staging.test/beta/",
+    );
   });
 
   it("returns a typed URL error for malformed instance URLs", () => {

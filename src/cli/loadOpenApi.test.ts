@@ -15,10 +15,12 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe("loadOpenApi", () => {
   it("fetches WADL and service-root links from a derived API URL", async () => {
-    const fetchMock = vi.fn(async (_url: string | URL | Request, init?: RequestInit) =>
-      (init?.headers as Record<string, string> | undefined)?.Accept === WADL_ACCEPT
-        ? new Response(sampleWadl)
-        : Response.json(serviceRootLinks),
+    const fetchMock = vi.fn(
+      async (_url: string | URL | Request, init?: RequestInit) =>
+        (init?.headers as Record<string, string> | undefined)?.Accept ===
+        WADL_ACCEPT
+          ? new Response(sampleWadl)
+          : Response.json(serviceRootLinks),
     );
     vi.stubGlobal("fetch", fetchMock);
 

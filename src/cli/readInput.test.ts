@@ -25,9 +25,9 @@ describe("readInput", () => {
     const path = join(directory, "input.wadl");
     await writeFile(path, "<application>café</application>", "utf8");
 
-    await expect(readInput(path).then((result) => result.unwrap())).resolves.toBe(
-      "<application>café</application>",
-    );
+    await expect(
+      readInput(path).then((result) => result.unwrap()),
+    ).resolves.toBe("<application>café</application>");
   });
 
   it("returns a typed read error", async () => {

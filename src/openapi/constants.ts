@@ -52,7 +52,8 @@ export const EXAMPLE_BY_RESOURCE: Record<string, string> = {
   distro_arch_series: "{distribution=ubuntu}/{series=resolute}/{arch=amd64}",
   archive: "{distribution=ubuntu}/+archive/{archive=primary}",
   distribution_source_package: "{distribution=ubuntu}/+source/{source=bash}",
-  source_package: "{distribution=ubuntu}/{series=resolute}/+source/{source=bash}",
+  source_package:
+    "{distribution=ubuntu}/{series=resolute}/+source/{source=bash}",
   packageset:
     "package-sets/{distribution=ubuntu}/{series=resolute}/{packageset=core}",
   processor: "+processors/{processor=amd64}",

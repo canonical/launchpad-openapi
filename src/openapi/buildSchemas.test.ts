@@ -4,10 +4,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import {
-  generatorEdgeWadl,
-  sampleWadl,
-} from "../../testing/fixtures.js";
+import { generatorEdgeWadl, sampleWadl } from "../../testing/fixtures.js";
 import { parseWadl } from "../wadl/index.js";
 import buildSchemas from "./buildSchemas.js";
 

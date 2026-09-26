@@ -20,4 +20,3 @@ export const ENVIRONMENT_API_URLS: Readonly<Record<Environment, string>> = {
   staging: "https://api.staging.paddev.net/",
   qastaging: "http://api.qastaging.launchpad.net/",
 };
-

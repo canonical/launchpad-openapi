@@ -83,10 +83,14 @@ Install the locked development dependencies, then run the available checks or bu
 
 ```console
 pnpm install --frozen-lockfile
+pnpm format
+pnpm check
 pnpm typecheck
 pnpm test
 pnpm build
 ```
+
+`pnpm format` formats source and configuration files; `pnpm check` runs Oxlint and verifies formatting without changing files.
 
 The test suite covers WADL parsing, OpenAPI generation, CLI behavior, local-file conversion, and validation of generated output with an OpenAPI parser.
 

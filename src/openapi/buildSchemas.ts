@@ -55,9 +55,7 @@ function findEntryItemsSchema(
   fields: WadlParam[],
   schemaIds: Set<string>,
 ): ReferenceObject | undefined {
-  const entryLink = fields.find(
-    (field) => field.path === ENTRY_SELF_LINK_PATH,
-  );
+  const entryLink = fields.find((field) => field.path === ENTRY_SELF_LINK_PATH);
   if (entryLink?.linkResourceType === undefined) return undefined;
   const schemaId = `${entryLink.linkResourceType}-full`;
   return schemaIds.has(schemaId)

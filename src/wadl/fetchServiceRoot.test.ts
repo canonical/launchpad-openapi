@@ -26,7 +26,9 @@ describe("fetchServiceRoot", () => {
     vi.stubGlobal("fetch", fetchMock);
     await expect(
       fetchServiceRoot(url).then((result) => result.unwrap()),
-    ).resolves.toEqual({ people_collection_link: `${url}people` });
+    ).resolves.toEqual({
+      people_collection_link: `${url}people`,
+    });
     expect(fetchMock).toHaveBeenCalledWith(url, {
       headers: { Accept: "application/json" },
       redirect: "follow",
@@ -34,7 +36,10 @@ describe("fetchServiceRoot", () => {
   });
 
   it("returns an empty map for non-object JSON", async () => {
-    vi.stubGlobal("fetch", vi.fn(async () => Response.json(["not", "links"])));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => Response.json(["not", "links"])),
+    );
     await expect(
       fetchServiceRoot(url).then((result) => result.unwrap()),
     ).resolves.toEqual({});

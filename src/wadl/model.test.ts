@@ -31,7 +31,11 @@ describe("WadlParam.fromXml", () => {
     const raw = element(
       "param",
       [
-        element("doc", [text("Current "), element("strong", [text("status")]), text(".")]),
+        element("doc", [
+          text("Current "),
+          element("strong", [text("status")]),
+          text("."),
+        ]),
         element("link", [], {
           resource_type: "https://example.test/#person",
         }),
@@ -61,7 +65,9 @@ describe("WadlParam.fromXml", () => {
             element("option"),
             element("link", [], { resource_type: "trailing#" }),
           ],
-          { name: "plain" },
+          {
+            name: "plain",
+          },
         ),
       ),
     ).toMatchObject({ name: "plain", required: false });

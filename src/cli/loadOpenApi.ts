@@ -4,10 +4,7 @@
  */
 
 import { Result, type Result as ResultType } from "better-result";
-import {
-  generateOpenApi,
-  type OpenAPIObject,
-} from "../openapi/index.js";
+import { generateOpenApi, type OpenAPIObject } from "../openapi/index.js";
 import {
   buildApiUrl,
   fetchServiceRoot,
@@ -43,11 +40,11 @@ export default async function loadOpenApi(
         (options.environment === undefined
           ? undefined
           : ENVIRONMENT_API_URLS[options.environment]);
-      const apiUrl = yield* (baseUrl === undefined
+      const apiUrl = yield* baseUrl === undefined
         ? buildApiUrl(options.instance, options.version)
         : buildApiUrl(
             new URL(`${encodeURIComponent(options.version)}/`, baseUrl).href,
-          ));
+          );
       xml = yield* Result.await(fetchWadl(apiUrl));
       const serviceRoot = await fetchServiceRoot(apiUrl);
       if (Result.isOk(serviceRoot)) serviceRootLinks = serviceRoot.value;

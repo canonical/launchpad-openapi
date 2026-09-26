@@ -126,13 +126,19 @@ describe("buildPaths", () => {
       );
       const edgePaths = buildPaths(edge, buildSchemas(edge.representations));
 
-      expect(Object.keys(samplePaths).some((path) => path.includes("HostedFile"))).toBe(false);
       expect(
-        Object.keys(samplePaths).some((path) => path.includes("person-page-resource")),
+        Object.keys(samplePaths).some((path) => path.includes("HostedFile")),
+      ).toBe(false);
+      expect(
+        Object.keys(samplePaths).some((path) =>
+          path.includes("person-page-resource"),
+        ),
       ).toBe(false);
       expect(edgePaths).not.toHaveProperty("/{empty-resource}");
       expect(edgePaths["/bugs/{id}"]).not.toHaveProperty("post");
-      expect(Object.keys(edgePaths).some((path) => path.includes("unsupported"))).toBe(false);
+      expect(
+        Object.keys(edgePaths).some((path) => path.includes("unsupported")),
+      ).toBe(false);
     });
   });
 });

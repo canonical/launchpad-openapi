@@ -9,11 +9,7 @@
  */
 
 export { default as buildApiUrl } from "./buildApiUrl.js";
-export {
-  WadlFetchError,
-  WadlParseError,
-  WadlUrlError,
-} from "./errors.js";
+export { WadlFetchError, WadlParseError, WadlUrlError } from "./errors.js";
 export { default as fetchServiceRoot } from "./fetchServiceRoot.js";
 export { default as fetchWadl } from "./fetchWadl.js";
 export {

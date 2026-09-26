@@ -61,9 +61,9 @@ describe("parseArgs", () => {
     expect(usage).toContain("Usage: launchpad-openapi [options] [command]");
     expect(usage).toContain("--instance <host>");
     expect(usage).toContain("Launchpad instance hostname");
-    expect(usage).toContain("\"launchpad.net\"");
+    expect(usage).toContain('"launchpad.net"');
     expect(usage).toContain("-e, --environment <name>");
-    expect(usage).toContain("\"staging\", \"qastaging\"");
+    expect(usage).toContain('"staging", "qastaging"');
     expect(usage).toContain("-o, --output <file>");
     expect(usage).toContain("--stdout");
     expect(usage).toContain("-h, --help");

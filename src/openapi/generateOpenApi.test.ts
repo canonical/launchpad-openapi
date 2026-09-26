@@ -30,7 +30,9 @@ describe("generateOpenApi", () => {
 
     it("derives the version from the base URL and handles untitled metadata", () => {
       const sample = generateOpenApi(parseWadl(sampleWadl).unwrap()).unwrap();
-      const edge = generateOpenApi(parseWadl(generatorEdgeWadl).unwrap()).unwrap();
+      const edge = generateOpenApi(
+        parseWadl(generatorEdgeWadl).unwrap(),
+      ).unwrap();
 
       expect(sample.info.version).toBe("1.0");
       expect(edge.info.version).toBe("devel");

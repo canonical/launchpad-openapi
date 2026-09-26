@@ -5,15 +5,9 @@
 
 import type { ParameterObject } from "openapi3-ts/oas30";
 import { assert, describe, expect, it } from "vitest";
-import {
-  generatorEdgeWadl,
-  sampleWadl,
-} from "../../testing/fixtures.js";
+import { generatorEdgeWadl, sampleWadl } from "../../testing/fixtures.js";
 import { parseWadl, type WadlMethod } from "../wadl/index.js";
-import {
-  buildNamedOperation,
-  buildStandardOperation,
-} from "./operations.js";
+import { buildNamedOperation, buildStandardOperation } from "./operations.js";
 import buildSchemas from "./buildSchemas.js";
 
 function findMethod(methods: WadlMethod[], wsOp: string): WadlMethod {
@@ -224,7 +218,10 @@ describe("buildNamedOperation", () => {
 
     it("maps parameter schema kinds and type-appropriate examples", () => {
       const model = parseWadl(generatorEdgeWadl).unwrap();
-      const method = findMethod(model.resourceTypes.bug?.methods ?? [], "isActive");
+      const method = findMethod(
+        model.resourceTypes.bug?.methods ?? [],
+        "isActive",
+      );
       const pathParam: ParameterObject = {
         name: "id",
         in: "path",
@@ -376,7 +373,11 @@ describe("buildNamedOperation", () => {
           "getMembers",
           { type: "array", items: { type: "string", format: "uri" } },
         ],
-        [findMethod(edgeMethods, "getText"), "getText", { type: "string", nullable: true }],
+        [
+          findMethod(edgeMethods, "getText"),
+          "getText",
+          { type: "string", nullable: true },
+        ],
         [findMethod(edgeMethods, "getUnknown"), "getUnknown", undefined],
         [findMethod(edgeMethods, "undocumented"), "undocumented", undefined],
       ] as const;

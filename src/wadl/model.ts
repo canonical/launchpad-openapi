@@ -166,9 +166,11 @@ export class WadlDocument {
     const resourceTypes: Record<string, WadlResourceType> = {};
     for (const raw of childElements(application, "resource_type")) {
       const resourceType = WadlResourceType.fromXml(raw);
-      if (resourceType !== undefined) resourceTypes[resourceType.id] = resourceType;
+      if (resourceType !== undefined)
+        resourceTypes[resourceType.id] = resourceType;
     }
-    const base = childElements(application, "resources")[0]?.attributes.base ?? "";
+    const base =
+      childElements(application, "resources")[0]?.attributes.base ?? "";
     return new WadlDocument(
       base.replace(/\/$/, ""),
       docs,

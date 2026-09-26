@@ -41,5 +41,7 @@ function isWebUrl(value: string): boolean {
     catch: () => undefined,
   });
   if (Result.isError(parsed)) return false;
-  return parsed.value.protocol === "http:" || parsed.value.protocol === "https:";
+  return (
+    parsed.value.protocol === "http:" || parsed.value.protocol === "https:"
+  );
 }

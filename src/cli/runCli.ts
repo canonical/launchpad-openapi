@@ -31,9 +31,7 @@ export default async function runCli(
     const message = validated.error.issues
       .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
       .join("; ");
-    return Result.err(
-      new CliError({ message: `Invalid options: ${message}` }),
-    );
+    return Result.err(new CliError({ message: `Invalid options: ${message}` }));
   }
 
   return runConvert(validated.data);
