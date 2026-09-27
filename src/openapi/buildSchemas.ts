@@ -9,7 +9,12 @@ import type {
   SchemasObject,
 } from "openapi3-ts/oas30";
 import type { WadlParam, WadlRepresentation } from "../wadl/index.js";
-import { ENTRY_SELF_LINK_PATH, REVIEWED_RESOURCE_FIELDS } from "./constants.js";
+import {
+  BRANCH_FULL_SCHEMA_ID,
+  ENTRY_SELF_LINK_PATH,
+  NULLABLE_BRANCH_SCHEMA_ID,
+  REVIEWED_RESOURCE_FIELDS,
+} from "./constants.js";
 import buildParamSchema from "./buildParamSchema.js";
 
 /** Build reusable component schemas from WADL JSON representations. */
@@ -20,6 +25,14 @@ export default function buildSchemas(
   const schemas: SchemasObject = {};
   for (const [id, representation] of Object.entries(representations)) {
     schemas[id] = buildRepresentationSchema(id, representation, schemaIds);
+  }
+  const branchSchema = schemas[BRANCH_FULL_SCHEMA_ID];
+  const isObjectBranchSchema =
+    branchSchema !== undefined &&
+    !("$ref" in branchSchema) &&
+    branchSchema.type === "object";
+  if (isObjectBranchSchema && !(NULLABLE_BRANCH_SCHEMA_ID in schemas)) {
+    schemas[NULLABLE_BRANCH_SCHEMA_ID] = { ...branchSchema, nullable: true };
   }
   return schemas;
 }

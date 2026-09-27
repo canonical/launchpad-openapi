@@ -5,7 +5,11 @@
 
 import type { ParameterObject } from "openapi3-ts/oas30";
 import { assert, describe, expect, it } from "vitest";
-import { generatorEdgeWadl, sampleWadl } from "../../testing/fixtures.js";
+import {
+  branchLookupWadl,
+  generatorEdgeWadl,
+  sampleWadl,
+} from "../../testing/fixtures.js";
 import { parseWadl, type WadlMethod } from "../wadl/index.js";
 import { buildNamedOperation, buildStandardOperation } from "./operations.js";
 import buildSchemas from "./buildSchemas.js";
@@ -282,6 +286,36 @@ describe("buildNamedOperation", () => {
           },
         },
       });
+    });
+
+    it("keeps WADL item type and optionality for branch URL lists", () => {
+      const wadl = branchLookupWadl.replace(
+        'name="urls" type="xsd:string" required="true"',
+        'name="urls" type="xsd:int"',
+      );
+      const model = parseWadl(wadl).unwrap();
+      const method = findMethod(
+        model.resourceTypes.branches?.methods ?? [],
+        "getByUrls",
+      );
+      const operation = buildNamedOperation({
+        method,
+        wsOp: "getByUrls",
+        resourceTypeId: "branches",
+        pathParams: [],
+        schemas: buildSchemas(model.representations),
+      });
+
+      expect(operation.parameters).toMatchObject([
+        {
+          name: "urls",
+          in: "query",
+          required: false,
+          style: "form",
+          explode: true,
+          schema: { type: "array", items: { type: "integer" } },
+        },
+      ]);
     });
   });
 
