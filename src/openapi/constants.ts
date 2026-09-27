@@ -74,6 +74,154 @@ export const SPECIAL_RESOURCE_TYPES: ReadonlySet<string> = new Set([
   "ScalarValue",
 ]);
 
+/**
+ * Observed response-field contracts absent from Launchpad's WADL.
+ *
+ * Keys are representation IDs, not resource types: diff/write representations
+ * have independent contracts. Null-only observations establish nullability,
+ * but not a non-null type; buildSchemas retains a type only when WADL supplies it.
+ */
+export const REVIEWED_RESOURCE_FIELDS: Record<
+  string,
+  {
+    integer?: readonly string[];
+    boolean?: readonly string[];
+    stringArray?: readonly string[];
+    object?: readonly string[];
+    nullable?: readonly string[];
+  }
+> = {
+  "bug-full": {
+    integer: [
+      "id",
+      "heat",
+      "number_of_duplicates",
+      "message_count",
+      "users_affected_count",
+      "users_unaffected_count",
+      "users_affected_count_with_dupes",
+      "other_users_affected_count_with_dupes",
+    ],
+    boolean: ["private", "security_related"],
+    stringArray: ["tags"],
+    nullable: [
+      "duplicate_of_link",
+      "who_made_private_link",
+      "date_made_private",
+      "latest_patch_uploaded",
+      "lock_reason",
+    ],
+  },
+  "project-full": {
+    boolean: [
+      "active",
+      "commercial_subscription_is_due",
+      "official_answers",
+      "official_blueprints",
+      "official_bugs",
+      "official_codehosting",
+      "private",
+      "qualifies_for_free_hosting",
+    ],
+    stringArray: ["licenses", "official_bug_tags"],
+    object: ["content_templates"],
+    nullable: [
+      "bug_tracker_link",
+      "download_url",
+      "driver_link",
+      "freshmeat_project",
+      "homepage_url",
+      "remote_product",
+      "screenshots_url",
+      "sourceforge_project",
+      "translation_focus_link",
+      "translationgroup_link",
+    ],
+  },
+  "distribution-full": {
+    boolean: [
+      "active",
+      "commercial_subscription_is_due",
+      "official_answers",
+      "official_blueprints",
+      "official_bugs",
+      "official_codehosting",
+      "official_packages",
+      "private",
+      "redirect_default_traversal",
+      "redirect_release_uploads",
+      "supports_mirrors",
+      "supports_ppas",
+    ],
+    stringArray: ["official_bug_tags"],
+    nullable: [
+      "commercial_subscription_link",
+      "content_templates",
+      "homepage_content",
+      "oci_project_admin_link",
+    ],
+  },
+  "team-full": {
+    integer: ["default_membership_period", "karma"],
+    boolean: [
+      "hide_email_addresses",
+      "is_probationary",
+      "is_team",
+      "is_ubuntu_coc_signer",
+      "is_valid",
+      "private",
+    ],
+    nullable: [
+      "default_renewal_period",
+      "homepage_content",
+      "preferred_email_address_link",
+    ],
+  },
+  "archive-full": {
+    integer: ["relative_build_score"],
+    boolean: [
+      "build_debug_symbols",
+      "permit_obsolete_series_uploads",
+      "private",
+      "publish",
+      "publish_debug_symbols",
+      "require_virtualized",
+      "suppress_subscription_notifications",
+    ],
+    stringArray: ["official_bug_tags"],
+    nullable: [
+      "authorized_size",
+      "bug_reported_acknowledgement",
+      "bug_reporting_guidelines",
+      "content_templates",
+      "external_dependencies",
+      "metadata_overrides",
+      "signing_key_fingerprint",
+    ],
+  },
+  "git_repository-full": {
+    integer: ["id", "loose_object_count", "pack_count"],
+    boolean: ["owner_default", "private", "target_default"],
+    nullable: ["builder_constraints", "code_import_link", "description"],
+  },
+  "bug_task-full": {
+    boolean: ["is_complete"],
+    nullable: [
+      "assignee_link",
+      "bug_watch_link",
+      "date_assigned",
+      "date_closed",
+      "date_deferred",
+      "date_fix_released",
+      "date_incomplete",
+      "date_left_new",
+      "importance_explanation",
+      "milestone_link",
+      "status_explanation",
+    ],
+  },
+};
+
 export const INTEGER_PARAM_NAMES: ReadonlySet<string> = new Set([
   "total_size",
   "start",

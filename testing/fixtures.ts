@@ -3,7 +3,7 @@
  * GNU Lesser General Public License version 3 (see the file LICENSE).
  */
 
-/** Shared static WADL fixtures for parser and generator tests. */
+/** WADL test inputs, with runtime links kept beside the sample they describe. */
 
 /** Shared Launchpad-style WADL for parser and common generator behavior. */
 export const sampleWadl = `<?xml version="1.0"?>
@@ -124,11 +124,20 @@ export const sampleWadl = `<?xml version="1.0"?>
   <wadl:resource_type><wadl:method name="GET"/></wadl:resource_type>
 </wadl:application>`;
 
+/** Runtime links whose path segments differ from WADL field names. */
+export const serviceRootLinks: Record<string, string> = {
+  people_collection_link: "https://api.launchpad.test/1.0/people/",
+  me_link: "https://api.launchpad.test/1.0/people/+me/",
+};
+
 /** A valid WADL document with no resource types. */
 export const emptyWadl = `<?xml version="1.0"?>
 <wadl:application xmlns:wadl="http://research.sun.com/wadl/2006/10">
   <wadl:resources base="https://api.launchpad.test/devel/"/>
 </wadl:application>`;
+
+/** A document without the required WADL application root. */
+export const notWadl = `<not-application/>`;
 
 /** A compact WADL document covering generator-only edge cases. */
 export const generatorEdgeWadl = `<?xml version="1.0"?>
@@ -204,11 +213,38 @@ export const generatorEdgeWadl = `<?xml version="1.0"?>
   </wadl:representation>
 </wadl:application>`;
 
-/** A document without the required WADL application root. */
-export const notWadl = `<not-application/>`;
-
-/** Runtime links whose path segments differ from WADL field names. */
-export const serviceRootLinks: Record<string, string> = {
-  people_collection_link: "https://api.launchpad.test/1.0/people/",
-  me_link: "https://api.launchpad.test/1.0/people/+me/",
-};
+/** Synthetic resource representations for observed full-field types and independent diff fields. */
+export const resourceFieldContractsWadl = `<?xml version="1.0"?>
+<wadl:application xmlns:wadl="http://research.sun.com/wadl/2006/10"
+                  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wadl:resources base="https://api.launchpad.test/devel/"/>
+  <wadl:representation mediaType="application/json" id="bug-full">
+    <wadl:param name="id" required="true"/>
+    <wadl:param name="heat" required="true"/>
+    <wadl:param name="private" required="true"/>
+    <wadl:param name="security_related"/>
+    <wadl:param name="tags" required="true"/>
+    <wadl:param name="duplicate_of_link" required="true">
+      <wadl:link resource_type="#bug"/>
+    </wadl:param>
+    <wadl:param name="opaque_payload"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="bug-diff">
+    <wadl:param name="private" type="xsd:string"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="project-full">
+    <wadl:param name="active" required="true"/>
+    <wadl:param name="licenses" required="true"/>
+    <wadl:param name="content_templates" required="true"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="project-diff">
+    <wadl:param name="content_templates" type="xsd:string"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="distribution-full">
+    <wadl:param name="content_templates" required="true"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="archive-full">
+    <wadl:param name="relative_build_score" required="true"/>
+    <wadl:param name="authorized_size" required="true"/>
+  </wadl:representation>
+</wadl:application>`;

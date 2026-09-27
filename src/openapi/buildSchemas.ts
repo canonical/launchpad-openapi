@@ -9,7 +9,7 @@ import type {
   SchemasObject,
 } from "openapi3-ts/oas30";
 import type { WadlParam, WadlRepresentation } from "../wadl/index.js";
-import { ENTRY_SELF_LINK_PATH } from "./constants.js";
+import { ENTRY_SELF_LINK_PATH, REVIEWED_RESOURCE_FIELDS } from "./constants.js";
 import buildParamSchema from "./buildParamSchema.js";
 
 /** Build reusable component schemas from WADL JSON representations. */
@@ -19,24 +19,45 @@ export default function buildSchemas(
   const schemaIds = new Set(Object.keys(representations));
   const schemas: SchemasObject = {};
   for (const [id, representation] of Object.entries(representations)) {
-    schemas[id] = buildRepresentationSchema(representation, schemaIds);
+    schemas[id] = buildRepresentationSchema(id, representation, schemaIds);
   }
   return schemas;
 }
 
 /** Build one representation and its collection item schema. */
 function buildRepresentationSchema(
+  id: string,
   representation: WadlRepresentation,
   schemaIds: Set<string>,
 ): SchemaObject {
   const properties: Record<string, SchemaObject> = {};
   const required: string[] = [];
   const entryItems = findEntryItemsSchema(representation.fields, schemaIds);
+  const reviewedFields = REVIEWED_RESOURCE_FIELDS[id];
 
   for (const field of representation.fields) {
     // `[*]` describes collection entries, not a direct object property.
     if (field.path?.includes("[*]")) continue;
-    const property = buildParamSchema(field);
+    let fieldType:
+      | "integer"
+      | "boolean"
+      | "string-array"
+      | "object"
+      | "unknown" = "unknown";
+    if (reviewedFields?.integer?.includes(field.name)) {
+      fieldType = "integer";
+    } else if (reviewedFields?.boolean?.includes(field.name)) {
+      fieldType = "boolean";
+    } else if (reviewedFields?.stringArray?.includes(field.name)) {
+      fieldType = "string-array";
+    } else if (reviewedFields?.object?.includes(field.name)) {
+      fieldType = "object";
+    }
+    const property = buildParamSchema(
+      field,
+      fieldType,
+      reviewedFields?.nullable?.includes(field.name) ?? false,
+    );
     if (field.name === "entries" && entryItems) {
       property.items = entryItems;
     }
