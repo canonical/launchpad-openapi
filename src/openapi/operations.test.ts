@@ -265,7 +265,6 @@ describe("buildNamedOperation", () => {
             type: "string",
             format: "uri",
             "x-lp-resource-type": "bug",
-            example: "launchpad",
           },
         },
         {

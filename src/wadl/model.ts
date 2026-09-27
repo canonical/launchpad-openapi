@@ -21,6 +21,10 @@ export class WadlParam {
     public readonly doc: string | undefined,
     public readonly linkResourceType: string | undefined,
     public readonly options: string[] | undefined,
+    public readonly dataType:
+      | { name: string; namespaceUri: string | undefined }
+      | undefined,
+    public readonly repeating: boolean,
   ) {}
 
   /** Read one `<param>` element; omit elements without a name. */
@@ -38,6 +42,8 @@ export class WadlParam {
       documentationText(raw),
       fragmentId(childElements(raw, "link")[0]?.attributes.resource_type),
       options.length === 0 ? undefined : options,
+      resolveDataType(raw),
+      raw.attributes.repeating === "true",
     );
   }
 }
@@ -178,6 +184,29 @@ export class WadlDocument {
       resourceTypes,
     );
   }
+}
+
+/** Resolve a param type's QName using the nearest in-scope namespace binding. */
+function resolveDataType(
+  raw: XmlElement,
+): { name: string; namespaceUri: string | undefined } | undefined {
+  const type = raw.attributes.type;
+  if (type === undefined) return undefined;
+  const parts = type.split(":");
+  if (
+    parts.length > 2 ||
+    parts.some((part) => part.length === 0 || /\s/.test(part))
+  ) {
+    return undefined;
+  }
+  const name = parts[parts.length - 1];
+  const binding = parts.length === 2 ? `xmlns:${parts[0]}` : "xmlns";
+  for (let element: XmlElement | null = raw; element !== null;) {
+    const namespaceUri = element.attributes[binding];
+    if (namespaceUri !== undefined) return { name, namespaceUri };
+    element = element.parent instanceof XmlElement ? element.parent : null;
+  }
+  return { name, namespaceUri: undefined };
 }
 
 /** Return child XML elements with the requested local name. */
