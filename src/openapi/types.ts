@@ -10,3 +10,12 @@ export interface GenerateOptions {
   version?: string;
   serviceRootLinks?: Record<string, string>;
 }
+
+/** Observed field kinds and nulls, scoped to one WADL representation. */
+export interface ReviewedFields {
+  integer?: readonly string[];
+  boolean?: readonly string[];
+  stringArray?: readonly string[];
+  object?: readonly string[];
+  nullable?: readonly string[];
+}

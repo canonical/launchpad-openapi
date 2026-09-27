@@ -48,8 +48,11 @@ function xsdSchema(dataType: WadlParam["dataType"]): SchemaObject | undefined {
   }
 }
 
-/** Convert a WADL parameter into an OpenAPI schema fragment. */
-export default function buildParamSchema(param: WadlParam): SchemaObject {
+/** Convert a WADL parameter, optionally overriding its untyped fallback. */
+export default function buildParamSchema(
+  param: WadlParam,
+  untypedSchema?: SchemaObject,
+): SchemaObject {
   let item: SchemaObject;
   if (param.linkResourceType !== undefined) {
     item = {
@@ -93,12 +96,14 @@ export default function buildParamSchema(param: WadlParam): SchemaObject {
       }
     } else if (param.options !== undefined) {
       item = { type: "string", enum: param.options };
+    } else if (untypedSchema?.type !== undefined) {
+      item = untypedSchema;
     } else if (INTEGER_PARAM_NAMES.has(param.name)) {
       item = { type: "integer" };
     } else if (param.name === "entries") {
       item = { type: "array", items: { type: "object" } };
     } else {
-      item = { type: "string" };
+      item = untypedSchema ?? { type: "string" };
     }
   }
   const schema: SchemaObject =
@@ -122,6 +127,7 @@ function buildParamExample(name: string, schema: SchemaObject): unknown {
   if (schema.format === "byte") return "YQ==";
   if (schema.format === "date") return "2026-01-01";
   if (schema.format === "date-time") return "2026-01-01T00:00:00Z";
+  if (schema.type === undefined || schema.type === "object") return undefined;
   const curatedExample = EXAMPLE_BY_PARAM[name];
   if (schema.format === "uri") {
     const hasUriScheme =

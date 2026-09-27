@@ -17,7 +17,7 @@ import generateOpenApi from "./generateOpenApi.js";
 
 describe("generateOpenApi", () => {
   describe("complete documents", () => {
-    it("assembles the full document from the sample WADL", () => {
+    it("assembles resource and operation contracts from the sample WADL", () => {
       const model = parseWadl(sampleWadl).unwrap();
       const result = generateOpenApi(model, {
         version: "fixture",
@@ -25,7 +25,48 @@ describe("generateOpenApi", () => {
       });
       assert(Result.isOk(result));
 
-      expect(result.value).toMatchSnapshot();
+      expect(result.value.openapi).toBe("3.0.3");
+      expect(result.value.info.version).toBe("fixture");
+      expect(result.value.servers).toEqual([
+        { url: "https://api.launchpad.test/1.0" },
+      ]);
+      expect(result.value.components?.schemas?.["person-full"]).toMatchObject({
+        type: "object",
+        properties: {
+          self_link: { type: "string", format: "uri" },
+          name: { description: "The name." },
+          subscription_policy: { type: "string", enum: ["Open", "Moderated"] },
+        },
+        required: ["name", "subscription_policy"],
+      });
+      expect(
+        result.value.paths["/people"]?.get?.responses["200"],
+      ).toMatchObject({
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/person-page" },
+          },
+        },
+      });
+      expect(
+        result.value.paths["/people?ws.op=getByName"]?.get?.parameters,
+      ).toMatchObject([
+        {
+          name: "name",
+          in: "query",
+          required: true,
+          schema: { type: "string", example: "ubuntu" },
+        },
+      ]);
+      expect(
+        result.value.paths["/people/+me"]?.patch?.requestBody,
+      ).toMatchObject({
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/person-diff" },
+          },
+        },
+      });
     });
 
     it("derives the version from the base URL and handles untitled metadata", () => {

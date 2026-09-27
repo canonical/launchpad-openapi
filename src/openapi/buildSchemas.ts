@@ -9,8 +9,9 @@ import type {
   SchemasObject,
 } from "openapi3-ts/oas30";
 import type { WadlParam, WadlRepresentation } from "../wadl/index.js";
-import { ENTRY_SELF_LINK_PATH } from "./constants.js";
+import { ENTRY_SELF_LINK_PATH, REVIEWED_RESOURCE_FIELDS } from "./constants.js";
 import buildParamSchema from "./buildParamSchema.js";
+import type { ReviewedFields } from "./types.js";
 
 /** Build reusable component schemas from WADL JSON representations. */
 export default function buildSchemas(
@@ -19,24 +20,26 @@ export default function buildSchemas(
   const schemaIds = new Set(Object.keys(representations));
   const schemas: SchemasObject = {};
   for (const [id, representation] of Object.entries(representations)) {
-    schemas[id] = buildRepresentationSchema(representation, schemaIds);
+    schemas[id] = buildRepresentationSchema(id, representation, schemaIds);
   }
   return schemas;
 }
 
 /** Build one representation and its collection item schema. */
 function buildRepresentationSchema(
+  id: string,
   representation: WadlRepresentation,
   schemaIds: Set<string>,
 ): SchemaObject {
   const properties: Record<string, SchemaObject> = {};
   const required: string[] = [];
   const entryItems = findEntryItemsSchema(representation.fields, schemaIds);
+  const reviewedFields = REVIEWED_RESOURCE_FIELDS[id];
 
   for (const field of representation.fields) {
     // `[*]` describes collection entries, not a direct object property.
     if (field.path?.includes("[*]")) continue;
-    const property = buildParamSchema(field);
+    const property = buildResourceFieldSchema(field, reviewedFields);
     if (field.name === "entries" && entryItems) {
       property.items = entryItems;
     }
@@ -48,6 +51,31 @@ function buildRepresentationSchema(
   if (Object.keys(properties).length) schema.properties = properties;
   if (required.length) schema.required = required;
   return schema;
+}
+
+/** Apply reviewed response evidence without rewriting the parsed WADL field. */
+function buildResourceFieldSchema(
+  field: WadlParam,
+  reviewedFields: ReviewedFields | undefined,
+): SchemaObject {
+  let untypedSchema: SchemaObject = {};
+  if (reviewedFields?.integer?.includes(field.name)) {
+    untypedSchema = { type: "integer" };
+  } else if (reviewedFields?.boolean?.includes(field.name)) {
+    untypedSchema = { type: "boolean" };
+  } else if (reviewedFields?.stringArray?.includes(field.name)) {
+    untypedSchema = { type: "array", items: { type: "string" } };
+  } else if (reviewedFields?.object?.includes(field.name)) {
+    untypedSchema = { type: "object" };
+  }
+  const property = buildParamSchema(field, untypedSchema);
+  if (
+    reviewedFields?.nullable?.includes(field.name) &&
+    property.type !== undefined
+  ) {
+    property.nullable = true;
+  }
+  return property;
 }
 
 /** Resolve `entries.items` from an existing entry `-full` component. */
