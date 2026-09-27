@@ -636,6 +636,45 @@ const processUser = (user: User) => { /* ... */ };
 
 ---
 
+## cs:code.naming.intermediate_variables
+
+Introduce a local variable when its name clarifies a non-obvious expression or condition, or when it avoids repeated work. Name the concept it represents: use precise nouns for values and predicates such as `is`, `has`, or `can` for booleans. Keep the declaration near its use and compute it only on paths that need it. Leave obvious one-use expressions inline.
+
+### Do
+
+Give a non-obvious condition a name that describes exactly what it checks
+```typescript
+if (format === "uri") {
+  const hasScheme =
+    candidate !== undefined && /^[a-z][a-z\d+.-]*:/i.test(candidate);
+  if (!hasScheme) return undefined;
+}
+```
+
+Name a calculated value when the name conveys its role
+```typescript
+const retryDelayMs = Math.min(baseDelayMs * 2 ** attempt, maxDelayMs);
+await wait(retryDelayMs);
+```
+
+### Don't
+
+Use a vague name or claim a check establishes more than it does
+```typescript
+// Bad: a scheme prefix alone does not prove the string is a valid URI.
+const isValidUri = /^[a-z][a-z\d+.-]*:/i.test(candidate);
+```
+
+Introduce a variable for an obvious, one-use comparison
+```typescript
+// Bad: the name adds nothing to the expression.
+const isEmpty = items.length === 0;
+if (isEmpty) return;
+// Good: if (items.length === 0) return;
+```
+
+---
+
 ## cs:code.types.file
 
 Reusable domain types must be collected in a `types.ts` file using named exports (no default export), colocated at the level of the domain that owns them. Types that are only used in a single file may be declared inline in that file instead of being extracted to `types.ts`.
