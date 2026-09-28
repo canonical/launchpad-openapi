@@ -5,6 +5,7 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  curatedPathsWadl,
   generatorEdgeWadl,
   sampleWadl,
   serviceRootLinks,
@@ -90,31 +91,88 @@ describe("buildPaths", () => {
       expect(paths["/people/+me?ws.op=getMembers"]?.get).toBeDefined();
     });
 
-    it("builds curated templates and honest placeholder paths", () => {
+    it("uses numeric curated strings as examples, not defaults, on standard and named operations", () => {
       const model = parseWadl(generatorEdgeWadl).unwrap();
       const paths = buildPaths(model, buildSchemas(model.representations));
+      const standard = paths["/bugs/{id}"]?.get;
+      const named = paths["/bugs/{id}?ws.op=isActive"]?.get;
 
-      expect(paths["/bugs/{id}"]?.get?.parameters).toEqual([
-        {
-          name: "id",
-          in: "path",
-          required: true,
-          description:
-            "`id` segment of the bug resource URL (editable; the default is a real instance).",
-          schema: { type: "string", default: "1" },
-        },
-      ]);
-      expect(paths["/bugs/{id}?ws.op=isActive"]?.get).toBeDefined();
-      expect(paths["/{unknown}"]?.get?.parameters).toEqual([
-        {
+      expect(standard?.operationId).toBe("bug-get");
+      expect(named?.operationId).toBe("bug-isActive");
+      for (const operation of [standard, named]) {
+        const parameters = operation?.parameters?.filter(
+          (parameter) => "in" in parameter && parameter.in === "path",
+        );
+        expect.soft(parameters).toEqual([
+          expect.objectContaining({
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string", example: "1" },
+          }),
+        ]);
+        expect.soft(parameters?.[0]).not.toHaveProperty("default");
+      }
+    });
+
+    it.each([
+      {
+        path: "/{distribution}/+archive/{archive}",
+        operationId: "archive-get",
+        examples: [
+          ["distribution", "ubuntu"],
+          ["archive", "primary"],
+        ],
+      },
+      {
+        path: "/{owner}/{project}/+git/{repository}",
+        operationId: "git_repository-get",
+        examples: [
+          ["owner", "~launchpad"],
+          ["project", "launchpad"],
+          ["repository", "launchpad"],
+        ],
+      },
+    ])(
+      "preserves names and example values in $path",
+      ({ path, operationId, examples }) => {
+        const model = parseWadl(curatedPathsWadl).unwrap();
+        const paths = buildPaths(model, buildSchemas(model.representations));
+        const operation = paths[path]?.get;
+
+        expect(operation?.operationId).toBe(operationId);
+        expect.soft(operation?.parameters).toEqual(
+          examples.map(([name, example]) =>
+            expect.objectContaining({
+              name,
+              in: "path",
+              required: true,
+              schema: { type: "string", example },
+            }),
+          ),
+        );
+        operation?.parameters?.forEach((parameter) => {
+          expect.soft(parameter).not.toHaveProperty("default");
+        });
+      },
+    );
+
+    it("keeps unknown-resource placeholders required without invented examples or defaults", () => {
+      const model = parseWadl(generatorEdgeWadl).unwrap();
+      const paths = buildPaths(model, buildSchemas(model.representations));
+      const parameters = paths["/{unknown}"]?.get?.parameters;
+
+      expect(parameters).toEqual([
+        expect.objectContaining({
           name: "unknown",
           in: "path",
           required: true,
-          description:
-            "URL segment of the unknown resource (Launchpad assigns this at runtime; replace with a real instance segment).",
           schema: { type: "string" },
-        },
+        }),
       ]);
+      expect(parameters?.[0]).not.toHaveProperty("example");
+      expect(parameters?.[0]).not.toHaveProperty("examples");
+      expect(parameters?.[0]).not.toHaveProperty("default");
     });
 
     it("skips special, page, unsupported, and verbless POST resources", () => {

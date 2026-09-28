@@ -213,6 +213,18 @@ export const generatorEdgeWadl = `<?xml version="1.0"?>
   </wadl:representation>
 </wadl:application>`;
 
+/** Curated multi-segment resources with literal routing markers. */
+export const curatedPathsWadl = `<?xml version="1.0"?>
+<wadl:application xmlns:wadl="http://research.sun.com/wadl/2006/10">
+  <wadl:resources base="https://api.launchpad.test/devel/"/>
+  <wadl:resource_type id="archive">
+    <wadl:method name="GET" id="archive-get"/>
+  </wadl:resource_type>
+  <wadl:resource_type id="git_repository">
+    <wadl:method name="GET" id="git_repository-get"/>
+  </wadl:resource_type>
+</wadl:application>`;
+
 /** Synthetic resource representations for observed full-field types and independent diff fields. */
 export const resourceFieldContractsWadl = `<?xml version="1.0"?>
 <wadl:application xmlns:wadl="http://research.sun.com/wadl/2006/10"
