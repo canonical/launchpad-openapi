@@ -43,7 +43,7 @@ export const EXAMPLE_BY_PARAM: Record<string, string> = {
   name_or_version: "resolute",
 };
 
-/** Curated paths whose `{name=default}` segments become editable variables. */
+/** Curated paths whose `{name=example}` segments define required path parameters with examples. */
 export const EXAMPLE_BY_RESOURCE: Record<string, string> = {
   distribution: "{distribution=ubuntu}",
   project: "{project=launchpad}",

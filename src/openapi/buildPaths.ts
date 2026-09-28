@@ -34,7 +34,7 @@ interface ResourcePath {
   pathParams: ParameterObject[];
 }
 
-/** Match editable `{name=default}` path segments. */
+/** Match editable `{name=example}` path segments. */
 const RESOURCE_PATH_PARAM_PATTERN = /^\{([^=}]+)=(.*)\}$/;
 
 /**
@@ -187,7 +187,7 @@ function stripCollectionLinkSuffix(name: string): string {
 }
 
 /**
- * Convert a curated template into a path and editable parameters.
+ * Convert a curated template into a path and required parameters with examples.
  *
  * Missing templates receive one placeholder segment.
  */
@@ -220,8 +220,8 @@ function buildResourcePath(
       name,
       in: "path",
       required: true,
-      description: `\`${name}\` segment of the ${resourceTypeId} resource URL (editable; the default is a real instance).`,
-      schema: { type: "string", default: value },
+      description: `\`${name}\` segment of the ${resourceTypeId} resource URL (required; the example is a real instance, not a runtime default).`,
+      schema: { type: "string", example: value },
     });
     return `{${name}}`;
   });
