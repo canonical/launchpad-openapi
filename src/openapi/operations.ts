@@ -6,9 +6,8 @@
 /**
  * Builds OpenAPI operations from standard and `ws.op` WADL methods.
  *
- * Shared helpers keep parameter and response handling consistent. WADL
- * methods declare no status codes or failure shapes, so every operation
- * documents only its 200 success response.
+ * Shared helpers retain declared WADL statuses, media, and schemas; methods
+ * without status metadata keep their legacy 200 response behavior.
  */
 
 import type {
@@ -20,7 +19,7 @@ import type {
   SchemaObject,
   SchemasObject,
 } from "openapi3-ts/oas30";
-import type { WadlMethod, WadlParam } from "../wadl/index.js";
+import type { WadlMethod, WadlParam, WadlResponse } from "../wadl/index.js";
 import {
   BRANCH_FULL_SCHEMA_ID,
   FORM_MEDIA_TYPE,
@@ -47,7 +46,7 @@ interface NamedOperationArgs {
   schemas: SchemasObject;
 }
 
-/** Build a standard resource operation with its parameters and schemas. */
+/** Build a resource operation, retaining declared responses or a legacy 200. */
 export function buildStandardOperation({
   method,
   verb,
@@ -56,11 +55,19 @@ export function buildStandardOperation({
   pathParams,
   schemas,
 }: StandardOperationArgs): OperationObject {
-  const responseSchema =
-    verb === "delete"
-      ? undefined
-      : findResponseSchema(method.responseRepresentationIds, schemas);
-  const responseId = responseSchema?.$ref?.split("/").at(-1);
+  const responseId =
+    verb === "get"
+      ? findResponseSchema(
+          method.responses.filter(
+            (response) =>
+              response.statusCodes.length === 0 ||
+              response.statusCodes.some((status) => status.startsWith("2")),
+          ),
+          schemas,
+        )
+          ?.$ref.split("/")
+          .at(-1)
+      : undefined;
   const action =
     verb === "get" && responseId?.endsWith("-page")
       ? "List"
@@ -70,10 +77,11 @@ export function buildStandardOperation({
     summary: `${action} ${toLowercaseWords(resourceTypeId)}`.trim(),
     description: resourceTypeDoc,
     operationId: method.id,
-    responses:
+    responses: buildResponses(method.responses, schemas, (statusless) =>
       verb === "delete"
-        ? { "200": { description: "Resource deleted." } }
-        : { "200": buildOkResponse(responseSchema) },
+        ? { description: "Resource deleted." }
+        : buildOkResponse(findResponseSchema(statusless, schemas)),
+    ),
   };
   if (pathParams.length) operation.parameters = [...pathParams];
 
@@ -101,7 +109,7 @@ const ACTION_BY_VERB: Record<SupportedHttpMethod, string> = {
   delete: "Delete",
 };
 
-/** Build a named `ws.op` operation with query or form parameters. */
+/** Build a named `ws.op` operation with declared or inferred responses. */
 export function buildNamedOperation({
   method,
   wsOp,
@@ -129,40 +137,44 @@ export function buildNamedOperation({
   }
   if (parameters.length) operation.parameters = parameters;
 
-  const responseSchema = findResponseSchema(
-    method.responseRepresentationIds,
+  const nullableBranch =
+    resourceTypeId === "branches" && wsOp === "getByPath"
+      ? findNullableBranchSchema(schemas)
+      : undefined;
+  operation.responses = buildResponses(
+    method.responses,
     schemas,
-  );
-  if (responseSchema !== undefined) {
-    const selectedResponseSchema =
-      resourceTypeId === "branches" &&
-      wsOp === "getByPath" &&
-      responseSchema.$ref === `#/components/schemas/${BRANCH_FULL_SCHEMA_ID}`
-        ? (findNullableBranchSchema(schemas) ?? responseSchema)
-        : responseSchema;
-    operation.responses = { "200": buildOkResponse(selectedResponseSchema) };
-  } else {
-    const returnDoc = findReturnDoc(method.doc);
-    let responseBodySchema: SchemaObject | undefined;
-    if (
-      resourceTypeId === "branches" &&
-      wsOp === "getByUrls" &&
-      method.responseRepresentationIds.length === 0
-    ) {
-      const nullableBranch = findNullableBranchSchema(schemas);
-      if (nullableBranch !== undefined) {
-        responseBodySchema = {
-          type: "object",
-          additionalProperties: nullableBranch,
-        };
+    (statusless) => {
+      const responseSchema = findResponseSchema(statusless, schemas);
+      if (responseSchema !== undefined) {
+        const selectedResponseSchema =
+          responseSchema.$ref ===
+          `#/components/schemas/${BRANCH_FULL_SCHEMA_ID}`
+            ? (nullableBranch ?? responseSchema)
+            : responseSchema;
+        return buildOkResponse(selectedResponseSchema);
       }
-    } else {
-      responseBodySchema = inferResponseSchema(returnDoc);
-    }
-    operation.responses = {
-      "200": buildOkResponse(responseBodySchema, returnDoc),
-    };
-  }
+      const returnDoc = findReturnDoc(method.doc);
+      let responseBodySchema: SchemaObject | undefined;
+      if (
+        resourceTypeId === "branches" &&
+        wsOp === "getByUrls" &&
+        statusless.every((response) => response.representations.length === 0)
+      ) {
+        const mappingBranchSchema = findNullableBranchSchema(schemas);
+        if (mappingBranchSchema !== undefined) {
+          responseBodySchema = {
+            type: "object",
+            additionalProperties: mappingBranchSchema,
+          };
+        }
+      } else {
+        responseBodySchema = inferResponseSchema(returnDoc);
+      }
+      return buildOkResponse(responseBodySchema, returnDoc);
+    },
+    nullableBranch,
+  );
   return operation;
 }
 
@@ -248,19 +260,138 @@ function buildQueryParameter(
   return parameter;
 }
 
-/**
- * Resolve the first known response component; WADL may list non-JSON first.
- *
- * References only schemas that exist; never emits a dangling `$ref`.
- */
+/** Retain the legacy first-known response reference regardless of media. */
 function findResponseSchema(
-  representationIds: string[],
+  responses: WadlResponse[],
   schemas: SchemasObject,
 ): ReferenceObject | undefined {
-  for (const id of representationIds) {
-    if (id in schemas) return { $ref: `#/components/schemas/${id}` };
+  for (const response of responses) {
+    for (const representation of response.representations) {
+      if (representation.id !== undefined && representation.id in schemas) {
+        return { $ref: `#/components/schemas/${representation.id}` };
+      }
+    }
   }
   return undefined;
+}
+
+/**
+ * Keep declared statuses and their media together; infer a legacy 200 only
+ * when a WADL response has no status or no response was declared at all.
+ */
+function buildResponses(
+  wadlResponses: WadlResponse[],
+  schemas: SchemasObject,
+  legacyResponse: (statusless: WadlResponse[]) => ResponseObject,
+  nullableBranch?: SchemaObject | ReferenceObject,
+): Record<string, ResponseObject> {
+  const responses: Record<string, ResponseObject> = {};
+  const statusless: WadlResponse[] = [];
+  for (const wadlResponse of wadlResponses) {
+    if (wadlResponse.statusCodes.length === 0) {
+      statusless.push(wadlResponse);
+      continue;
+    }
+    for (const status of wadlResponse.statusCodes) {
+      const response = (responses[status] ??= {
+        description: wadlResponse.doc ?? "Response",
+      });
+      if (wadlResponse.doc && response.description === "Response") {
+        response.description = wadlResponse.doc;
+      }
+      addRepresentations(
+        response,
+        wadlResponse,
+        schemas,
+        status.startsWith("2") ? nullableBranch : undefined,
+      );
+    }
+  }
+  if (statusless.length > 0 || Object.keys(responses).length === 0) {
+    const fallback = legacyResponse(statusless);
+    const doc = statusless.find((response) => response.doc)?.doc;
+    if (doc !== undefined) fallback.description = doc;
+    const existing = responses["200"];
+    if (existing === undefined) {
+      responses["200"] = fallback;
+    } else {
+      if (existing.description === "Response") {
+        existing.description = fallback.description;
+      }
+      for (const [media, value] of Object.entries(fallback.content ?? {})) {
+        mergeResponseMedia(existing, media, value.schema);
+      }
+    }
+  }
+  return responses;
+}
+
+/** Recognize JSON media types, including structured suffixes and parameters. */
+function isJsonMediaType(media: string): boolean {
+  return /^application\/(?:json|[^/;\s]+\+json)(?:\s*;|$)/i.test(media);
+}
+
+/**
+ * Merge schemas as alternatives when WADL declares the same status/media twice.
+ * @note - Mutates the response being assembled by the caller.
+ */
+function mergeResponseMedia(
+  response: ResponseObject,
+  media: string,
+  schema: SchemaObject | ReferenceObject | undefined,
+): void {
+  const content = (response.content ??= {});
+  const current = content[media];
+  if (schema === undefined) {
+    content[media] ??= {};
+    return;
+  }
+  const previous = current?.schema;
+  if (previous === undefined) {
+    content[media] = { schema };
+    return;
+  }
+  const alternatives = "$ref" in previous ? undefined : previous.anyOf;
+  const candidates = alternatives ?? [previous];
+  const duplicate = candidates.some(
+    (candidate) =>
+      candidate === schema ||
+      ("$ref" in candidate &&
+        "$ref" in schema &&
+        candidate.$ref === schema.$ref),
+  );
+  if (!duplicate) {
+    content[media] = { schema: { anyOf: [...candidates, schema] } };
+  }
+}
+
+/**
+ * Attach advertised media and resolved JSON references without guessing unknown types.
+ * @note - Mutates the response being assembled by the caller.
+ */
+function addRepresentations(
+  response: ResponseObject,
+  wadlResponse: WadlResponse,
+  schemas: SchemasObject,
+  nullableBranch?: SchemaObject | ReferenceObject,
+): void {
+  for (const representation of wadlResponse.representations) {
+    const media =
+      representation.mediaType ??
+      (representation.id !== undefined && representation.id in schemas
+        ? JSON_MEDIA_TYPE
+        : undefined);
+    if (!media) continue;
+    const schema =
+      isJsonMediaType(media) &&
+      representation.id !== undefined &&
+      representation.id in schemas
+        ? representation.id === BRANCH_FULL_SCHEMA_ID && nullableBranch
+          ? nullableBranch
+          : { $ref: `#/components/schemas/${representation.id}` }
+        : undefined;
+    mergeResponseMedia(response, media, schema);
+  }
 }
 
 /** Build a successful response with an optional JSON schema. */

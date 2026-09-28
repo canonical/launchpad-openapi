@@ -8,6 +8,7 @@ import { assert, describe, expect, it } from "vitest";
 import {
   branchLookupWadl,
   generatorEdgeWadl,
+  responseStatusWadl,
   sampleWadl,
 } from "../../testing/fixtures.js";
 import { parseWadl, type WadlMethod } from "../wadl/index.js";
@@ -176,9 +177,86 @@ describe("buildStandardOperation", () => {
       });
     });
   });
+  describe("declared responses", () => {
+    const model = parseWadl(responseStatusWadl).unwrap();
+    const methods = model.resourceTypes.widget?.methods;
+    assert(methods !== undefined);
+    const schemas = buildSchemas(model.representations);
+
+    it("shares a standard response across status codes without moving media or schemas", () => {
+      const method = methods.find((candidate) => candidate.id === "widget-get");
+      assert(method !== undefined);
+      const operation = buildStandardOperation({
+        method,
+        verb: "get",
+        resourceTypeId: "widget",
+        pathParams: [],
+        schemas,
+      });
+
+      expect(Object.keys(operation.responses)).toEqual(["200", "206", "404"]);
+      for (const status of ["200", "206"]) {
+        expect(operation.responses[status]?.content).toEqual({
+          "application/json": {
+            schema: { $ref: "#/components/schemas/widget-full" },
+          },
+          "text/csv": {},
+        });
+      }
+      expect(operation.responses["404"]?.content).toEqual({
+        "application/json": {},
+      });
+    });
+
+    it("honors an explicitly empty DELETE response", () => {
+      const method = methods.find(
+        (candidate) => candidate.id === "widget-delete",
+      );
+      assert(method !== undefined);
+      const operation = buildStandardOperation({
+        method,
+        verb: "delete",
+        resourceTypeId: "widget",
+        pathParams: [],
+        schemas,
+      });
+
+      expect(Object.keys(operation.responses)).toEqual(["204"]);
+      expect(operation.responses["204"]).not.toHaveProperty("content");
+    });
+  });
 });
 
 describe("buildNamedOperation", () => {
+  it("retains named POST success, error, and schema-less non-JSON statuses", () => {
+    const model = parseWadl(responseStatusWadl).unwrap();
+    const methods = model.resourceTypes.widget?.methods;
+    assert(methods !== undefined);
+    const schemas = buildSchemas(model.representations);
+
+    const method = findMethod(methods, "create");
+    const operation = buildNamedOperation({
+      method,
+      wsOp: "create",
+      resourceTypeId: "widget",
+      pathParams: [],
+      schemas,
+    });
+
+    expect(Object.keys(operation.responses)).toEqual(["201", "400", "415"]);
+    expect(operation.responses["201"]?.content).toEqual({
+      "application/json": {
+        schema: { $ref: "#/components/schemas/widget-full" },
+      },
+    });
+    expect(operation.responses["400"]?.content).toEqual({
+      "application/json": {
+        schema: { $ref: "#/components/schemas/widget-error" },
+      },
+    });
+    expect(operation.responses["415"]?.content).toEqual({ "text/plain": {} });
+  });
+
   describe("query operations", () => {
     it("builds documented query parameters and represented responses", () => {
       const model = parseWadl(sampleWadl).unwrap();
@@ -218,6 +296,7 @@ describe("buildNamedOperation", () => {
           },
         },
       });
+      expect(Object.keys(operation.responses)).toEqual(["200"]);
     });
 
     it("maps parameter schema kinds and type-appropriate examples", () => {

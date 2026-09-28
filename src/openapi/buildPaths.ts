@@ -4,6 +4,7 @@
  */
 
 import type {
+  OperationObject,
   ParameterObject,
   PathItemObject,
   PathsObject,
@@ -65,9 +66,10 @@ export default function buildPaths(
         schemas,
       ),
     );
+  const serviceRoot = model.resourceTypes[SERVICE_ROOT_TYPE];
   return {
-    ...(SERVICE_ROOT_TYPE in model.resourceTypes
-      ? { "/": buildServiceRootGetPath(schemas) }
+    ...(serviceRoot
+      ? { "/": buildServiceRootGetPath(serviceRoot, schemas) }
       : {}),
     ...Object.fromEntries(resourceEntries),
   };
@@ -117,23 +119,44 @@ function buildResourceTypeEntries(
   return entries;
 }
 
-/** Build the fixed service-root GET path. */
-function buildServiceRootGetPath(schemas: SchemasObject): PathItemObject {
-  // Reference the schema only when it exists; never emit a dangling `$ref`.
-  const schema =
-    SERVICE_ROOT_REPRESENTATION in schemas
-      ? { $ref: `#/components/schemas/${SERVICE_ROOT_REPRESENTATION}` }
-      : undefined;
-  const response: ResponseObject = { description: "Successful response" };
-  if (schema !== undefined) {
-    response.content = { [JSON_MEDIA_TYPE]: { schema } };
+/** Keep the fixed service-root metadata, honoring declared GET statuses. */
+function buildServiceRootGetPath(
+  resourceType: WadlResourceType,
+  schemas: SchemasObject,
+): PathItemObject {
+  const method = resourceType.methods.find(
+    (candidate) =>
+      candidate.wsOp === undefined &&
+      candidate.httpMethod.toLowerCase() === "get",
+  );
+  let responses: OperationObject["responses"];
+  if (method?.responses.some((response) => response.statusCodes.length > 0)) {
+    responses = buildStandardOperation({
+      method,
+      verb: "get",
+      resourceTypeId: SERVICE_ROOT_TYPE,
+      pathParams: [],
+      schemas,
+    }).responses;
+  } else {
+    const response: ResponseObject = { description: "Successful response" };
+    if (SERVICE_ROOT_REPRESENTATION in schemas) {
+      response.content = {
+        [JSON_MEDIA_TYPE]: {
+          schema: {
+            $ref: `#/components/schemas/${SERVICE_ROOT_REPRESENTATION}`,
+          },
+        },
+      };
+    }
+    responses = { "200": response };
   }
   return {
     get: {
       tags: [SERVICE_ROOT_TYPE],
       summary: "The root of the web service.",
       operationId: "service-root-get",
-      responses: { "200": response },
+      responses,
     },
   };
 }

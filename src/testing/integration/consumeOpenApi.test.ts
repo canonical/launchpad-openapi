@@ -12,6 +12,7 @@ import { afterEach, assert, describe, expect, it } from "vitest";
 import {
   branchLookupWadl,
   observedBranchLookup,
+  responseStatusWadl,
   sampleWadl,
 } from "../../../testing/fixtures.js";
 import { runCli } from "../../cli/index.js";
@@ -219,5 +220,149 @@ describe("generated branch lookup contracts", () => {
     const validated = await SwaggerParser.validate(output);
     assert("openapi" in validated);
     expect(validated.openapi).toBe("3.0.3");
+  });
+});
+
+describe("generated WADL response statuses", () => {
+  it("retains named and standard responses in a valid OpenAPI document", async () => {
+    const document = generateOpenApi(
+      parseWadl(responseStatusWadl).unwrap(),
+    ).unwrap();
+    const create = document.paths["/{widget}?ws.op=create"]?.post;
+    const widget = document.paths["/{widget}"];
+    assert(create !== undefined && widget?.delete !== undefined);
+
+    const directory = await mkdtemp(
+      join(tmpdir(), "launchpad-openapi-status-consumer-"),
+    );
+    temporaryPaths.push(directory);
+    const output = join(directory, "openapi.json");
+    await writeFile(output, JSON.stringify(document), "utf8");
+    const validated = await SwaggerParser.validate(output);
+    assert("openapi" in validated);
+    expect(validated.openapi).toBe("3.0.3");
+
+    expect(Object.keys(create.responses)).toEqual(["201", "400", "415"]);
+    expect(create.responses["201"]?.content).toEqual({
+      "application/json": {
+        schema: { $ref: "#/components/schemas/widget-full" },
+      },
+    });
+    expect(create.responses["400"]?.content).toEqual({
+      "application/json": {
+        schema: { $ref: "#/components/schemas/widget-error" },
+      },
+    });
+    expect(create.responses["415"]?.content).toEqual({ "text/plain": {} });
+    expect(Object.keys(widget.delete.responses)).toEqual(["204"]);
+    expect(widget.delete.responses["204"]).not.toHaveProperty("content");
+  });
+
+  it("keeps statusless JSON responses free of advertised non-JSON media", () => {
+    const document = generateOpenApi(
+      parseWadl(responseStatusWadl).unwrap(),
+    ).unwrap();
+    const operation = document.paths["/{widget}?ws.op=statuslessMedia"]?.get;
+    assert(operation !== undefined);
+
+    expect(Object.keys(operation.responses)).toEqual(["200"]);
+    expect(operation.responses["200"]?.content).toEqual({
+      "application/json": {
+        schema: { $ref: "#/components/schemas/widget-full" },
+      },
+    });
+  });
+
+  it("retains legacy JSON schema for a statusless nonstandard-media reference", () => {
+    const wadl = responseStatusWadl.replace(
+      '<wadl:response>\n        <wadl:representation href="#widget-full" mediaType="application/json"/>',
+      '<wadl:response>\n        <wadl:representation href="#widget-full" mediaType="application/problem+json"/>',
+    );
+    assert(wadl !== responseStatusWadl);
+    const document = generateOpenApi(parseWadl(wadl).unwrap()).unwrap();
+    const operation = document.paths["/{widget}?ws.op=statuslessMedia"]?.get;
+    assert(operation !== undefined);
+
+    expect(Object.keys(operation.responses)).toEqual(["200"]);
+    expect(operation.responses["200"]?.content).toEqual({
+      "application/json": {
+        schema: { $ref: "#/components/schemas/widget-full" },
+      },
+    });
+  });
+
+  it("honors an explicit service-root status without losing its operation metadata", () => {
+    const wadl = sampleWadl.replace(
+      '<wadl:response><wadl:representation href="#service-root-json"/></wadl:response>',
+      '<wadl:response status="201"><wadl:representation href="#service-root-json"/></wadl:response>',
+    );
+    const document = generateOpenApi(parseWadl(wadl).unwrap()).unwrap();
+    const root = document.paths["/"]?.get;
+    assert(root !== undefined);
+
+    expect(root).toMatchObject({
+      tags: ["service-root"],
+      operationId: "service-root-get",
+    });
+    expect(Object.keys(root.responses)).toEqual(["201"]);
+    expect(root.responses["201"]?.content).toEqual({
+      "application/json": {
+        schema: { $ref: "#/components/schemas/service-root-json" },
+      },
+    });
+  });
+
+  it("keeps explicit JSON-family schemas under their advertised media types", () => {
+    const wadl = responseStatusWadl
+      .replace(
+        'href="#widget-full" mediaType="application/json"',
+        'href="#widget-full" mediaType="application/problem+json"',
+      )
+      .replace(
+        'href="#widget-error" mediaType="application/json"',
+        'href="#widget-error" mediaType="application/json; charset=utf-8"',
+      );
+    const document = generateOpenApi(parseWadl(wadl).unwrap()).unwrap();
+    const create = document.paths["/{widget}?ws.op=create"]?.post;
+    assert(create !== undefined);
+
+    expect(create.responses["201"]?.content).toEqual({
+      "application/problem+json": {
+        schema: { $ref: "#/components/schemas/widget-full" },
+      },
+    });
+    expect(create.responses["400"]?.content).toEqual({
+      "application/json; charset=utf-8": {
+        schema: { $ref: "#/components/schemas/widget-error" },
+      },
+    });
+  });
+
+  it("preserves both declared schemas for the same status and media", async () => {
+    const wadl = responseStatusWadl.replace(
+      'status="400"><wadl:representation href="#widget-error"',
+      'status="201"><wadl:representation href="#widget-error"',
+    );
+    const document = generateOpenApi(parseWadl(wadl).unwrap()).unwrap();
+    const create = document.paths["/{widget}?ws.op=create"]?.post;
+    assert(create !== undefined);
+
+    const directory = await mkdtemp(
+      join(tmpdir(), "launchpad-openapi-status-union-"),
+    );
+    temporaryPaths.push(directory);
+    const output = join(directory, "openapi.json");
+    await writeFile(output, JSON.stringify(document), "utf8");
+    const validated = await SwaggerParser.validate(output);
+    assert("openapi" in validated);
+    expect(validated.openapi).toBe("3.0.3");
+
+    const schema =
+      create.responses["201"]?.content?.["application/json"]?.schema;
+    assert(schema !== undefined && !("$ref" in schema));
+    expect(schema.oneOf ?? schema.anyOf).toEqual([
+      { $ref: "#/components/schemas/widget-full" },
+      { $ref: "#/components/schemas/widget-error" },
+    ]);
   });
 });

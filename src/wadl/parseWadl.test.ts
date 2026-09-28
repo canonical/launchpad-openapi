@@ -5,7 +5,11 @@
 
 import { Result } from "better-result";
 import { assert, describe, expect, it } from "vitest";
-import { notWadl, sampleWadl } from "../../testing/fixtures.js";
+import {
+  notWadl,
+  responseStatusWadl,
+  sampleWadl,
+} from "../../testing/fixtures.js";
 import { WadlDocument } from "./model.js";
 import parseWadl from "./parseWadl.js";
 
@@ -46,16 +50,30 @@ describe("parseWadl", () => {
       httpMethod: "GET",
       wsOp: "getByName",
       formEncoded: false,
-      responseRepresentationIds: ["person-full"],
+      responses: [
+        { statusCodes: [], representations: [{ id: "person-full" }] },
+      ],
     });
     expect(getByName?.params.map((param) => param.name)).toEqual(["name"]);
     expect(newTeam).toMatchObject({
       wsOp: "newTeam",
       formEncoded: true,
-      responseRepresentationIds: [],
+      responses: [],
     });
     expect(newTeam?.params[1]?.options).toEqual(["Open", "Moderated"]);
   });
+
+  for (const status of ["201,400", "   "]) {
+    it(`rejects malformed response status ${JSON.stringify(status)}`, () => {
+      const wadl = responseStatusWadl.replace(
+        'status="201"',
+        `status="${status}"`,
+      );
+      const result = parseWadl(wadl);
+      assert(Result.isError(result));
+      expect(result.error._tag).toBe("WadlParseError");
+    });
+  }
 
   it("returns a typed error when the application root is missing", () => {
     const result = parseWadl(notWadl);

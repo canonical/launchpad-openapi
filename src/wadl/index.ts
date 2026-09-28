@@ -18,6 +18,7 @@ export {
   WadlMethod,
   WadlParam,
   WadlRepresentation,
+  WadlResponse,
   WadlResourceType,
 } from "./model.js";
 export { default as parseWadl } from "./parseWadl.js";

@@ -213,6 +213,46 @@ export const generatorEdgeWadl = `<?xml version="1.0"?>
   </wadl:representation>
 </wadl:application>`;
 
+/** Declared WADL statuses with grouped JSON, non-JSON, and empty responses. */
+export const responseStatusWadl = `<?xml version="1.0"?>
+<wadl:application xmlns:wadl="http://research.sun.com/wadl/2006/10">
+  <wadl:resources base="https://api.launchpad.test/devel/"/>
+  <wadl:resource_type id="widget">
+    <wadl:method name="POST" id="widget-create">
+      <wadl:request><wadl:representation mediaType="application/x-www-form-urlencoded">
+        <wadl:param name="ws.op" fixed="create"/>
+      </wadl:representation></wadl:request>
+      <wadl:response status="201"><wadl:representation href="#widget-full" mediaType="application/json"/></wadl:response>
+      <wadl:response status="400"><wadl:representation href="#widget-error" mediaType="application/json"/></wadl:response>
+      <wadl:response status="415"><wadl:representation mediaType="text/plain"/></wadl:response>
+    </wadl:method>
+    <wadl:method name="GET" id="widget-get">
+      <wadl:response status="200 206">
+        <wadl:representation href="#widget-full" mediaType="application/json"/>
+        <wadl:representation mediaType="text/csv"/>
+      </wadl:response>
+      <wadl:response status="404"><wadl:representation href="#unknown-widget" mediaType="application/json"/></wadl:response>
+    </wadl:method>
+    <wadl:method name="GET" id="widget-statuslessMedia">
+      <wadl:request><wadl:param name="ws.op" fixed="statuslessMedia"/></wadl:request>
+      <wadl:response>
+        <wadl:representation href="#widget-full" mediaType="application/json"/>
+        <wadl:representation href="#widget-html" mediaType="application/xhtml+xml"/>
+      </wadl:response>
+    </wadl:method>
+    <wadl:method name="DELETE" id="widget-delete">
+      <wadl:response status="204"/>
+    </wadl:method>
+  </wadl:resource_type>
+  <wadl:representation id="widget-full" mediaType="application/json">
+    <wadl:param name="name" path="$['name']"/>
+  </wadl:representation>
+  <wadl:representation id="widget-error" mediaType="application/json">
+    <wadl:param name="message" path="$['message']"/>
+  </wadl:representation>
+  <wadl:representation id="widget-html" mediaType="application/xhtml+xml"/>
+</wadl:application>`;
+
 /** Curated multi-segment resources with literal routing markers. */
 export const curatedPathsWadl = `<?xml version="1.0"?>
 <wadl:application xmlns:wadl="http://research.sun.com/wadl/2006/10">

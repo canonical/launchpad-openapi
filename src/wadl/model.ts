@@ -78,6 +78,40 @@ export class WadlRepresentation {
   }
 }
 
+/** A response's representation reference and advertised media type. */
+interface WadlResponseRepresentation {
+  id?: string;
+  mediaType?: string;
+}
+
+/** One WADL response, preserving its statuses and associated representations. */
+export class WadlResponse {
+  private constructor(
+    public readonly statusCodes: string[],
+    public readonly doc: string | undefined,
+    public readonly representations: WadlResponseRepresentation[],
+  ) {}
+
+  /** Read one `<response>` without flattening representations across statuses. */
+  static fromXml(raw: XmlElement): WadlResponse {
+    const status = raw.attributes.status;
+    const statusCodes = status === undefined ? [] : status.trim().split(/\s+/);
+    if (statusCodes.some((code) => !/^[1-5]\d{2}$/.test(code))) {
+      throw new Error(
+        `Invalid WADL response status: ${JSON.stringify(status)}`,
+      );
+    }
+    return new WadlResponse(
+      statusCodes,
+      documentationText(raw),
+      childElements(raw, "representation").map((representation) => ({
+        id: fragmentId(representation.attributes.href),
+        mediaType: representation.attributes.mediaType,
+      })),
+    );
+  }
+}
+
 /** A WADL HTTP method with XML references resolved to fragment ids. */
 export class WadlMethod {
   private constructor(
@@ -88,7 +122,7 @@ export class WadlMethod {
     public readonly formEncoded: boolean,
     public readonly params: WadlParam[],
     public readonly requestRepresentationId: string | undefined,
-    public readonly responseRepresentationIds: string[],
+    public readonly responses: WadlResponse[],
   ) {}
 
   /** Read one `<method>` and lift the `ws.op` marker into method metadata. */
@@ -106,13 +140,6 @@ export class WadlMethod {
       const param = WadlParam.fromXml(rawParam);
       if (param !== undefined) params.push(param);
     }
-    const responseRepresentationIds: string[] = [];
-    for (const response of childElements(raw, "response")) {
-      for (const representation of childElements(response, "representation")) {
-        const id = fragmentId(representation.attributes.href);
-        if (id !== undefined) responseRepresentationIds.push(id);
-      }
-    }
     return new WadlMethod(
       raw.attributes.id,
       raw.attributes.name ?? "",
@@ -122,7 +149,9 @@ export class WadlMethod {
         "application/x-www-form-urlencoded",
       params,
       fragmentId(requestRepresentation?.attributes.href),
-      responseRepresentationIds,
+      childElements(raw, "response").map((response) =>
+        WadlResponse.fromXml(response),
+      ),
     );
   }
 }

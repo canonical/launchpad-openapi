@@ -101,7 +101,7 @@ describe("WadlRepresentation.fromXml", () => {
 });
 
 describe("WadlMethod.fromXml", () => {
-  it("lifts GET ws.op and resolves every valid response representation", () => {
+  it("keeps response statuses, media types, and valid references grouped", () => {
     const method = WadlMethod.fromXml(
       element(
         "method",
@@ -111,14 +111,29 @@ describe("WadlMethod.fromXml", () => {
             element("param", [], { name: "ws.op", fixed: "find" }),
             element("param", [], { name: "name", required: "true" }),
           ]),
-          element("response", [
-            element("representation", [], { href: "#person-full" }),
-            element("representation", [], { href: "without-fragment" }),
-            element("representation", [], { href: "trailing#" }),
-          ]),
-          element("response", [
-            element("representation", [], { href: "#person-diff" }),
-          ]),
+          element(
+            "response",
+            [
+              element("doc", [text("A person was found.")]),
+              element("representation", [], {
+                href: "#person-full",
+                mediaType: "application/json",
+              }),
+              element("representation", [], { href: "without-fragment" }),
+              element("representation", [], { href: "trailing#" }),
+            ],
+            { status: "200 206" },
+          ),
+          element(
+            "response",
+            [
+              element("representation", [], {
+                href: "#person-diff",
+                mediaType: "application/json",
+              }),
+            ],
+            { status: "400" },
+          ),
         ],
         { id: "people-find", name: "GET" },
       ),
@@ -130,8 +145,26 @@ describe("WadlMethod.fromXml", () => {
       wsOp: "find",
       formEncoded: false,
       params: [{ name: "name", required: true }],
-      responseRepresentationIds: ["person-full", "person-diff"],
+      responses: [
+        { statusCodes: ["200", "206"], doc: "A person was found." },
+        { statusCodes: ["400"] },
+      ],
     });
+    expect(method.responses[0]?.representations).toContainEqual({
+      id: "person-full",
+      mediaType: "application/json",
+    });
+    expect(method.responses[1]?.representations).toContainEqual({
+      id: "person-diff",
+      mediaType: "application/json",
+    });
+    expect(
+      method.responses.flatMap((response) =>
+        response.representations.flatMap((representation) =>
+          representation.id === undefined ? [] : [representation.id],
+        ),
+      ),
+    ).toEqual(["person-full", "person-diff"]);
   });
 
   it("reads form params and request representation references", () => {

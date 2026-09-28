@@ -25,11 +25,7 @@ export default function parseWadl(
         resolveUndefinedEntity: (entity) =>
           entity === "&nbsp;" ? " " : undefined,
       }),
-    catch: (cause) =>
-      new WadlParseError({
-        message: `Not a valid WADL document: ${cause instanceof Error ? cause.message : String(cause)}`,
-        cause,
-      }),
+    catch: createWadlParseError,
   }).andThen((document) => {
     const application = document.root;
     if (application === null || localName(application.name) !== "application") {
@@ -40,6 +36,16 @@ export default function parseWadl(
         }),
       );
     }
-    return Result.ok(WadlDocument.fromXml(application));
+    return Result.try({
+      try: () => WadlDocument.fromXml(application),
+      catch: createWadlParseError,
+    });
+  });
+}
+
+function createWadlParseError(cause: unknown): WadlParseError {
+  return new WadlParseError({
+    message: `Not a valid WADL document: ${cause instanceof Error ? cause.message : String(cause)}`,
+    cause,
   });
 }
