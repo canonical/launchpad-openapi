@@ -48,10 +48,11 @@ function xsdSchema(dataType: WadlParam["dataType"]): SchemaObject | undefined {
   }
 }
 
-/** Convert a WADL parameter, optionally overriding its untyped fallback. */
+/** Convert a WADL parameter, optionally overriding its untyped fallback or repetition. */
 export default function buildParamSchema(
   param: WadlParam,
   untypedSchema?: SchemaObject,
+  repeating = param.repeating,
 ): SchemaObject {
   let item: SchemaObject;
   if (param.linkResourceType !== undefined) {
@@ -107,9 +108,7 @@ export default function buildParamSchema(
     }
   }
   const schema: SchemaObject =
-    param.repeating && item.type !== "array"
-      ? { type: "array", items: item }
-      : item;
+    repeating && item.type !== "array" ? { type: "array", items: item } : item;
   if (param.doc !== undefined) schema.description = param.doc;
   if (param.required) {
     const example = buildParamExample(param.name, schema);

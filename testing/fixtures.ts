@@ -248,3 +248,65 @@ export const resourceFieldContractsWadl = `<?xml version="1.0"?>
     <wadl:param name="authorized_size" required="true"/>
   </wadl:representation>
 </wadl:application>`;
+
+/** Branch lookup WADL: one nullable lookup, one URL mapping, and independent controls. */
+export const branchLookupWadl = `<?xml version="1.0"?>
+<wadl:application xmlns:wadl="http://research.sun.com/wadl/2006/10"
+                  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wadl:resources base="https://api.launchpad.test/devel/"/>
+  <wadl:representation mediaType="application/json" id="service-root-json">
+    <wadl:param name="branches_collection_link">
+      <wadl:link resource_type="#branches"/>
+    </wadl:param>
+    <wadl:param name="projects_collection_link">
+      <wadl:link resource_type="#projects"/>
+    </wadl:param>
+  </wadl:representation>
+  <wadl:resource_type id="branches">
+    <wadl:method name="GET" id="branches-getByPath">
+      <wadl:doc>Look up a branch. :return: the branch, or None if missing</wadl:doc>
+      <wadl:request>
+        <wadl:param name="ws.op" fixed="getByPath"/>
+        <wadl:param name="path" required="true" type="xsd:string"/>
+      </wadl:request>
+      <wadl:response><wadl:representation href="#branch-full"/></wadl:response>
+    </wadl:method>
+    <wadl:method name="GET" id="branches-getByUrls">
+      <wadl:doc>Look up branches by URL. :return: a mapping from URLs to branches or None</wadl:doc>
+      <wadl:request>
+        <wadl:param name="ws.op" fixed="getByUrls"/>
+        <wadl:param name="urls" type="xsd:string" required="true"/>
+      </wadl:request>
+    </wadl:method>
+    <wadl:method name="GET" id="branches-getFeatured">
+      <wadl:doc>Return a featured branch.</wadl:doc>
+      <wadl:request><wadl:param name="ws.op" fixed="getFeatured"/></wadl:request>
+      <wadl:response><wadl:representation href="#branch-full"/></wadl:response>
+    </wadl:method>
+    <wadl:method name="GET" id="branches-getOpaque">
+      <wadl:doc>Return a value of unspecified shape. :return: an opaque value</wadl:doc>
+      <wadl:request><wadl:param name="ws.op" fixed="getOpaque"/></wadl:request>
+    </wadl:method>
+  </wadl:resource_type>
+  <wadl:resource_type id="projects">
+    <wadl:method name="GET" id="projects-getByPath">
+      <wadl:doc>Look up a project by path.</wadl:doc>
+      <wadl:request>
+        <wadl:param name="ws.op" fixed="getByPath"/>
+        <wadl:param name="path" required="true" type="xsd:string"/>
+      </wadl:request>
+      <wadl:response><wadl:representation href="#project-full"/></wadl:response>
+    </wadl:method>
+  </wadl:resource_type>
+  <wadl:representation mediaType="application/json" id="branch-full">
+    <wadl:param name="self_link" required="true"><wadl:link resource_type="#branch"/></wadl:param>
+    <wadl:param name="unique_name" required="true" type="xsd:string"/>
+    <wadl:param name="display_name" required="true" type="xsd:string"/>
+    <wadl:param name="name" required="true" type="xsd:string"/>
+    <wadl:param name="revision_count" required="true" type="xsd:int"/>
+    <wadl:param name="private" required="true" type="xsd:boolean"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="project-full">
+    <wadl:param name="name" required="true" type="xsd:string"/>
+  </wadl:representation>
+</wadl:application>`;

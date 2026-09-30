@@ -77,6 +77,25 @@ export const SPECIAL_RESOURCE_TYPES: ReadonlySet<string> = new Set([
 ]);
 
 /**
+ * Observed branch operation contracts missing from WADL. Keep overrides
+ * operation-scoped; other branch responses and parameters retain WADL behavior.
+ */
+export const REVIEWED_NAMED_OPERATIONS: Record<
+  string,
+  {
+    repeatedQueryParams?: readonly string[];
+    nullableResponse?: string;
+    nullableMapValues?: string;
+  }
+> = {
+  "branches-getByPath": { nullableResponse: "branch-full" },
+  "branches-getByUrls": {
+    repeatedQueryParams: ["urls"],
+    nullableMapValues: "branch-full",
+  },
+};
+
+/**
  * Sampled public devel JSON against WADL-generated schemas. Keys are
  * representation IDs: full/diff/write payloads differ. Null-only observations
  * establish nullability, not type. Remove when Launchpad metadata is corrected.

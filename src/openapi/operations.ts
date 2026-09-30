@@ -24,6 +24,7 @@ import type { WadlMethod, WadlParam } from "../wadl/index.js";
 import {
   FORM_MEDIA_TYPE,
   JSON_MEDIA_TYPE,
+  REVIEWED_NAMED_OPERATIONS,
   type SupportedHttpMethod,
 } from "./constants.js";
 import buildParamSchema from "./buildParamSchema.js";
@@ -100,13 +101,8 @@ const ACTION_BY_VERB: Record<SupportedHttpMethod, string> = {
 };
 
 /** Build a named `ws.op` operation with query or form parameters. */
-export function buildNamedOperation({
-  method,
-  wsOp,
-  resourceTypeId,
-  pathParams,
-  schemas,
-}: NamedOperationArgs): OperationObject {
+export function buildNamedOperation(args: NamedOperationArgs): OperationObject {
+  const { method, wsOp, resourceTypeId, schemas } = args;
   const operation: OperationObject = {
     tags: [resourceTypeId],
     summary: toSentenceCase(wsOp),
@@ -114,28 +110,85 @@ export function buildNamedOperation({
     operationId: method.id ?? `${resourceTypeId}-${wsOp}`,
     responses: {},
   };
-
-  const parameters = [...pathParams];
   if (method.formEncoded) {
     operation.requestBody = buildFormRequestBody(method.params);
-  } else {
-    parameters.push(...method.params.map(buildQueryParameter));
   }
-  if (parameters.length) operation.parameters = parameters;
 
   const responseSchema = findResponseSchema(
     method.responseRepresentationIds,
     schemas,
   );
-  if (responseSchema !== undefined) {
-    operation.responses = { "200": buildOkResponse(responseSchema) };
+  const returnDoc =
+    responseSchema === undefined ? findReturnDoc(method.doc) : undefined;
+  const response =
+    responseSchema !== undefined
+      ? buildOkResponse(responseSchema)
+      : buildOkResponse(inferResponseSchema(returnDoc), returnDoc);
+  operation.responses = { "200": response };
+  return applyReviewedNamedOperationOverrides(
+    operation,
+    response,
+    args,
+    responseSchema,
+  );
+}
+
+/**
+ * Build named query parameters and apply only reviewed corrections absent from WADL.
+ * Ordinary operations retain WADL-derived schemas and response references.
+ */
+function applyReviewedNamedOperationOverrides(
+  operation: OperationObject,
+  response: ResponseObject,
+  { method, pathParams, schemas }: NamedOperationArgs,
+  responseSchema: ReferenceObject | undefined,
+): OperationObject {
+  const reviewed =
+    method.id === undefined ? undefined : REVIEWED_NAMED_OPERATIONS[method.id];
+  if (method.formEncoded) {
+    if (pathParams.length) operation.parameters = [...pathParams];
   } else {
-    const returnDoc = findReturnDoc(method.doc);
-    operation.responses = {
-      "200": buildOkResponse(inferResponseSchema(returnDoc), returnDoc),
-    };
+    const parameters = [...pathParams];
+    parameters.push(
+      ...method.params.map((param) =>
+        buildQueryParameter(
+          param,
+          reviewed?.repeatedQueryParams?.includes(param.name) ?? false,
+        ),
+      ),
+    );
+    if (parameters.length) operation.parameters = parameters;
+  }
+  if (reviewed === undefined) return operation;
+
+  let overrideSchema: SchemaObject | undefined;
+  if (
+    reviewed.nullableResponse !== undefined &&
+    responseSchema?.$ref === `#/components/schemas/${reviewed.nullableResponse}`
+  ) {
+    overrideSchema = nullableObjectSchema(schemas[reviewed.nullableResponse]);
+  } else if (
+    reviewed.nullableMapValues !== undefined &&
+    method.responseRepresentationIds.length === 0
+  ) {
+    const value = nullableObjectSchema(schemas[reviewed.nullableMapValues]);
+    if (value !== undefined) {
+      overrideSchema = { type: "object", additionalProperties: value };
+    }
+  }
+  if (overrideSchema !== undefined) {
+    response.content = { [JSON_MEDIA_TYPE]: { schema: overrideSchema } };
   }
   return operation;
+}
+
+/** Reuse WADL's object fields without changing its non-nullable component. */
+function nullableObjectSchema(
+  schema: SchemaObject | ReferenceObject | undefined,
+): SchemaObject | undefined {
+  return schema !== undefined && !("$ref" in schema) && schema.type === "object"
+    ? { ...schema, nullable: true }
+    : undefined;
 }
 
 /** Build a form body, or omit it when the operation has no fields. */
@@ -164,15 +217,27 @@ function buildFormRequestBody(
 }
 
 /** Convert a WADL parameter into an OpenAPI query parameter. */
-function buildQueryParameter(param: WadlParam): ParameterObject {
-  const { description, ...schema } = buildParamSchema(param);
-  return {
+function buildQueryParameter(
+  param: WadlParam,
+  reviewedRepeating = false,
+): ParameterObject {
+  const { description, ...schema } = buildParamSchema(
+    param,
+    undefined,
+    param.repeating || reviewedRepeating,
+  );
+  const parameter: ParameterObject = {
     name: param.name,
     in: "query",
     required: param.required,
     description,
     schema,
   };
+  if (reviewedRepeating) {
+    parameter.style = "form";
+    parameter.explode = true;
+  }
+  return parameter;
 }
 
 /**

@@ -86,6 +86,23 @@ describe("buildParamSchema", () => {
     });
   });
 
+  describe("reviewed repetition", () => {
+    it("builds an array and array example without rewriting WADL", () => {
+      const fields =
+        parseWadl(sampleWadl).unwrap().representations["person-full"]?.fields;
+      assert(fields !== undefined);
+      const name = fields.find((field) => field.name === "name");
+      assert(name !== undefined);
+      expect(name.repeating).toBe(false);
+      expect(buildParamSchema(name, undefined, true)).toEqual({
+        type: "array",
+        items: { type: "string" },
+        description: "The name.",
+        example: [],
+      });
+    });
+  });
+
   describe("explicit WADL types and repetition", () => {
     it("maps scalar XML Schema types and required examples", () => {
       const schemas = typedSchemas();

@@ -9,8 +9,10 @@ import { join } from "node:path";
 import SwaggerParser from "@apidevtools/swagger-parser";
 import { Result } from "better-result";
 import { afterEach, assert, describe, expect, it } from "vitest";
-import { sampleWadl } from "../../../testing/fixtures.js";
+import { branchLookupWadl, sampleWadl } from "../../../testing/fixtures.js";
 import { runCli } from "../../cli/index.js";
+import { generateOpenApi } from "../../openapi/index.js";
+import { parseWadl } from "../../wadl/index.js";
 
 const temporaryPaths: string[] = [];
 
@@ -45,5 +47,22 @@ describe("generated OpenAPI consumption", () => {
     expect(document.openapi).toBe("3.0.3");
     expect(document.info.version).toBe("consumer-test");
     expect(Object.keys(document.paths ?? {})).toHaveLength(6);
+  });
+});
+
+describe("generated branch lookup contracts", () => {
+  it("produces a valid OpenAPI 3.0.3 document", async () => {
+    const document = generateOpenApi(
+      parseWadl(branchLookupWadl).unwrap(),
+    ).unwrap();
+    const directory = await mkdtemp(
+      join(tmpdir(), "launchpad-openapi-branch-consumer-"),
+    );
+    temporaryPaths.push(directory);
+    const output = join(directory, "openapi.json");
+    await writeFile(output, JSON.stringify(document), "utf8");
+    const validated = await SwaggerParser.validate(output);
+    assert("openapi" in validated);
+    expect(validated.openapi).toBe("3.0.3");
   });
 });
