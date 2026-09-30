@@ -48,19 +48,11 @@ function xsdSchema(dataType: WadlParam["dataType"]): SchemaObject | undefined {
   }
 }
 
-/** Convert a WADL parameter into an OpenAPI schema fragment.
- * Resource-field evidence applies only when WADL does not already specify a type.
- * Omitting it retains operation parameter behavior.
- */
+/** Convert a WADL parameter, optionally overriding its untyped fallback or repetition. */
 export default function buildParamSchema(
   param: WadlParam,
-  resourceFieldType?:
-    | "integer"
-    | "boolean"
-    | "string-array"
-    | "object"
-    | "unknown",
-  nullable = false,
+  untypedSchema?: SchemaObject,
+  repeating = param.repeating,
 ): SchemaObject {
   let item: SchemaObject;
   if (param.linkResourceType !== undefined) {
@@ -105,28 +97,18 @@ export default function buildParamSchema(
       }
     } else if (param.options !== undefined) {
       item = { type: "string", enum: param.options };
-    } else if (
-      resourceFieldType === "integer" ||
-      resourceFieldType === "boolean"
-    ) {
-      item = { type: resourceFieldType };
-    } else if (resourceFieldType === "string-array") {
-      item = { type: "array", items: { type: "string" } };
-    } else if (resourceFieldType === "object") {
-      item = { type: "object" };
     } else if (INTEGER_PARAM_NAMES.has(param.name)) {
       item = { type: "integer" };
     } else if (param.name === "entries") {
       item = { type: "array", items: { type: "object" } };
+    } else if (untypedSchema !== undefined) {
+      item = untypedSchema;
     } else {
-      item = resourceFieldType === undefined ? { type: "string" } : {};
+      item = { type: "string" };
     }
   }
   const schema: SchemaObject =
-    param.repeating && item.type !== "array"
-      ? { type: "array", items: item }
-      : item;
-  if (nullable && schema.type !== undefined) schema.nullable = true;
+    repeating && item.type !== "array" ? { type: "array", items: item } : item;
   if (param.doc !== undefined) schema.description = param.doc;
   if (param.required) {
     const example = buildParamExample(param.name, schema);

@@ -20,9 +20,9 @@ The scope in a conventional commit should identify the package, module, or domai
 
 ---
 
-## cs:git.pr.template
+## cs:git.merge-proposal.description
 
-Every repository must have a pull request template that guides contributors toward consistent, reviewable PRs. The template must include a summary of changes, QA/testing steps, and a readiness checklist. The PR title must follow conventional commits format since it becomes the squashed commit message on main.
+Write a brief, reviewer-facing summary of the problem and intended outcome. Leave implementation details in the diff. If useful, add a short note on how to verify the change.
 
 ---
 

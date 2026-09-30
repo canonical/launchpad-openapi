@@ -86,6 +86,51 @@ describe("buildParamSchema", () => {
     });
   });
 
+  describe("reviewed repetition", () => {
+    it("builds an array and array example without rewriting WADL", () => {
+      const fields =
+        parseWadl(sampleWadl).unwrap().representations["person-full"]?.fields;
+      assert(fields !== undefined);
+      const name = fields.find((field) => field.name === "name");
+      assert(name !== undefined);
+      expect(name.repeating).toBe(false);
+      expect(buildParamSchema(name, undefined, true)).toEqual({
+        type: "array",
+        items: { type: "string" },
+        description: "The name.",
+        example: [],
+      });
+    });
+  });
+
+  describe("resource-field fallback", () => {
+    it("leaves unobserved fields unconstrained without guessing from their names", () => {
+      const fields =
+        parseWadl(sampleWadl).unwrap().representations["person-full"]?.fields;
+      assert(fields !== undefined);
+      const name = fields.find((field) => field.name === "name");
+      assert(name !== undefined);
+
+      expect(buildParamSchema(name, {})).toEqual({
+        description: "The name.",
+      });
+      expect(buildParamSchema({ ...name, name: "id" }, {})).toEqual({
+        description: "The name.",
+      });
+    });
+
+    it("keeps explicit WADL types ahead of reviewed fallback evidence", () => {
+      const fields =
+        parseWadl(typedWadl).unwrap().representations["typed-json"]?.fields;
+      assert(fields !== undefined);
+      const id = fields.find((field) => field.name === "id");
+      assert(id !== undefined);
+      expect(buildParamSchema(id, { type: "boolean" })).toEqual({
+        type: "integer",
+        example: 1,
+      });
+    });
+  });
   describe("explicit WADL types and repetition", () => {
     it("maps scalar XML Schema types and required examples", () => {
       const schemas = typedSchemas();

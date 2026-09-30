@@ -26,6 +26,7 @@ import {
   FORM_MEDIA_TYPE,
   JSON_MEDIA_TYPE,
   NULLABLE_BRANCH_SCHEMA_ID,
+  REVIEWED_NAMED_OPERATIONS,
   type SupportedHttpMethod,
 } from "./constants.js";
 import buildParamSchema from "./buildParamSchema.js";
@@ -102,13 +103,8 @@ const ACTION_BY_VERB: Record<SupportedHttpMethod, string> = {
 };
 
 /** Build a named `ws.op` operation with query or form parameters. */
-export function buildNamedOperation({
-  method,
-  wsOp,
-  resourceTypeId,
-  pathParams,
-  schemas,
-}: NamedOperationArgs): OperationObject {
+export function buildNamedOperation(args: NamedOperationArgs): OperationObject {
+  const { method, wsOp, resourceTypeId, schemas } = args;
   const operation: OperationObject = {
     tags: [resourceTypeId],
     summary: toSentenceCase(wsOp),
@@ -116,67 +112,89 @@ export function buildNamedOperation({
     operationId: method.id ?? `${resourceTypeId}-${wsOp}`,
     responses: {},
   };
-
-  const parameters = [...pathParams];
   if (method.formEncoded) {
     operation.requestBody = buildFormRequestBody(method.params);
-  } else {
-    parameters.push(
-      ...method.params.map((param) =>
-        buildQueryParameter(param, resourceTypeId, wsOp),
-      ),
-    );
   }
-  if (parameters.length) operation.parameters = parameters;
 
   const responseSchema = findResponseSchema(
     method.responseRepresentationIds,
     schemas,
   );
-  if (responseSchema !== undefined) {
-    const selectedResponseSchema =
-      resourceTypeId === "branches" &&
-      wsOp === "getByPath" &&
-      responseSchema.$ref === `#/components/schemas/${BRANCH_FULL_SCHEMA_ID}`
-        ? (findNullableBranchSchema(schemas) ?? responseSchema)
-        : responseSchema;
-    operation.responses = { "200": buildOkResponse(selectedResponseSchema) };
+  const returnDoc =
+    responseSchema === undefined ? findReturnDoc(method.doc) : undefined;
+  const response =
+    responseSchema !== undefined
+      ? buildOkResponse(responseSchema)
+      : buildOkResponse(inferResponseSchema(returnDoc), returnDoc);
+  operation.responses = { "200": response };
+  return applyReviewedNamedOperationOverrides(
+    operation,
+    response,
+    args,
+    responseSchema,
+  );
+}
+
+/**
+ * Build named query parameters and apply only reviewed corrections absent from WADL.
+ * Ordinary operations retain WADL-derived schemas and response references.
+ */
+function applyReviewedNamedOperationOverrides(
+  operation: OperationObject,
+  response: ResponseObject,
+  { method, pathParams, schemas }: NamedOperationArgs,
+  responseSchema: ReferenceObject | undefined,
+): OperationObject {
+  const reviewed =
+    method.id === undefined ? undefined : REVIEWED_NAMED_OPERATIONS[method.id];
+  if (method.formEncoded) {
+    if (pathParams.length) operation.parameters = [...pathParams];
   } else {
-    const returnDoc = findReturnDoc(method.doc);
-    let responseBodySchema: SchemaObject | undefined;
-    if (
-      resourceTypeId === "branches" &&
-      wsOp === "getByUrls" &&
-      method.responseRepresentationIds.length === 0
-    ) {
-      const nullableBranch = findNullableBranchSchema(schemas);
-      if (nullableBranch !== undefined) {
-        responseBodySchema = {
-          type: "object",
-          additionalProperties: nullableBranch,
-        };
-      }
-    } else {
-      responseBodySchema = inferResponseSchema(returnDoc);
+    const parameters = [...pathParams];
+    parameters.push(
+      ...method.params.map((param) =>
+        buildQueryParameter(
+          param,
+          reviewed?.repeatedQueryParams?.includes(param.name) ?? false,
+        ),
+      ),
+    );
+    if (parameters.length) operation.parameters = parameters;
+  }
+  if (reviewed === undefined) return operation;
+
+  let overrideSchema: SchemaObject | ReferenceObject | undefined;
+  if (
+    reviewed.nullableResponse !== undefined &&
+    responseSchema?.$ref === `#/components/schemas/${reviewed.nullableResponse}`
+  ) {
+    overrideSchema = nullableReviewedSchema(reviewed.nullableResponse, schemas);
+  } else if (
+    reviewed.nullableMapValues !== undefined &&
+    method.responseRepresentationIds.length === 0
+  ) {
+    const value = nullableReviewedSchema(reviewed.nullableMapValues, schemas);
+    if (value !== undefined) {
+      overrideSchema = { type: "object", additionalProperties: value };
     }
-    operation.responses = {
-      "200": buildOkResponse(responseBodySchema, returnDoc),
-    };
+  }
+  if (overrideSchema !== undefined) {
+    response.content = { [JSON_MEDIA_TYPE]: { schema: overrideSchema } };
   }
   return operation;
 }
 
-/** Return a nullable branch, inlining it when WADL owns the variant's name. */
-function findNullableBranchSchema(
+/** Reuse the generated branch variant when available, otherwise preserve WADL fields inline. */
+function nullableReviewedSchema(
+  schemaId: string,
   schemas: SchemasObject,
 ): SchemaObject | ReferenceObject | undefined {
-  const branchSchema = schemas[BRANCH_FULL_SCHEMA_ID];
-  if (
-    branchSchema === undefined ||
-    "$ref" in branchSchema ||
-    branchSchema.type !== "object"
-  ) {
+  const schema = schemas[schemaId];
+  if (schema === undefined || "$ref" in schema || schema.type !== "object") {
     return undefined;
+  }
+  if (schemaId !== BRANCH_FULL_SCHEMA_ID) {
+    return { ...schema, nullable: true };
   }
   const namedSchema = schemas[NULLABLE_BRANCH_SCHEMA_ID];
   // The generated variant shares the branch's fields, a WADL component with this ID does not.
@@ -184,12 +202,12 @@ function findNullableBranchSchema(
     namedSchema !== undefined &&
     !("$ref" in namedSchema) &&
     namedSchema.nullable === true &&
-    namedSchema.properties === branchSchema.properties &&
-    namedSchema.required === branchSchema.required
+    namedSchema.properties === schema.properties &&
+    namedSchema.required === schema.required
   ) {
     return { $ref: `#/components/schemas/${NULLABLE_BRANCH_SCHEMA_ID}` };
   }
-  return { ...branchSchema, nullable: true };
+  return { ...schema, nullable: true };
 }
 
 /** Build a form body, or omit it when the operation has no fields. */
@@ -220,10 +238,13 @@ function buildFormRequestBody(
 /** Convert a WADL parameter into an OpenAPI query parameter. */
 function buildQueryParameter(
   param: WadlParam,
-  resourceTypeId: string,
-  wsOp: string,
+  reviewedRepeating = false,
 ): ParameterObject {
-  const { description, ...schema } = buildParamSchema(param);
+  const { description, ...schema } = buildParamSchema(
+    param,
+    undefined,
+    param.repeating || reviewedRepeating,
+  );
   const parameter: ParameterObject = {
     name: param.name,
     in: "query",
@@ -231,17 +252,7 @@ function buildQueryParameter(
     description,
     schema,
   };
-  // getByUrls accepts repeated keys although its WADL omits `repeating`.
-  const isBranchUrlList =
-    resourceTypeId === "branches" &&
-    wsOp === "getByUrls" &&
-    param.name === "urls";
-  if (isBranchUrlList && schema.type !== "array") {
-    const itemSchema = { ...schema };
-    delete itemSchema.example;
-    parameter.schema = { type: "array", items: itemSchema };
-  }
-  if (param.repeating || isBranchUrlList) {
+  if (reviewedRepeating) {
     parameter.style = "form";
     parameter.explode = true;
   }

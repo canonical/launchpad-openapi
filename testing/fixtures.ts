@@ -260,7 +260,6 @@ export const resourceFieldContractsWadl = `<?xml version="1.0"?>
     <wadl:param name="authorized_size" required="true"/>
   </wadl:representation>
 </wadl:application>`;
-
 /** Branch lookup WADL: one nullable lookup, one URL mapping, and independent controls. */
 export const branchLookupWadl = `<?xml version="1.0"?>
 <wadl:application xmlns:wadl="http://research.sun.com/wadl/2006/10"

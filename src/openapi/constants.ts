@@ -3,6 +3,8 @@
  * GNU Lesser General Public License version 3 (see the file LICENSE).
  */
 
+import type { ReviewedFields } from "./types.js";
+
 /** Fixed protocol values and curated examples shared by OpenAPI builders. */
 
 export const OPENAPI_VERSION = "3.0.3";
@@ -77,22 +79,31 @@ export const SPECIAL_RESOURCE_TYPES: ReadonlySet<string> = new Set([
 ]);
 
 /**
+ * Observed branch operation contracts missing from WADL. Keep overrides
+ * operation-scoped; other branch responses and parameters retain WADL behavior.
+ */
+export const REVIEWED_NAMED_OPERATIONS: Record<
+  string,
+  {
+    repeatedQueryParams?: readonly string[];
+    nullableResponse?: string;
+    nullableMapValues?: string;
+  }
+> = {
+  "branches-getByPath": { nullableResponse: "branch-full" },
+  "branches-getByUrls": {
+    repeatedQueryParams: ["urls"],
+    nullableMapValues: "branch-full",
+  },
+};
+
+/**
  * Observed response-field contracts absent from Launchpad's WADL.
- *
  * Keys are representation IDs, not resource types: diff/write representations
  * have independent contracts. Null-only observations establish nullability,
  * but not a non-null type; buildSchemas retains a type only when WADL supplies it.
  */
-export const REVIEWED_RESOURCE_FIELDS: Record<
-  string,
-  {
-    integer?: readonly string[];
-    boolean?: readonly string[];
-    stringArray?: readonly string[];
-    object?: readonly string[];
-    nullable?: readonly string[];
-  }
-> = {
+export const REVIEWED_RESOURCE_FIELDS: Record<string, ReviewedFields> = {
   "bug-full": {
     integer: [
       "id",
