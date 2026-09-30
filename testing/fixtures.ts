@@ -252,7 +252,6 @@ export const responseStatusWadl = `<?xml version="1.0"?>
   </wadl:representation>
   <wadl:representation id="widget-html" mediaType="application/xhtml+xml"/>
 </wadl:application>`;
-
 /** Curated multi-segment resources with literal routing markers. */
 export const curatedPathsWadl = `<?xml version="1.0"?>
 <wadl:application xmlns:wadl="http://research.sun.com/wadl/2006/10">
@@ -300,7 +299,6 @@ export const resourceFieldContractsWadl = `<?xml version="1.0"?>
     <wadl:param name="authorized_size" required="true"/>
   </wadl:representation>
 </wadl:application>`;
-
 /** Branch lookup WADL: one nullable lookup, one URL mapping, and independent controls. */
 export const branchLookupWadl = `<?xml version="1.0"?>
 <wadl:application xmlns:wadl="http://research.sun.com/wadl/2006/10"

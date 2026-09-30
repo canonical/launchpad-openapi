@@ -21,6 +21,29 @@ function findMethod(methods: WadlMethod[], wsOp: string): WadlMethod {
   return method;
 }
 
+function branchOperation(
+  wadl: string,
+  wsOp: string,
+  resourceTypeId = "branches",
+) {
+  const model = parseWadl(wadl).unwrap();
+  const schemas = buildSchemas(model.representations);
+  const method = findMethod(
+    model.resourceTypes[resourceTypeId]?.methods ?? [],
+    wsOp,
+  );
+  return {
+    schemas,
+    operation: buildNamedOperation({
+      method,
+      wsOp,
+      resourceTypeId,
+      pathParams: [],
+      schemas,
+    }),
+  };
+}
+
 describe("buildStandardOperation", () => {
   describe("read operations", () => {
     it("distinguishes collection lists from entry reads", () => {
@@ -395,6 +418,198 @@ describe("buildNamedOperation", () => {
           schema: { type: "array", items: { type: "integer" } },
         },
       ]);
+    });
+
+    it("keeps the required URL-list example an array", () => {
+      const { operation } = branchOperation(branchLookupWadl, "getByUrls");
+      expect(operation.parameters).toMatchObject([
+        {
+          name: "urls",
+          in: "query",
+          required: true,
+          style: "form",
+          explode: true,
+          schema: {
+            type: "array",
+            items: { type: "string" },
+            example: [],
+          },
+        },
+      ]);
+    });
+
+    it("does not add serialization fields to unrelated WADL repetitions", () => {
+      const wadl = branchLookupWadl
+        .replace('id="branches-getByUrls"', 'id="other-getByUrls"')
+        .replace(
+          'name="urls" type="xsd:string" required="true"',
+          'name="urls" type="xsd:string" required="true" repeating="true"',
+        );
+      const { operation } = branchOperation(wadl, "getByUrls");
+      expect(operation.parameters).toMatchObject([
+        {
+          name: "urls",
+          in: "query",
+          required: true,
+          schema: { type: "array", items: { type: "string" }, example: [] },
+        },
+      ]);
+      expect(operation.parameters?.[0]).not.toHaveProperty("style");
+      expect(operation.parameters?.[0]).not.toHaveProperty("explode");
+    });
+
+    it("limits nullable branch responses to the reviewed WADL method", () => {
+      const { operation, schemas } = branchOperation(
+        branchLookupWadl,
+        "getByPath",
+      );
+      const branch = schemas["branch-full"];
+      const nullableBranch = schemas["branch-full-nullable"];
+      assert(branch !== undefined && !("$ref" in branch));
+      assert(nullableBranch !== undefined && !("$ref" in nullableBranch));
+      expect(operation.responses["200"]).toEqual({
+        description: "Successful response",
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/branch-full-nullable" },
+          },
+        },
+      });
+      expect(branch.nullable).not.toBe(true);
+      expect(nullableBranch).toEqual({ ...branch, nullable: true });
+      expect(
+        branchOperation(branchLookupWadl, "getFeatured").operation.responses[
+          "200"
+        ],
+      ).toMatchObject({
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/branch-full" },
+          },
+        },
+      });
+      expect(
+        branchOperation(branchLookupWadl, "getByPath", "projects").operation
+          .responses["200"],
+      ).toMatchObject({
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/project-full" },
+          },
+        },
+      });
+
+      const otherId = branchLookupWadl.replace(
+        'id="branches-getByPath"',
+        'id="other-getByPath"',
+      );
+      expect(
+        branchOperation(otherId, "getByPath").operation.responses["200"],
+      ).toMatchObject({
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/branch-full" },
+          },
+        },
+      });
+    });
+
+    it("selects reviewed behavior by WADL method ID, not resource or operation name", () => {
+      const wadl = branchLookupWadl
+        .replace('id="branches">', 'id="renamed-branches">')
+        .replace('fixed="getByPath"', 'fixed="lookupBranch"');
+      const { operation } = branchOperation(
+        wadl,
+        "lookupBranch",
+        "renamed-branches",
+      );
+      expect(
+        operation.responses["200"]?.content?.["application/json"]?.schema,
+      ).toEqual({ $ref: "#/components/schemas/branch-full-nullable" });
+    });
+
+    it("types the reviewed URL mapping without typing opaque responses", () => {
+      const { operation, schemas } = branchOperation(
+        branchLookupWadl,
+        "getByUrls",
+      );
+      const nullableBranch = schemas["branch-full-nullable"];
+      assert(nullableBranch !== undefined && !("$ref" in nullableBranch));
+      expect(operation.responses["200"]).toMatchObject({
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              additionalProperties: {
+                $ref: "#/components/schemas/branch-full-nullable",
+              },
+            },
+          },
+        },
+      });
+      expect(
+        branchOperation(branchLookupWadl, "getOpaque").operation.responses[
+          "200"
+        ],
+      ).not.toHaveProperty("content");
+    });
+
+    it("inlines nullable branches when WADL owns the variant component", () => {
+      const wadl = branchLookupWadl.replace(
+        "</wadl:application>",
+        '  <wadl:representation mediaType="application/json" id="branch-full-nullable">\n' +
+          '    <wadl:param name="wadl_owned" type="xsd:string"/>\n' +
+          "  </wadl:representation>\n</wadl:application>",
+      );
+      const { schemas, operation } = branchOperation(wadl, "getByPath");
+      const branch = schemas["branch-full"];
+      assert(branch !== undefined && !("$ref" in branch));
+      expect(schemas["branch-full-nullable"]).toMatchObject({
+        properties: { wadl_owned: { type: "string" } },
+      });
+      expect(
+        operation.responses["200"]?.content?.["application/json"]?.schema,
+      ).toEqual({ ...branch, nullable: true });
+      expect(
+        branchOperation(wadl, "getByUrls").operation.responses["200"]
+          ?.content?.["application/json"]?.schema,
+      ).toEqual({
+        type: "object",
+        additionalProperties: { ...branch, nullable: true },
+      });
+    });
+
+    it("retains a declared response instead of replacing it with a reviewed map", () => {
+      const wadl = branchLookupWadl.replace(
+        '    </wadl:method>\n    <wadl:method name="GET" id="branches-getFeatured">',
+        '      <wadl:response><wadl:representation href="#project-full"/></wadl:response>\n    </wadl:method>\n    <wadl:method name="GET" id="branches-getFeatured">',
+      );
+      expect(
+        branchOperation(wadl, "getByUrls").operation.responses["200"],
+      ).toMatchObject({
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/project-full" },
+          },
+        },
+      });
+    });
+
+    it("keeps declared lookup statuses and limits nullability to success", () => {
+      const wadl = branchLookupWadl.replace(
+        '<wadl:response><wadl:representation href="#branch-full"/></wadl:response>',
+        '<wadl:response status="206"><wadl:representation href="#branch-full" mediaType="application/json"/></wadl:response>' +
+          '<wadl:response status="404"><wadl:representation href="#branch-full" mediaType="application/json"/></wadl:response>',
+      );
+      const { operation } = branchOperation(wadl, "getByPath");
+
+      expect(Object.keys(operation.responses)).toEqual(["206", "404"]);
+      expect(
+        operation.responses["206"]?.content?.["application/json"]?.schema,
+      ).toEqual({ $ref: "#/components/schemas/branch-full-nullable" });
+      expect(
+        operation.responses["404"]?.content?.["application/json"]?.schema,
+      ).toEqual({ $ref: "#/components/schemas/branch-full" });
     });
   });
 

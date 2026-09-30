@@ -226,7 +226,7 @@ function buildResourcePath(
           name: resourceTypeId,
           in: "path",
           required: true,
-          description: `URL segment of the ${resourceTypeId} resource (Launchpad assigns this at runtime; replace with a real instance segment).`,
+          description: `Path segment identifying the ${resourceTypeId} resource. Supply the value from the resource URL you want to access.`,
           schema: { type: "string" },
         },
       ],
@@ -243,7 +243,7 @@ function buildResourcePath(
       name,
       in: "path",
       required: true,
-      description: `\`${name}\` segment of the ${resourceTypeId} resource URL (required; the example is a real instance, not a runtime default).`,
+      description: `The \`${name}\` segment of the ${resourceTypeId} resource URL. Supply the value for the resource you want to access; the example shows one possible value.`,
       schema: { type: "string", example: value },
     });
     return `{${name}}`;
