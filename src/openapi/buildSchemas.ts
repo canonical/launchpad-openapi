@@ -83,6 +83,16 @@ function buildResourceFieldSchema(
     untypedSchema = { type: "object" };
   }
   const property = buildParamSchema(field, untypedSchema);
+  const correction = reviewedFields?.enumCorrections?.[field.name];
+  if (correction !== undefined && property.type === "string") {
+    const [normalized, wireValue] = correction;
+    if (property.enum?.includes(normalized)) {
+      property.enum = property.enum.map((value) =>
+        value === normalized ? wireValue : value,
+      );
+      if (property.example === normalized) property.example = wireValue;
+    }
+  }
   if (
     reviewedFields?.nullable?.includes(field.name) &&
     property.type !== undefined

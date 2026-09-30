@@ -184,6 +184,64 @@ describe("buildSchemas", () => {
       expect(schemas["branch-full-nullable"]).toMatchObject({ nullable: true });
     });
 
+    it("keeps branch format enum wire strings exact in full and nullable schemas without changing other options or representations", () => {
+      const formats = [
+        ["branch_format", "Bazaar Branch Format 7 (needs bzr 1.6)\n"],
+        ["control_format", "Bazaar-NG meta directory, format 1\n"],
+        [
+          "repository_format",
+          "Bazaar repository format 2a (needs bzr 1.16 or later)\n",
+        ],
+      ] as const;
+      const formatFields = formats
+        .map(
+          ([name, value]) =>
+            `<wadl:param name="${name}" required="true" type="xsd:string">
+      <wadl:option value="${value}"/>
+      <wadl:option value="another format"/>
+      <wadl:option value="already&#10;escaped"/>
+    </wadl:param>`,
+        )
+        .join("\n    ");
+      const wadl = branchLookupWadl
+        .replace(
+          '    <wadl:param name="unique_name" required="true" type="xsd:string"/>',
+          `${formatFields}
+    <wadl:param name="unique_name" required="true" type="xsd:string"/>`,
+        )
+        .replace(
+          '  <wadl:representation mediaType="application/json" id="project-full">',
+          `<wadl:representation mediaType="application/json" id="branch-diff">
+    <wadl:param name="branch_format" type="xsd:string"><wadl:option value="Bazaar Branch Format 7 (needs bzr 1.6) "/></wadl:param>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="branch-write">
+    <wadl:param name="branch_format" type="xsd:string"><wadl:option value="Bazaar Branch Format 7 (needs bzr 1.6) "/></wadl:param>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="project-full">
+    <wadl:param name="branch_format" type="xsd:string"><wadl:option value="Bazaar Branch Format 7 (needs bzr 1.6) "/></wadl:param>`,
+        );
+      const schemas = buildSchemas(parseWadl(wadl).unwrap().representations);
+
+      for (const id of ["branch-full", "branch-full-nullable"]) {
+        const properties = representationProperties(schemas, id);
+        for (const [name, wireValue] of formats) {
+          const field = properties[name];
+          expect(field).toMatchObject({
+            type: "string",
+            enum: [wireValue, "another format", "already\nescaped"],
+            example: wireValue,
+          });
+        }
+      }
+      for (const id of ["branch-diff", "branch-write", "project-full"]) {
+        expect(
+          representationProperties(schemas, id).branch_format,
+        ).toMatchObject({
+          enum: ["Bazaar Branch Format 7 (needs bzr 1.6) "],
+        });
+      }
+    });
+
     it("leaves null-only and unreviewed resource fields unconstrained without invented examples", () => {
       const schemas = buildSchemas(
         parseWadl(resourceFieldContractsWadl).unwrap().representations,

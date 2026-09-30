@@ -98,7 +98,7 @@ export const REVIEWED_NAMED_OPERATIONS: Record<
 };
 
 /**
- * Observed response-field contracts absent from Launchpad's WADL.
+ * Observed response-field contracts missing or misrepresented in Launchpad's WADL.
  * Keys are representation IDs, not resource types: diff/write representations
  * have independent contracts. Null-only observations establish nullability,
  * but not a non-null type; buildSchemas retains a type only when WADL supplies it.
@@ -219,6 +219,20 @@ export const REVIEWED_RESOURCE_FIELDS: Record<string, ReviewedFields> = {
   },
   "branch-full": {
     nullable: ["code_import_link", "sourcepackage_link"],
+    enumCorrections: {
+      branch_format: [
+        "Bazaar Branch Format 7 (needs bzr 1.6) ",
+        "Bazaar Branch Format 7 (needs bzr 1.6)\n",
+      ],
+      control_format: [
+        "Bazaar-NG meta directory, format 1 ",
+        "Bazaar-NG meta directory, format 1\n",
+      ],
+      repository_format: [
+        "Bazaar repository format 2a (needs bzr 1.16 or later) ",
+        "Bazaar repository format 2a (needs bzr 1.16 or later)\n",
+      ],
+    },
   },
   "bug_task-full": {
     boolean: ["is_complete"],
