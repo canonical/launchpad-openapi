@@ -217,6 +217,9 @@ export const REVIEWED_RESOURCE_FIELDS: Record<string, ReviewedFields> = {
     boolean: ["owner_default", "private", "target_default"],
     nullable: ["builder_constraints", "code_import_link", "description"],
   },
+  "branch-full": {
+    nullable: ["code_import_link", "sourcepackage_link"],
+  },
   "bug_task-full": {
     boolean: ["is_complete"],
     nullable: [

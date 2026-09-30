@@ -6,6 +6,7 @@
 import type { SchemasObject } from "openapi3-ts/oas30";
 import { describe, expect, it } from "vitest";
 import {
+  branchLookupWadl,
   generatorEdgeWadl,
   resourceFieldContractsWadl,
   sampleWadl,
@@ -147,6 +148,40 @@ describe("buildSchemas", () => {
       expect(schemas["bug-full"]).toMatchObject({
         required: expect.arrayContaining(["duplicate_of_link"]),
       });
+    });
+
+    it("keeps observed branch links nullable in full and generated nullable schemas", () => {
+      const wadl = branchLookupWadl.replace(
+        '    <wadl:param name="unique_name" required="true" type="xsd:string"/>',
+        `    <wadl:param name="code_import_link" required="true"><wadl:link resource_type="#code_import"/></wadl:param>
+    <wadl:param name="sourcepackage_link" required="true"><wadl:link resource_type="#source_package"/></wadl:param>
+    <wadl:param name="unique_name" required="true" type="xsd:string"/>`,
+      );
+      const schemas = buildSchemas(parseWadl(wadl).unwrap().representations);
+
+      for (const id of ["branch-full", "branch-full-nullable"]) {
+        const properties = representationProperties(schemas, id);
+        expect(properties.code_import_link).toEqual({
+          type: "string",
+          format: "uri",
+          "x-lp-resource-type": "code_import",
+          nullable: true,
+        });
+        expect(properties.sourcepackage_link).toEqual({
+          type: "string",
+          format: "uri",
+          "x-lp-resource-type": "source_package",
+          nullable: true,
+        });
+        expect(schemas[id]).toMatchObject({
+          required: expect.arrayContaining([
+            "code_import_link",
+            "sourcepackage_link",
+          ]),
+        });
+      }
+      expect(schemas["branch-full"]).not.toHaveProperty("nullable");
+      expect(schemas["branch-full-nullable"]).toMatchObject({ nullable: true });
     });
 
     it("leaves null-only and unreviewed resource fields unconstrained without invented examples", () => {
