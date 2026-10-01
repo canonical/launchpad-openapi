@@ -17,6 +17,9 @@ import {
   HYPERMEDIA_NOTE,
   OPENAPI_VERSION,
   HTTP_METHODS,
+  PAGE_RESOURCE_SUFFIX,
+  ROUTELESS_RESOURCE_TYPES,
+  SPECIAL_RESOURCE_TYPES,
 } from "./constants.js";
 import { ConversionError } from "./errors.js";
 import buildPaths from "./buildPaths.js";
@@ -26,7 +29,8 @@ import type { GenerateOptions } from "./types.js";
 /**
  * Generate an OpenAPI 3.0.3 document from typed WADL values.
  *
- * Runtime service-root links resolve top-level collection paths.
+ * Exact runtime service-root links supplement reviewed canonical routes;
+ * unresolved WADL types are reported instead of assigned invented URLs.
  */
 export default function generateOpenApi(
   model: WadlDocument,
@@ -40,12 +44,12 @@ export default function generateOpenApi(
       }),
     );
   }
-
   const schemas = buildSchemas(model.representations);
   const paths = buildPaths(model, schemas, options.serviceRootLinks);
   // Launchpad API versions are the final segment of the base URL.
   const version =
     options.version ?? model.baseUrl.slice(model.baseUrl.lastIndexOf("/") + 1);
+  const routeCoverage = buildRouteCoverage(model, paths);
   return Result.ok({
     openapi: OPENAPI_VERSION,
     info: buildInfo(model, version),
@@ -53,6 +57,7 @@ export default function generateOpenApi(
     tags: buildTags(paths),
     paths,
     components: { schemas },
+    "x-launchpad-route-coverage": routeCoverage,
   });
 }
 
@@ -87,4 +92,41 @@ function buildTags(paths: PathsObject): TagObject[] {
     }
   }
   return [...names].sort().map((name) => ({ name }));
+}
+
+/** Report resource types for which no independently callable URL was verified. */
+function buildRouteCoverage(model: WadlDocument, paths: PathsObject) {
+  const represented = new Set<string>();
+  for (const item of Object.values(paths)) {
+    for (const method of HTTP_METHODS) {
+      for (const tag of item[method]?.tags ?? []) represented.add(tag);
+    }
+    const alternatives = item["x-launchpad-route-alternatives"];
+    if (Array.isArray(alternatives)) {
+      for (const alternative of alternatives) {
+        if (
+          typeof alternative === "object" &&
+          alternative !== null &&
+          "resourceTypeId" in alternative &&
+          typeof alternative.resourceTypeId === "string"
+        ) {
+          represented.add(alternative.resourceTypeId);
+        }
+      }
+    }
+  }
+  const unresolved: string[] = [];
+  const schemaOnly: string[] = [];
+  for (const resourceType of Object.values(model.resourceTypes)) {
+    const id = resourceType.id;
+    if (SPECIAL_RESOURCE_TYPES.has(id) || id.endsWith(PAGE_RESOURCE_SUFFIX)) {
+      continue;
+    }
+    if (ROUTELESS_RESOURCE_TYPES[id] === true) {
+      schemaOnly.push(id);
+    } else if (!represented.has(id)) {
+      unresolved.push(id);
+    }
+  }
+  return { unresolved, schemaOnly };
 }

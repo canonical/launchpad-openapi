@@ -217,7 +217,7 @@ export const generatorEdgeWadl = `<?xml version="1.0"?>
 export const responseStatusWadl = `<?xml version="1.0"?>
 <wadl:application xmlns:wadl="http://research.sun.com/wadl/2006/10">
   <wadl:resources base="https://api.launchpad.test/devel/"/>
-  <wadl:resource_type id="widget">
+  <wadl:resource_type id="bug">
     <wadl:method name="POST" id="widget-create">
       <wadl:request><wadl:representation mediaType="application/x-www-form-urlencoded">
         <wadl:param name="ws.op" fixed="create"/>
@@ -261,6 +261,60 @@ export const curatedPathsWadl = `<?xml version="1.0"?>
   </wadl:resource_type>
   <wadl:resource_type id="git_repository">
     <wadl:method name="GET" id="git_repository-get"/>
+  </wadl:resource_type>
+</wadl:application>`;
+
+/** Nested canonical URLs from Launchpad's bug-task, archive, and person adapters. */
+export const routeCorrectionsWadl = `<?xml version="1.0"?>
+<wadl:application xmlns:wadl="http://research.sun.com/wadl/2006/10">
+  <wadl:resources base="https://api.launchpad.test/devel/"/>
+  <wadl:representation mediaType="application/json" id="service-root-json">
+    <wadl:param name="specifications_collection_link">
+      <wadl:link resource_type="#specifications"/>
+    </wadl:param>
+    <wadl:param name="me_link"><wadl:link resource_type="#person"/></wadl:param>
+  </wadl:representation>
+  <wadl:resource_type id="distribution_source_package">
+    <wadl:method name="GET" id="distribution_source_package-get"/>
+  </wadl:resource_type>
+  <wadl:resource_type id="archive">
+    <wadl:method name="GET" id="archive-get"/>
+  </wadl:resource_type>
+  <wadl:resource_type id="archive_permission">
+    <wadl:method name="GET" id="archive_permission-get"/>
+  </wadl:resource_type>
+  <wadl:resource_type id="oci_project">
+    <wadl:method name="GET" id="oci_project-get"/>
+  </wadl:resource_type>
+  <wadl:resource_type id="oci_project_series">
+    <wadl:method name="GET" id="oci_project_series-get"/>
+  </wadl:resource_type>
+  <wadl:resource_type id="bug_task">
+    <wadl:method name="GET" id="bug_task-get"/>
+  </wadl:resource_type>
+  <wadl:resource_type id="external_package">
+    <wadl:method name="GET" id="external_package-get"/>
+  </wadl:resource_type>
+  <wadl:resource_type id="external_package_series">
+    <wadl:method name="GET" id="external_package_series-get"/>
+  </wadl:resource_type>
+  <wadl:resource_type id="person">
+    <wadl:method name="GET" id="person-get"/>
+  </wadl:resource_type>
+  <wadl:resource_type id="team">
+    <wadl:method name="GET" id="team-get"/>
+  </wadl:resource_type>
+  <wadl:resource_type id="gpg_key">
+    <wadl:method name="GET" id="gpg_key-get"/>
+  </wadl:resource_type>
+  <wadl:resource_type id="specifications">
+    <wadl:method name="GET" id="specifications-get"/>
+  </wadl:resource_type>
+  <wadl:resource_type id="git_target">
+    <wadl:method name="GET" id="git_target-get"/>
+  </wadl:resource_type>
+  <wadl:resource_type id="unknown">
+    <wadl:method name="GET" id="unknown-get"/>
   </wadl:resource_type>
 </wadl:application>`;
 

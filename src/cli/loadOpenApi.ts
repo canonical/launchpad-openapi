@@ -19,9 +19,9 @@ import readInput from "./readInput.js";
 /**
  * Load WADL from a local file or Launchpad, then generate an OpenAPI document.
  *
- * Online conversion also requests the service root so generated top-level
- * paths use Launchpad's runtime links. A service-root failure is non-fatal;
- * generation then falls back to WADL-derived paths.
+ * Online conversion also requests the service root so exact runtime links
+ * supplement the source-backed route catalog. A service-root failure is
+ * non-fatal; the catalog remains usable offline.
  *
  * @note Impure — performs filesystem or network I/O.
  */

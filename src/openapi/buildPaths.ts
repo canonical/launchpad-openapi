@@ -13,16 +13,15 @@ import type {
 } from "openapi3-ts/oas30";
 import type {
   WadlDocument,
-  WadlParam,
   WadlRepresentation,
   WadlResourceType,
 } from "../wadl/index.js";
 import {
-  COLLECTION_LINK_SUFFIXES,
-  EXAMPLE_BY_RESOURCE,
   HTTP_METHODS,
   JSON_MEDIA_TYPE,
   PAGE_RESOURCE_SUFFIX,
+  ROUTE_CORRECTIONS,
+  ROUTELESS_RESOURCE_TYPES,
   SERVICE_ROOT_REPRESENTATION,
   SERVICE_ROOT_TYPE,
   SPECIAL_RESOURCE_TYPES,
@@ -39,9 +38,9 @@ interface ResourcePath {
 const RESOURCE_PATH_PARAM_PATTERN = /^\{([^=}]+)=(.*)\}$/;
 
 /**
- * Build paths from resource types, runtime links, and editable examples.
+ * Build paths from the canonical route catalog and service-root links.
  *
- * Internal lazr.restful and collection-page resource types are omitted.
+ * Internal, collection-page, and unaddressable marker resource types are omitted.
  */
 export default function buildPaths(
   model: WadlDocument,
@@ -53,57 +52,232 @@ export default function buildPaths(
     model.baseUrl,
     serviceRootLinks,
   );
-  const resourceEntries = Object.values(model.resourceTypes)
-    .filter(
-      (resourceType) =>
-        !SPECIAL_RESOURCE_TYPES.has(resourceType.id) &&
-        !resourceType.id.endsWith(PAGE_RESOURCE_SUFFIX),
-    )
-    .flatMap((resourceType) =>
-      buildResourceTypeEntries(
-        resourceType,
-        toplevelSegments[resourceType.id],
-        schemas,
-      ),
-    );
   const serviceRoot = model.resourceTypes[SERVICE_ROOT_TYPE];
-  return {
-    ...(serviceRoot
-      ? { "/": buildServiceRootGetPath(serviceRoot, schemas) }
-      : {}),
-    ...Object.fromEntries(resourceEntries),
-  };
+  const paths: PathsObject = {};
+  if (serviceRoot) paths["/"] = buildServiceRootGetPath(serviceRoot, schemas);
+  const shapes = new Map<string, { path: string; resourceTypeId: string }>();
+  if (serviceRoot)
+    shapes.set("/", { path: "/", resourceTypeId: SERVICE_ROOT_TYPE });
+  const resolved = new Map<string, readonly string[]>();
+  const resolving = new Set<string>();
+  const operationIds = new Set<string>();
+  if (serviceRoot) operationIds.add("service-root-get");
+
+  for (const resourceType of Object.values(model.resourceTypes)) {
+    if (
+      SPECIAL_RESOURCE_TYPES.has(resourceType.id) ||
+      ROUTELESS_RESOURCE_TYPES[resourceType.id] === true ||
+      resourceType.id.endsWith(PAGE_RESOURCE_SUFFIX)
+    )
+      continue;
+
+    const templates = resolveTemplates(resourceType.id, resolved, resolving);
+    const links = toplevelSegments.get(resourceType.id);
+    const routes: ResourcePath[] = [];
+    const routePaths = new Set<string>();
+    // Runtime service-root links are additional concrete routes, not replacements
+    // for the canonical variants of the same resource.
+    if (links !== undefined) {
+      for (const segment of links) {
+        const base = `/${segment}`;
+        if (routePaths.has(base)) continue;
+        routePaths.add(base);
+        routes.push({ base, pathParams: [] });
+      }
+    }
+    for (const template of templates) {
+      const route = buildResourcePath(resourceType.id, template);
+      if (routePaths.has(route.base)) continue;
+      routePaths.add(route.base);
+      routes.push(route);
+    }
+
+    for (const [index, route] of routes.entries()) {
+      const entries = buildResourceTypeEntries(
+        resourceType,
+        route,
+        schemas,
+        routes.length > 1 ? index + 1 : undefined,
+        operationIds,
+      );
+      if (entries.length === 0) continue;
+      const shape = pathShape(route.base);
+      const owner = shapes.get(shape);
+      if (
+        owner !== undefined &&
+        (owner.resourceTypeId !== resourceType.id || owner.path !== route.base)
+      ) {
+        const primary = paths[owner.path];
+        if (primary === undefined)
+          throw new Error(`Missing path for ${owner.path}`);
+        for (const [path, item] of entries) {
+          addRouteAlternative(primary, {
+            path,
+            resourceTypeId: resourceType.id,
+            item,
+          });
+        }
+        continue;
+      }
+      for (const [path, item] of entries) {
+        const existing = paths[path];
+        if (existing === undefined) {
+          paths[path] = item;
+        } else {
+          mergePathItems(existing, item, path, resourceType.id);
+        }
+      }
+      if (owner === undefined) {
+        shapes.set(shape, {
+          path: paths[route.base] === undefined ? entries[0][0] : route.base,
+          resourceTypeId: resourceType.id,
+        });
+      }
+    }
+  }
+  return paths;
 }
 
-/** Build the base and `ws.op` path entries for one resource type. */
+interface RouteAlternative {
+  path: string;
+  resourceTypeId: string;
+  item: PathItemObject;
+}
+
+const ROUTE_ALTERNATIVES_EXTENSION = "x-launchpad-route-alternatives";
+
+/** OpenAPI does not permit differently named templates at the same path level. */
+function pathShape(path: string): string {
+  return path.replace(/\{[^/{}]+\}/g, "{}");
+}
+
+function addRouteAlternative(
+  item: PathItemObject,
+  alternative: RouteAlternative,
+): void {
+  const extensions = item as PathItemObject & {
+    [ROUTE_ALTERNATIVES_EXTENSION]?: RouteAlternative[];
+  };
+  (extensions[ROUTE_ALTERNATIVES_EXTENSION] ??= []).push(alternative);
+}
+
+/** Merge disjoint methods, keeping conflicting operations inspectable. */
+function mergePathItems(
+  existing: PathItemObject,
+  incoming: PathItemObject,
+  path: string,
+  resourceTypeId: string,
+): void {
+  for (const verb of HTTP_METHODS) {
+    const operation = incoming[verb];
+    if (operation === undefined) continue;
+    if (existing[verb] === undefined) {
+      existing[verb] = operation;
+    } else {
+      addRouteAlternative(existing, {
+        path,
+        resourceTypeId,
+        item: { [verb]: operation },
+      });
+    }
+  }
+  const alternatives = (
+    incoming as PathItemObject & {
+      [ROUTE_ALTERNATIVES_EXTENSION]?: RouteAlternative[];
+    }
+  )[ROUTE_ALTERNATIVES_EXTENSION];
+  if (alternatives !== undefined) {
+    for (const alternative of alternatives)
+      addRouteAlternative(existing, alternative);
+  }
+}
+
+/** Resolve parent/suffix compositions once; bad catalog cycles fail explicitly. */
+function resolveTemplates(
+  resourceTypeId: string,
+  resolved: Map<string, readonly string[]>,
+  resolving: Set<string>,
+): readonly string[] {
+  const cached = resolved.get(resourceTypeId);
+  if (cached !== undefined) return cached;
+  if (resolving.has(resourceTypeId)) {
+    throw new Error(`Cyclic Launchpad route correction at ${resourceTypeId}`);
+  }
+  const correction = ROUTE_CORRECTIONS[resourceTypeId];
+  if (
+    correction === undefined ||
+    ROUTELESS_RESOURCE_TYPES[resourceTypeId] === true
+  ) {
+    return [];
+  }
+  resolving.add(resourceTypeId);
+  try {
+    const templates = new Set(correction.templates ?? []);
+    if (correction.parents !== undefined) {
+      if (correction.suffix === undefined) {
+        throw new Error(`Missing route suffix for ${resourceTypeId}`);
+      }
+      for (const parent of correction.parents) {
+        for (const template of resolveTemplates(parent, resolved, resolving)) {
+          templates.add(`${template}/${correction.suffix}`);
+        }
+      }
+    }
+    const result = [...templates];
+    resolved.set(resourceTypeId, result);
+    return result;
+  } finally {
+    resolving.delete(resourceTypeId);
+  }
+}
+
+/** Build the base and `ws.op` path entries for one resource route. */
 function buildResourceTypeEntries(
   resourceType: WadlResourceType,
-  segment: string | undefined,
+  resourcePath: ResourcePath,
   schemas: SchemasObject,
+  variant: number | undefined,
+  operationIds: Set<string>,
 ): [string, PathItemObject][] {
-  const resourcePath: ResourcePath = segment
-    ? { base: `/${segment}`, pathParams: [] }
-    : buildResourcePath(resourceType.id, EXAMPLE_BY_RESOURCE[resourceType.id]);
   const baseItem: PathItemObject = {};
   const namedItems: Record<string, PathItemObject> = {};
+  const queryParameters = ROUTE_CORRECTIONS[resourceType.id]?.queryParameters;
   for (const method of resourceType.methods) {
     const verb = method.httpMethod.toLowerCase();
     if (!isHttpVerb(verb)) continue;
     if (method.wsOp !== undefined) {
       const operationPath = `${resourcePath.base}?ws.op=${method.wsOp}`;
       const item = (namedItems[operationPath] ??= {});
-      item[verb] = buildNamedOperation({
+      const operation = buildNamedOperation({
         method,
         wsOp: method.wsOp,
         resourceTypeId: resourceType.id,
         pathParams: resourcePath.pathParams,
         schemas,
       });
+      if (queryParameters !== undefined) {
+        operation.parameters = [
+          ...(operation.parameters ?? []),
+          ...queryParameters,
+        ];
+      }
+      setOperationId(
+        operation,
+        `${resourceType.id}-${method.wsOp}`,
+        variant,
+        operationIds,
+      );
+      mergePathItems(
+        item,
+        { [verb]: operation },
+        operationPath,
+        resourceType.id,
+      );
       continue;
     }
     // Launchpad exposes POST through `ws.op`; unnamed POST is not callable.
     if (verb === "post") continue;
-    baseItem[verb] = buildStandardOperation({
+    const operation = buildStandardOperation({
       method,
       verb,
       resourceTypeId: resourceType.id,
@@ -111,12 +285,48 @@ function buildResourceTypeEntries(
       pathParams: resourcePath.pathParams,
       schemas,
     });
+    if (queryParameters !== undefined) {
+      operation.parameters = [
+        ...(operation.parameters ?? []),
+        ...queryParameters,
+      ];
+    }
+    setOperationId(
+      operation,
+      `${resourceType.id}-${verb}`,
+      variant,
+      operationIds,
+    );
+    mergePathItems(
+      baseItem,
+      { [verb]: operation },
+      resourcePath.base,
+      resourceType.id,
+    );
   }
   const entries: [string, PathItemObject][] = Object.entries(namedItems);
   if (Object.keys(baseItem).length) {
     entries.unshift([resourcePath.base, baseItem]);
   }
   return entries;
+}
+
+/** Keep WADL IDs on a sole route; suffix expanded routes and avoid ID reuse. */
+function setOperationId(
+  operation: OperationObject,
+  fallback: string,
+  variant: number | undefined,
+  used: Set<string>,
+): void {
+  const original = operation.operationId;
+  if (original === undefined && variant === undefined) return;
+  const base = original ?? fallback;
+  const candidate = variant === undefined ? base : `${base}-route-${variant}`;
+  let id = candidate;
+  let duplicate = 2;
+  while (used.has(id)) id = `${candidate}-${duplicate++}`;
+  operation.operationId = id;
+  used.add(id);
 }
 
 /** Keep the fixed service-root metadata, honoring declared GET statuses. */
@@ -161,78 +371,42 @@ function buildServiceRootGetPath(
   };
 }
 
-/**
- * Prefer runtime top-level segments, with WADL link names as fallbacks.
- */
+/** Add exact service-root links without deriving URLs from WADL field names. */
 function buildToplevelSegments(
   serviceRoot: WadlRepresentation | undefined,
   baseUrl: string,
   serviceRootLinks: Record<string, string> | undefined,
-): Record<string, string> {
-  const segments: Record<string, string> = {};
+): Map<string, string[]> {
+  const segments = new Map<string, string[]>();
   if (serviceRoot === undefined) return segments;
   for (const field of serviceRoot.fields) {
-    if (field.linkResourceType === undefined) continue;
-    segments[field.linkResourceType] = resolveToplevelSegment(
-      field,
-      baseUrl,
-      serviceRootLinks,
-    );
+    const resourceTypeId = field.linkResourceType;
+    if (resourceTypeId === undefined) continue;
+    const runtimeLink = serviceRootLinks?.[field.name];
+    if (typeof runtimeLink !== "string") continue;
+    const prefix = `${baseUrl}/`;
+    if (!runtimeLink.startsWith(prefix)) continue;
+    const relative = runtimeLink.slice(prefix.length).replace(/\/$/, "");
+    // A root self-link or query/fragment does not prove a resource route.
+    if (
+      relative &&
+      !relative.startsWith("/") &&
+      !relative.includes("?") &&
+      !relative.includes("#")
+    ) {
+      const links = segments.get(resourceTypeId);
+      if (links === undefined) segments.set(resourceTypeId, [relative]);
+      else if (!links.includes(relative)) links.push(relative);
+    }
   }
   return segments;
 }
 
-/**
- * Resolve the runtime segment of a service-root link field.
- *
- * Falls back to the WADL field name when the runtime link is unusable.
- */
-function resolveToplevelSegment(
-  field: WadlParam,
-  baseUrl: string,
-  serviceRootLinks: Record<string, string> | undefined,
-): string {
-  const runtimeLink = serviceRootLinks?.[field.name];
-  const relative = runtimeLink?.startsWith(baseUrl)
-    ? runtimeLink.slice(baseUrl.length).replace(/^\//, "").replace(/\/$/, "")
-    : undefined;
-  return relative && !relative.startsWith("#")
-    ? relative
-    : stripCollectionLinkSuffix(field.name);
-}
-
-/** Remove the first recognized collection-link suffix from a WADL field name. */
-function stripCollectionLinkSuffix(name: string): string {
-  for (const suffix of COLLECTION_LINK_SUFFIXES) {
-    if (name.endsWith(suffix)) return name.slice(0, -suffix.length);
-  }
-  return name;
-}
-
-/**
- * Convert a curated template into a path and required parameters with examples.
- *
- * Missing templates receive one placeholder segment.
- */
+/** Convert a source-backed template into a path and example-bearing parameters. */
 function buildResourcePath(
   resourceTypeId: string,
-  template: string | undefined,
+  template: string,
 ): ResourcePath {
-  if (template === undefined) {
-    return {
-      base: `/{${resourceTypeId}}`,
-      pathParams: [
-        {
-          name: resourceTypeId,
-          in: "path",
-          required: true,
-          description: `Path segment identifying the ${resourceTypeId} resource. Supply the value from the resource URL you want to access.`,
-          schema: { type: "string" },
-        },
-      ],
-    };
-  }
-
   const pathParams: ParameterObject[] = [];
   const segments = template.split("/").map((segment) => {
     const match = RESOURCE_PATH_PARAM_PATTERN.exec(segment);

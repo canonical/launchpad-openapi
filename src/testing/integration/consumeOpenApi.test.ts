@@ -228,9 +228,9 @@ describe("generated WADL response statuses", () => {
     const document = generateOpenApi(
       parseWadl(responseStatusWadl).unwrap(),
     ).unwrap();
-    const create = document.paths["/{widget}?ws.op=create"]?.post;
-    const widget = document.paths["/{widget}"];
-    assert(create !== undefined && widget?.delete !== undefined);
+    const create = document.paths["/bugs/{id}?ws.op=create"]?.post;
+    const bug = document.paths["/bugs/{id}"];
+    assert(create !== undefined && bug?.delete !== undefined);
 
     const directory = await mkdtemp(
       join(tmpdir(), "launchpad-openapi-status-consumer-"),
@@ -254,15 +254,15 @@ describe("generated WADL response statuses", () => {
       },
     });
     expect(create.responses["415"]?.content).toEqual({ "text/plain": {} });
-    expect(Object.keys(widget.delete.responses)).toEqual(["204"]);
-    expect(widget.delete.responses["204"]).not.toHaveProperty("content");
+    expect(Object.keys(bug.delete.responses)).toEqual(["204"]);
+    expect(bug.delete.responses["204"]).not.toHaveProperty("content");
   });
 
   it("keeps statusless JSON responses free of advertised non-JSON media", () => {
     const document = generateOpenApi(
       parseWadl(responseStatusWadl).unwrap(),
     ).unwrap();
-    const operation = document.paths["/{widget}?ws.op=statuslessMedia"]?.get;
+    const operation = document.paths["/bugs/{id}?ws.op=statuslessMedia"]?.get;
     assert(operation !== undefined);
 
     expect(Object.keys(operation.responses)).toEqual(["200"]);
@@ -280,7 +280,7 @@ describe("generated WADL response statuses", () => {
     );
     assert(wadl !== responseStatusWadl);
     const document = generateOpenApi(parseWadl(wadl).unwrap()).unwrap();
-    const operation = document.paths["/{widget}?ws.op=statuslessMedia"]?.get;
+    const operation = document.paths["/bugs/{id}?ws.op=statuslessMedia"]?.get;
     assert(operation !== undefined);
 
     expect(Object.keys(operation.responses)).toEqual(["200"]);
@@ -323,7 +323,7 @@ describe("generated WADL response statuses", () => {
         'href="#widget-error" mediaType="application/json; charset=utf-8"',
       );
     const document = generateOpenApi(parseWadl(wadl).unwrap()).unwrap();
-    const create = document.paths["/{widget}?ws.op=create"]?.post;
+    const create = document.paths["/bugs/{id}?ws.op=create"]?.post;
     assert(create !== undefined);
 
     expect(create.responses["201"]?.content).toEqual({
@@ -344,7 +344,7 @@ describe("generated WADL response statuses", () => {
       'status="201"><wadl:representation href="#widget-error"',
     );
     const document = generateOpenApi(parseWadl(wadl).unwrap()).unwrap();
-    const create = document.paths["/{widget}?ws.op=create"]?.post;
+    const create = document.paths["/bugs/{id}?ws.op=create"]?.post;
     assert(create !== undefined);
 
     const directory = await mkdtemp(

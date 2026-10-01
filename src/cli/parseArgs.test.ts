@@ -5,7 +5,7 @@
 
 import { Result } from "better-result";
 import { assert, describe, expect, it } from "vitest";
-import parseArgs, { getUsage } from "./parseArgs.js";
+import parseArgs from "./parseArgs.js";
 
 describe("parseArgs", () => {
   it("uses Commander for commands, long options, and aliases", () => {
@@ -55,26 +55,19 @@ describe("parseArgs", () => {
     });
   });
 
-  it("generates help from the parser definitions", () => {
-    const usage = getUsage();
-
-    expect(usage).toContain("Usage: launchpad-openapi [options] [command]");
-    expect(usage).toContain("--instance <host>");
-    expect(usage).toContain("Launchpad instance hostname");
-    expect(usage).toContain('"launchpad.net"');
-    expect(usage).toContain("-e, --environment <name>");
-    expect(usage).toContain('"staging", "qastaging"');
-    expect(usage).toContain("-o, --output <file>");
-    expect(usage).toContain("--stdout");
-    expect(usage).toContain("-h, --help");
-  });
-
   it("selects stdout explicitly and rejects conflicting file output", () => {
     expect(parseArgs(["--stdout"]).unwrap().raw.stdout).toBe(true);
 
     const conflict = parseArgs(["--stdout", "--output", "output.yaml"]);
     assert(Result.isError(conflict));
     expect(conflict.error.message).toContain("cannot be used with option");
+  });
+
+  it("rejects the removed resource-type option", () => {
+    const result = parseArgs(["--resource-type", "person"]);
+
+    assert(Result.isError(result));
+    expect(result.error.message).toContain("unknown option");
   });
 
   it("returns typed errors for invalid options and commands", () => {

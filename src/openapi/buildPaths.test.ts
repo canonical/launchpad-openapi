@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 import {
   curatedPathsWadl,
   generatorEdgeWadl,
+  routeCorrectionsWadl,
   sampleWadl,
   serviceRootLinks,
 } from "../../testing/fixtures.js";
@@ -36,10 +37,10 @@ describe("buildPaths", () => {
         },
       });
       expect(paths).toHaveProperty("/people");
-      expect(paths).toHaveProperty("/me");
+      expect(paths).toHaveProperty("/{person}");
     });
 
-    it("prefers usable runtime links and falls back from unusable ones", () => {
+    it("keeps canonical routes when root links are missing or invalid", () => {
       const model = parseWadl(sampleWadl).unwrap();
       const schemas = buildSchemas(model.representations);
       const runtimePaths = buildPaths(model, schemas, serviceRootLinks);
@@ -51,13 +52,17 @@ describe("buildPaths", () => {
         people_collection_link: model.baseUrl,
         me_link: `${model.baseUrl}/people/+me/`,
       });
+      const prefixCollision = buildPaths(model, schemas, {
+        me_link: `${model.baseUrl}2/people/+me`,
+      });
 
       expect(runtimePaths).toHaveProperty("/people");
       expect(runtimePaths).toHaveProperty("/people/+me");
       expect(invalidPaths).toHaveProperty("/people");
-      expect(invalidPaths).toHaveProperty("/me");
+      expect(invalidPaths).toHaveProperty("/{person}");
       expect(emptyPaths).toHaveProperty("/people");
       expect(emptyPaths).toHaveProperty("/people/+me");
+      expect(prefixCollision).not.toHaveProperty("/2/people/+me");
     });
 
     it("emits a body-less root response when its schema is absent", () => {
@@ -118,7 +123,6 @@ describe("buildPaths", () => {
     it.each([
       {
         path: "/{distribution}/+archive/{archive}",
-        operationId: "archive-get",
         examples: [
           ["distribution", "ubuntu"],
           ["archive", "primary"],
@@ -126,53 +130,169 @@ describe("buildPaths", () => {
       },
       {
         path: "/{owner}/{project}/+git/{repository}",
-        operationId: "git_repository-get",
         examples: [
           ["owner", "~launchpad"],
           ["project", "launchpad"],
           ["repository", "launchpad"],
         ],
       },
-    ])(
-      "preserves names and example values in $path",
-      ({ path, operationId, examples }) => {
-        const model = parseWadl(curatedPathsWadl).unwrap();
-        const paths = buildPaths(model, buildSchemas(model.representations));
-        const operation = paths[path]?.get;
-
-        expect(operation?.operationId).toBe(operationId);
-        expect.soft(operation?.parameters).toEqual(
-          examples.map(([name, example]) =>
-            expect.objectContaining({
-              name,
-              in: "path",
-              required: true,
-              schema: { type: "string", example },
-            }),
-          ),
-        );
-        operation?.parameters?.forEach((parameter) => {
-          expect.soft(parameter).not.toHaveProperty("default");
-        });
-      },
-    );
-
-    it("keeps unknown-resource placeholders required without invented examples or defaults", () => {
-      const model = parseWadl(generatorEdgeWadl).unwrap();
+    ])("preserves names and example values in $path", ({ path, examples }) => {
+      const model = parseWadl(curatedPathsWadl).unwrap();
       const paths = buildPaths(model, buildSchemas(model.representations));
-      const parameters = paths["/{unknown}"]?.get?.parameters;
+      const operation = paths[path]?.get;
 
-      expect(parameters).toEqual([
-        expect.objectContaining({
-          name: "unknown",
-          in: "path",
-          required: true,
-          schema: { type: "string" },
-        }),
-      ]);
-      expect(parameters?.[0]).not.toHaveProperty("example");
-      expect(parameters?.[0]).not.toHaveProperty("examples");
-      expect(parameters?.[0]).not.toHaveProperty("default");
+      expect.soft(operation?.parameters).toEqual(
+        examples.map(([name, example]) =>
+          expect.objectContaining({
+            name,
+            in: "path",
+            required: true,
+            schema: { type: "string", example },
+          }),
+        ),
+      );
+      operation?.parameters?.forEach((parameter) => {
+        expect.soft(parameter).not.toHaveProperty("default");
+      });
+    });
+
+    it("exposes distinct bug-task targets and named person URLs without invented paths", () => {
+      const model = parseWadl(routeCorrectionsWadl).unwrap();
+      const paths = buildPaths(model, buildSchemas(model.representations), {
+        me_link: `${model.baseUrl}/people/+me`,
+        specifications_collection_link: `${model.baseUrl}/`,
+      });
+      const sourceTask =
+        paths["/{distribution}/+source/{source}/+bug/{id}"]?.get;
+      const ppaTask =
+        paths["/{owner}/+archive/{distribution}/{archive}/+bug/{id}"]?.get;
+      expect(sourceTask?.tags).toContain("bug_task");
+      expect(ppaTask?.tags).toContain("bug_task");
+      expect(sourceTask?.operationId).not.toBe(ppaTask?.operationId);
+      expect(paths).not.toHaveProperty("/{bug_task}");
+      expect(paths).not.toHaveProperty("/{unknown}");
+      expect(paths["/people/+me"]?.get?.tags).toContain("person");
+      expect(paths["/{person}"]?.get?.tags).toContain("person");
+      expect(paths["/specs"]?.get?.tags).toContain("specifications");
+      expect(paths).not.toHaveProperty("/specifications");
+      expect(paths["/{person}"]?.["x-launchpad-route-alternatives"]).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: "/{team}",
+            resourceTypeId: "team",
+            item: expect.objectContaining({
+              get: expect.objectContaining({ tags: ["team"] }),
+            }),
+          }),
+        ]),
+      );
+    });
+    it("retains same-shape OCI routes in complete documents", () => {
+      const model = parseWadl(routeCorrectionsWadl).unwrap();
+      const paths = buildPaths(model, buildSchemas(model.representations));
+      for (const [resourceType, suffix] of [
+        ["oci_project", ""],
+        ["oci_project_series", "/+series/{series}"],
+      ]) {
+        const primary = paths[`/{distribution}/+oci/{oci_project}${suffix}`];
+        expect(primary?.get?.tags).toEqual([resourceType]);
+        expect(primary?.["x-launchpad-route-alternatives"]).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              path: `/{project}/+oci/{oci_project}${suffix}`,
+              resourceTypeId: resourceType,
+              item: expect.objectContaining({
+                get: expect.objectContaining({
+                  parameters: expect.arrayContaining([
+                    expect.objectContaining({
+                      in: "path",
+                      name: "project",
+                      schema: expect.objectContaining({ example: "launchpad" }),
+                    }),
+                  ]),
+                }),
+              }),
+            }),
+          ]),
+        );
+      }
+    });
+    it("uses an accepted GPG fingerprint length in the request example", () => {
+      const model = parseWadl(routeCorrectionsWadl).unwrap();
+      const paths = buildPaths(model, buildSchemas(model.representations));
+      expect(
+        paths["/{person}/+gpg-keys/{fingerprint}"]?.get?.parameters,
+      ).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            name: "fingerprint",
+            schema: expect.objectContaining({
+              example: expect.stringMatching(/^[A-F0-9]{40}$/),
+            }),
+          }),
+        ]),
+      );
+    });
+    it("emits only traversable external package channel shapes", () => {
+      const model = parseWadl(routeCorrectionsWadl).unwrap();
+      const paths = buildPaths(model, buildSchemas(model.representations));
+      const suffixes = [
+        "",
+        "/+risk/{risk}",
+        "/+track/{track}/+risk/{risk}",
+        "/+risk/{risk}/+branch/{branch}",
+        "/+track/{track}/+risk/{risk}/+branch/{branch}",
+      ];
+      for (const [resourceType, prefix] of [
+        ["external_package", "/{distribution}/+snap/{package}"],
+        ["external_package_series", "/{distribution}/{series}/+snap/{package}"],
+        [
+          "external_package_series",
+          "/{distribution}/+series/{series}/+snap/{package}",
+        ],
+      ]) {
+        const actual = Object.entries(paths)
+          .filter(
+            ([path, item]) =>
+              path.startsWith(prefix) && item.get?.tags?.includes(resourceType),
+          )
+          .map(([path]) => path);
+        expect(actual).toEqual(suffixes.map((suffix) => `${prefix}${suffix}`));
+      }
+    });
+    it("uses archive permission path and required query selectors", () => {
+      const model = parseWadl(routeCorrectionsWadl).unwrap();
+      const paths = buildPaths(model, buildSchemas(model.representations));
+      const permission =
+        paths["/{distribution}/+archive/{archive}/+upload/{user}"]?.get;
+
+      expect(permission?.parameters).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            name: "type",
+            in: "query",
+            required: true,
+            schema: expect.objectContaining({
+              type: "string",
+              enum: ["component", "packagename", "packageset", "pocket"],
+            }),
+          }),
+          expect.objectContaining({
+            name: "item",
+            in: "query",
+            required: true,
+          }),
+          expect.objectContaining({
+            name: "series",
+            in: "query",
+            required: false,
+          }),
+        ]),
+      );
+      expect(
+        paths["/{owner}/+archive/{distribution}/{archive}/+queue-admin/{user}"]
+          ?.get,
+      ).toBeDefined();
     });
 
     it("skips special, page, unsupported, and verbless POST resources", () => {

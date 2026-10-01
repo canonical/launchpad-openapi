@@ -75,7 +75,9 @@ launchpad-openapi \
   --output staging-openapi.yaml
 ```
 
-Online conversion also reads the Launchpad service root to resolve top-level collection paths. If the service root is unavailable, conversion falls back to paths derived from the WADL document.
+Online conversion uses service-root links to supplement source-backed canonical routes; local-file conversion uses the same checked-in catalog. Unverified WADL types are reported in `x-launchpad-route-coverage` rather than assigned invented paths.
+
+OpenAPI cannot represent two differently named templates with the same path shape. The first route is primary; every other canonical route and its operations remain in `x-launchpad-route-alternatives`, even for variants of the same resource type.
 
 ## Development
 

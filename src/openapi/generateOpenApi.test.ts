@@ -9,6 +9,7 @@ import {
   emptyWadl,
   generatorEdgeWadl,
   sampleWadl,
+  routeCorrectionsWadl,
   serviceRootLinks,
 } from "../../testing/fixtures.js";
 import { parseWadl } from "../wadl/index.js";
@@ -78,11 +79,18 @@ describe("generateOpenApi", () => {
       expect(sample.info.version).toBe("1.0");
       expect(edge.info.version).toBe("devel");
       expect(edge.info.description).toBe(HYPERMEDIA_NOTE);
-      expect(edge.tags).toEqual([
-        { name: "bug" },
-        { name: "service-root" },
-        { name: "unknown" },
-      ]);
+      expect(edge.tags).toEqual([{ name: "bug" }, { name: "service-root" }]);
+    });
+    it("reports WADL types that have no verified callable route", () => {
+      const document = generateOpenApi(
+        parseWadl(routeCorrectionsWadl).unwrap(),
+      ).unwrap();
+
+      expect(document["x-launchpad-route-coverage"]).toMatchObject({
+        unresolved: ["unknown"],
+        schemaOnly: ["git_target"],
+      });
+      expect(document.paths).not.toHaveProperty("/{unknown}");
     });
   });
 

@@ -202,7 +202,7 @@ describe("buildStandardOperation", () => {
   });
   describe("declared responses", () => {
     const model = parseWadl(responseStatusWadl).unwrap();
-    const methods = model.resourceTypes.widget?.methods;
+    const methods = model.resourceTypes.bug?.methods;
     assert(methods !== undefined);
     const schemas = buildSchemas(model.representations);
 
@@ -253,7 +253,7 @@ describe("buildStandardOperation", () => {
 describe("buildNamedOperation", () => {
   it("retains named POST success, error, and schema-less non-JSON statuses", () => {
     const model = parseWadl(responseStatusWadl).unwrap();
-    const methods = model.resourceTypes.widget?.methods;
+    const methods = model.resourceTypes.bug?.methods;
     assert(methods !== undefined);
     const schemas = buildSchemas(model.representations);
 
