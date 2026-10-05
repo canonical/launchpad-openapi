@@ -27,11 +27,14 @@ import {
   SPECIAL_RESOURCE_TYPES,
   type SupportedHttpMethod,
 } from "./constants.js";
+import { ConversionError } from "./errors.js";
 import { buildNamedOperation, buildStandardOperation } from "./operations.js";
+import type { RouteTemplate } from "./types.js";
 
 interface ResourcePath {
   base: string;
   pathParams: ParameterObject[];
+  operationSuffix?: string;
 }
 
 /** Match editable `{name=example}` path segments. */
@@ -41,6 +44,7 @@ const RESOURCE_PATH_PARAM_PATTERN = /^\{([^=}]+)=(.*)\}$/;
  * Build paths from the canonical route catalog and service-root links.
  *
  * Internal, collection-page, and unaddressable marker resource types are omitted.
+ * Data-dependent naming conflicts throw ConversionError.
  */
 export default function buildPaths(
   model: WadlDocument,
@@ -58,10 +62,10 @@ export default function buildPaths(
   const shapes = new Map<string, { path: string; resourceTypeId: string }>();
   if (serviceRoot)
     shapes.set("/", { path: "/", resourceTypeId: SERVICE_ROOT_TYPE });
-  const resolved = new Map<string, readonly string[]>();
+  const resolved = new Map<string, readonly RouteTemplate[]>();
   const resolving = new Set<string>();
-  const operationIds = new Set<string>();
-  if (serviceRoot) operationIds.add("service-root-get");
+  const operationIds = new Map<string, string>();
+  if (serviceRoot) operationIds.set("service-root-get", "service-root GET /");
 
   for (const resourceType of Object.values(model.resourceTypes)) {
     if (
@@ -73,31 +77,59 @@ export default function buildPaths(
 
     const templates = resolveTemplates(resourceType.id, resolved, resolving);
     const links = toplevelSegments.get(resourceType.id);
-    const routes: ResourcePath[] = [];
-    const routePaths = new Set<string>();
+    const canonicalRoutes = new Map<string, ResourcePath>();
+    for (const template of templates) {
+      const route = buildResourcePath(resourceType.id, template);
+      const existing = canonicalRoutes.get(route.base);
+      if (existing !== undefined) {
+        if (existing.operationSuffix !== route.operationSuffix) {
+          throw new Error(
+            `Conflicting Launchpad route labels for ${resourceType.id} at ${route.base}`,
+          );
+        }
+      } else {
+        canonicalRoutes.set(route.base, route);
+      }
+    }
+    const routes =
+      links === undefined ? canonicalRoutes : new Map<string, ResourcePath>();
     // Runtime service-root links are additional concrete routes, not replacements
     // for the canonical variants of the same resource.
     if (links !== undefined) {
-      for (const segment of links) {
-        const base = `/${segment}`;
-        if (routePaths.has(base)) continue;
-        routePaths.add(base);
-        routes.push({ base, pathParams: [] });
+      for (const link of links) {
+        const base = `/${link.template}`;
+        const canonical = canonicalRoutes.get(base);
+        const existing = routes.get(base);
+        if (existing !== undefined) {
+          if (
+            canonical === undefined &&
+            existing.operationSuffix !== link.operationSuffix
+          ) {
+            throw new ConversionError({
+              message: `Conflicting Launchpad route labels for ${resourceType.id} at ${base}`,
+            });
+          }
+          continue;
+        }
+        routes.set(
+          base,
+          canonical ?? {
+            base,
+            pathParams: [],
+            operationSuffix: link.operationSuffix,
+          },
+        );
+      }
+      for (const route of canonicalRoutes.values()) {
+        if (!routes.has(route.base)) routes.set(route.base, route);
       }
     }
-    for (const template of templates) {
-      const route = buildResourcePath(resourceType.id, template);
-      if (routePaths.has(route.base)) continue;
-      routePaths.add(route.base);
-      routes.push(route);
-    }
 
-    for (const [index, route] of routes.entries()) {
+    for (const route of routes.values()) {
       const entries = buildResourceTypeEntries(
         resourceType,
         route,
         schemas,
-        routes.length > 1 ? index + 1 : undefined,
         operationIds,
       );
       if (entries.length === 0) continue;
@@ -195,9 +227,9 @@ function mergePathItems(
 /** Resolve parent/suffix compositions once; bad catalog cycles fail explicitly. */
 function resolveTemplates(
   resourceTypeId: string,
-  resolved: Map<string, readonly string[]>,
+  resolved: Map<string, readonly RouteTemplate[]>,
   resolving: Set<string>,
-): readonly string[] {
+): readonly RouteTemplate[] {
   const cached = resolved.get(resourceTypeId);
   if (cached !== undefined) return cached;
   if (resolving.has(resourceTypeId)) {
@@ -212,18 +244,43 @@ function resolveTemplates(
   }
   resolving.add(resourceTypeId);
   try {
-    const templates = new Set(correction.templates ?? []);
+    const templates = new Map<string, RouteTemplate>();
+    const addTemplate = (route: RouteTemplate): void => {
+      const existing = templates.get(route.template);
+      if (existing === undefined) {
+        templates.set(route.template, route);
+      } else if (existing.operationSuffix !== route.operationSuffix) {
+        throw new Error(
+          `Conflicting Launchpad route labels for ${resourceTypeId} at ${route.template}`,
+        );
+      }
+    };
+    for (const template of correction.templates ?? []) addTemplate(template);
     if (correction.parents !== undefined) {
       if (correction.suffix === undefined) {
         throw new Error(`Missing route suffix for ${resourceTypeId}`);
       }
       for (const parent of correction.parents) {
-        for (const template of resolveTemplates(parent, resolved, resolving)) {
-          templates.add(`${template}/${correction.suffix}`);
+        for (const route of resolveTemplates(
+          parent.resourceType,
+          resolved,
+          resolving,
+        )) {
+          const prefix = parent.operationSuffixPrefix;
+          const operationSuffix =
+            prefix === undefined
+              ? route.operationSuffix
+              : route.operationSuffix === undefined
+                ? prefix
+                : `${prefix}-${route.operationSuffix}`;
+          addTemplate({
+            template: `${route.template}/${correction.suffix}`,
+            operationSuffix,
+          });
         }
       }
     }
-    const result = [...templates];
+    const result = [...templates.values()];
     resolved.set(resourceTypeId, result);
     return result;
   } finally {
@@ -236,8 +293,7 @@ function buildResourceTypeEntries(
   resourceType: WadlResourceType,
   resourcePath: ResourcePath,
   schemas: SchemasObject,
-  variant: number | undefined,
-  operationIds: Set<string>,
+  operationIds: Map<string, string>,
 ): [string, PathItemObject][] {
   const baseItem: PathItemObject = {};
   const namedItems: Record<string, PathItemObject> = {};
@@ -264,8 +320,9 @@ function buildResourceTypeEntries(
       setOperationId(
         operation,
         `${resourceType.id}-${method.wsOp}`,
-        variant,
+        resourcePath.operationSuffix,
         operationIds,
+        `${resourceType.id} ${method.httpMethod} ${operationPath}`,
       );
       mergePathItems(
         item,
@@ -294,8 +351,9 @@ function buildResourceTypeEntries(
     setOperationId(
       operation,
       `${resourceType.id}-${verb}`,
-      variant,
+      resourcePath.operationSuffix,
       operationIds,
+      `${resourceType.id} ${method.httpMethod} ${resourcePath.base}`,
     );
     mergePathItems(
       baseItem,
@@ -311,22 +369,30 @@ function buildResourceTypeEntries(
   return entries;
 }
 
-/** Keep WADL IDs on a sole route; suffix expanded routes and avoid ID reuse. */
+/** Preserve the base ID, appending only catalog labels; conflicting IDs fail. */
 function setOperationId(
   operation: OperationObject,
   fallback: string,
-  variant: number | undefined,
-  used: Set<string>,
+  operationSuffix: string | undefined,
+  used: Map<string, string>,
+  source: string,
 ): void {
   const original = operation.operationId;
-  if (original === undefined && variant === undefined) return;
+  if (original === undefined && operationSuffix === undefined) {
+    delete operation.operationId;
+    return;
+  }
   const base = original ?? fallback;
-  const candidate = variant === undefined ? base : `${base}-route-${variant}`;
-  let id = candidate;
-  let duplicate = 2;
-  while (used.has(id)) id = `${candidate}-${duplicate++}`;
+  const id =
+    operationSuffix === undefined ? base : `${base}-${operationSuffix}`;
+  const previous = used.get(id);
+  if (previous !== undefined) {
+    throw new ConversionError({
+      message: `Conflicting Launchpad operation ID ${id}: ${previous} and ${source}`,
+    });
+  }
   operation.operationId = id;
-  used.add(id);
+  used.set(id, source);
 }
 
 /** Keep the fixed service-root metadata, honoring declared GET statuses. */
@@ -376,8 +442,8 @@ function buildToplevelSegments(
   serviceRoot: WadlRepresentation | undefined,
   baseUrl: string,
   serviceRootLinks: Record<string, string> | undefined,
-): Map<string, string[]> {
-  const segments = new Map<string, string[]>();
+): Map<string, RouteTemplate[]> {
+  const segments = new Map<string, RouteTemplate[]>();
   if (serviceRoot === undefined) return segments;
   for (const field of serviceRoot.fields) {
     const resourceTypeId = field.linkResourceType;
@@ -395,8 +461,12 @@ function buildToplevelSegments(
       !relative.includes("#")
     ) {
       const links = segments.get(resourceTypeId);
-      if (links === undefined) segments.set(resourceTypeId, [relative]);
-      else if (!links.includes(relative)) links.push(relative);
+      const route = {
+        template: relative,
+        operationSuffix: field.name.replace(/(?:_collection)?_link$/, ""),
+      };
+      if (links === undefined) segments.set(resourceTypeId, [route]);
+      else links.push(route);
     }
   }
   return segments;
@@ -405,10 +475,10 @@ function buildToplevelSegments(
 /** Convert a source-backed template into a path and example-bearing parameters. */
 function buildResourcePath(
   resourceTypeId: string,
-  template: string,
+  route: RouteTemplate,
 ): ResourcePath {
   const pathParams: ParameterObject[] = [];
-  const segments = template.split("/").map((segment) => {
+  const segments = route.template.split("/").map((segment) => {
     const match = RESOURCE_PATH_PARAM_PATTERN.exec(segment);
     if (match === null) return segment;
     const name = match[1];
@@ -422,7 +492,11 @@ function buildResourcePath(
     });
     return `{${name}}`;
   });
-  return { base: `/${segments.join("/")}`, pathParams };
+  return {
+    base: `/${segments.join("/")}`,
+    pathParams,
+    operationSuffix: route.operationSuffix,
+  };
 }
 
 /** Narrow an arbitrary WADL method name to a supported OpenAPI HTTP verb. */

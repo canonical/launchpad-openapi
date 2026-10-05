@@ -4,7 +4,7 @@
  */
 
 import { Result } from "better-result";
-import { assert, describe, expect, it } from "vitest";
+import { assert, describe, expect, it, vi } from "vitest";
 import {
   emptyWadl,
   generatorEdgeWadl,
@@ -14,6 +14,8 @@ import {
 } from "../../testing/fixtures.js";
 import { parseWadl } from "../wadl/index.js";
 import { HYPERMEDIA_NOTE } from "./constants.js";
+import type * as Constants from "./constants.js";
+import { ConversionError } from "./errors.js";
 import generateOpenApi from "./generateOpenApi.js";
 
 describe("generateOpenApi", () => {
@@ -103,6 +105,77 @@ describe("generateOpenApi", () => {
       expect(result.error.message).toBe(
         "WADL contains no resource types; not a Launchpad web service description",
       );
+    });
+
+    it("returns a typed error for conflicting service-root alias labels", () => {
+      const model = parseWadl(sampleWadl).unwrap();
+      const root = model.representations["service-root-json"];
+      const alias = root?.fields.find((field) => field.name === "me_link");
+      assert(root !== undefined && alias !== undefined);
+      root.fields.push({ ...alias, name: "current_person_link" });
+
+      const result = generateOpenApi(model, {
+        serviceRootLinks: {
+          me_link: `${model.baseUrl}/people/+me`,
+          current_person_link: `${model.baseUrl}/people/+me`,
+        },
+      });
+
+      assert(Result.isError(result));
+      expect(result.error).toBeInstanceOf(ConversionError);
+      expect(result.error.message).toContain("person");
+      expect(result.error.message).toContain("/people/+me");
+    });
+
+    it("returns a typed error for duplicate WADL operation IDs across routes", () => {
+      const model = parseWadl(
+        sampleWadl.replace('id="person-get"', 'id="people-get"'),
+      ).unwrap();
+
+      const result = generateOpenApi(model);
+
+      assert(Result.isError(result));
+      expect(result.error).toBeInstanceOf(ConversionError);
+      expect(result.error.message).toContain("people-get");
+      expect(result.error.message).toContain("/people");
+      expect(result.error.message).toContain("/{person}");
+    });
+  });
+
+  describe("invalid route catalog", () => {
+    it("lets a cyclic route correction escape as an unexpected Error", async () => {
+      vi.resetModules();
+      vi.doMock("./constants.js", async (importOriginal) => {
+        const constants = await importOriginal<typeof Constants>();
+        return {
+          ...constants,
+          ROUTE_CORRECTIONS: {
+            ...constants.ROUTE_CORRECTIONS,
+            person: {
+              parents: [{ resourceType: "person" }],
+              suffix: "+child",
+            },
+          },
+        };
+      });
+      try {
+        // Reloading after doMock isolates the catalog; a static import is cached.
+        const { default: generator } = await import("./generateOpenApi.js");
+        let failure: unknown;
+        try {
+          generator(parseWadl(sampleWadl).unwrap());
+        } catch (error) {
+          failure = error;
+        }
+
+        assert(failure instanceof Error);
+        expect(failure.constructor).toBe(Error);
+        expect(failure.message).toMatch(/cyclic/i);
+        expect(failure.message).toContain("person");
+      } finally {
+        vi.doUnmock("./constants.js");
+        vi.resetModules();
+      }
     });
   });
 });

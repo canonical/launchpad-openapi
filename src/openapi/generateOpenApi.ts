@@ -31,6 +31,7 @@ import type { GenerateOptions } from "./types.js";
  *
  * Exact runtime service-root links supplement reviewed canonical routes;
  * unresolved WADL types are reported instead of assigned invented URLs.
+ * Naming conflicts in input return ConversionError; catalog defects remain exceptions.
  */
 export default function generateOpenApi(
   model: WadlDocument,
@@ -45,7 +46,13 @@ export default function generateOpenApi(
     );
   }
   const schemas = buildSchemas(model.representations);
-  const paths = buildPaths(model, schemas, options.serviceRootLinks);
+  let paths: PathsObject;
+  try {
+    paths = buildPaths(model, schemas, options.serviceRootLinks);
+  } catch (cause) {
+    if (cause instanceof ConversionError) return Result.err(cause);
+    throw cause;
+  }
   // Launchpad API versions are the final segment of the base URL.
   const version =
     options.version ?? model.baseUrl.slice(model.baseUrl.lastIndexOf("/") + 1);

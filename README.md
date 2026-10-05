@@ -79,6 +79,18 @@ Online conversion uses service-root links to supplement source-backed canonical 
 
 OpenAPI cannot represent two differently named templates with the same path shape. The first route is primary; every other canonical route and its operations remain in `x-launchpad-route-alternatives`, even for variants of the same resource type.
 
+### Operation IDs
+
+Canonical route variants have explicit semantic labels in `src/openapi/constants.ts`. The existing base-ID policy is unchanged: archive operations now use names such as `archive-getPublishedSources-distribution` and `archive-getPublishedSources-ppa`.
+
+Route templates declare `template` and optional `operationSuffix`; parent branches declare `resourceType` and optional `operationSuffixPrefix`. Children inherit parent labels, with explicit prefixes distinguishing multi-parent targets. The URL `suffix` remains separate from operation naming. For a canonical catalog template, an absent operation suffix preserves the base ID even when routes are added, removed, or reordered.
+
+Service-root aliases retain field identity (`me_link` produces the `me` label). An uncatalogued link-only route uses its field-derived label even when it is the only route: `polls-get` reached through `polls_collection_link` becomes `polls-get-polls`. Runtime route count never determines labels. Adding a matching canonical entry can change the ID through explicit catalog metadata; an entry without an operation suffix uses `polls-get`.
+
+Links matching canonical paths deduplicate without changing canonical IDs or parameters. Conflicting discovered alias labels or final operation IDs return `Err(ConversionError)` from `generateOpenApi` rather than receiving numeric suffixes. Malformed checked-in catalog definitions (cycles, missing URL suffixes, or conflicting canonical metadata) remain programming exceptions.
+
+This is a breaking naming migration with no compatibility aliases. URL templates, parameters, response schemas, and `x-launchpad-route-alternatives` are unchanged.
+
 ### Response field types
 
 Missing response-property types are supplemented by bundled metadata extracted from Launchpad's exported Python interfaces and registered JSON field marshallers. The same catalog is used online and offline, including inherited fields, exported wire-name aliases, array items, and dictionary values.

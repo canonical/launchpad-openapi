@@ -258,6 +258,9 @@ export const curatedPathsWadl = `<?xml version="1.0"?>
   <wadl:resources base="https://api.launchpad.test/devel/"/>
   <wadl:resource_type id="archive">
     <wadl:method name="GET" id="archive-get"/>
+    <wadl:method name="GET" id="archive-getPublishedSources">
+      <wadl:request><wadl:param name="ws.op" fixed="getPublishedSources"/></wadl:request>
+    </wadl:method>
   </wadl:resource_type>
   <wadl:resource_type id="git_repository">
     <wadl:method name="GET" id="git_repository-get"/>
@@ -315,6 +318,27 @@ export const routeCorrectionsWadl = `<?xml version="1.0"?>
   </wadl:resource_type>
   <wadl:resource_type id="unknown">
     <wadl:method name="GET" id="unknown-get"/>
+  </wadl:resource_type>
+</wadl:application>`;
+
+/** Small resources for isolated semantic route catalog permutations. */
+export const semanticRoutesWadl = `<?xml version="1.0"?>
+<wadl:application xmlns:wadl="http://research.sun.com/wadl/2006/10">
+  <wadl:resources base="https://api.launchpad.test/devel/"/>
+  <wadl:resource_type id="semantic_item">
+    <wadl:method name="GET" id="semantic_item-get"/>
+    <wadl:method name="GET" id="semantic-source-inspect">
+      <wadl:request><wadl:param name="ws.op" fixed="inspect"/></wadl:request>
+    </wadl:method>
+  </wadl:resource_type>
+  <wadl:resource_type id="semantic_child">
+    <wadl:method name="GET" id="semantic_child-get"/>
+  </wadl:resource_type>
+  <wadl:resource_type id="anonymous_route">
+    <wadl:method name="GET"/>
+    <wadl:method name="GET">
+      <wadl:request><wadl:param name="ws.op" fixed="inspect"/></wadl:request>
+    </wadl:method>
   </wadl:resource_type>
 </wadl:application>`;
 
