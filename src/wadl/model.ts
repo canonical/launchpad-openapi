@@ -25,6 +25,8 @@ export class WadlParam {
       | { name: string; namespaceUri: string | undefined }
       | undefined,
     public readonly repeating: boolean,
+    /** Preserve attribute presence even when its QName cannot be resolved. */
+    public readonly hasExplicitType: boolean,
   ) {}
 
   /** Read one `<param>` element; omit elements without a name. */
@@ -44,6 +46,7 @@ export class WadlParam {
       options.length === 0 ? undefined : options,
       resolveDataType(raw),
       raw.attributes.repeating === "true",
+      raw.attributes.type !== undefined,
     );
   }
 }

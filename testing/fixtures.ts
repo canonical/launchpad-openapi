@@ -318,41 +318,6 @@ export const routeCorrectionsWadl = `<?xml version="1.0"?>
   </wadl:resource_type>
 </wadl:application>`;
 
-/** Synthetic resource representations for observed full-field types and independent diff fields. */
-export const resourceFieldContractsWadl = `<?xml version="1.0"?>
-<wadl:application xmlns:wadl="http://research.sun.com/wadl/2006/10"
-                  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <wadl:resources base="https://api.launchpad.test/devel/"/>
-  <wadl:representation mediaType="application/json" id="bug-full">
-    <wadl:param name="id" required="true"/>
-    <wadl:param name="heat" required="true"/>
-    <wadl:param name="private" required="true"/>
-    <wadl:param name="security_related"/>
-    <wadl:param name="tags" required="true"/>
-    <wadl:param name="duplicate_of_link" required="true">
-      <wadl:link resource_type="#bug"/>
-    </wadl:param>
-    <wadl:param name="opaque_payload"/>
-  </wadl:representation>
-  <wadl:representation mediaType="application/json" id="bug-diff">
-    <wadl:param name="private" type="xsd:string"/>
-  </wadl:representation>
-  <wadl:representation mediaType="application/json" id="project-full">
-    <wadl:param name="active" required="true"/>
-    <wadl:param name="licenses" required="true"/>
-    <wadl:param name="content_templates" required="true"/>
-  </wadl:representation>
-  <wadl:representation mediaType="application/json" id="project-diff">
-    <wadl:param name="content_templates" type="xsd:string"/>
-  </wadl:representation>
-  <wadl:representation mediaType="application/json" id="distribution-full">
-    <wadl:param name="content_templates" required="true"/>
-  </wadl:representation>
-  <wadl:representation mediaType="application/json" id="archive-full">
-    <wadl:param name="relative_build_score" required="true"/>
-    <wadl:param name="authorized_size" required="true"/>
-  </wadl:representation>
-</wadl:application>`;
 /** Branch lookup WADL: one nullable lookup, one URL mapping, and independent controls. */
 export const branchLookupWadl = `<?xml version="1.0"?>
 <wadl:application xmlns:wadl="http://research.sun.com/wadl/2006/10"
@@ -428,3 +393,110 @@ export const observedBranchLookup = {
   },
   "lp:definitely-missing-client-design-probe": null,
 };
+
+/** Source-backed Launchpad fields with WADL-owned presence and explicit-type variants. */
+export const metadataEnrichmentWadl = `<?xml version="1.0"?>
+<wadl:application xmlns:wadl="http://research.sun.com/wadl/2006/10"
+                  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                  xmlns:foreign="urn:not-the-xml-schema-namespace">
+  <wadl:resources base="https://api.launchpad.test/beta/"/>
+  <wadl:resource_type id="project">
+    <wadl:method name="GET" id="project-get">
+      <wadl:response><wadl:representation href="#project-full"/></wadl:response>
+    </wadl:method>
+    <wadl:method name="PATCH" id="project-patch">
+      <wadl:request><wadl:representation href="#project-diff"/></wadl:request>
+      <wadl:response><wadl:representation href="#project-full"/></wadl:response>
+    </wadl:method>
+    <wadl:method name="PUT" id="project-put">
+      <wadl:request><wadl:representation href="#project-full"/></wadl:request>
+      <wadl:response><wadl:representation href="#project-full"/></wadl:response>
+    </wadl:method>
+  </wadl:resource_type>
+  <wadl:representation mediaType="application/json" id="project-full">
+    <wadl:param name="display_name" required="true"/>
+    <wadl:param name="owner_link" required="true"><wadl:link resource_type="#person"/></wadl:param>
+    <wadl:param name="driver_link"><wadl:link resource_type="#person"/></wadl:param>
+    <wadl:param name="active"/>
+    <wadl:param name="license_approved"/>
+    <wadl:param name="vcs" type="xsd:string">
+      <wadl:option value="Bazaar"/><wadl:option value="Git"/>
+    </wadl:param>
+    <wadl:param name="licenses" required="true"/>
+    <wadl:param name="content_templates" required="true"/>
+    <wadl:param name="count" required="true"><wadl:doc>An integer count, or null.</wadl:doc></wadl:param>
+    <wadl:param name="opaque_payload"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="project-diff">
+    <wadl:param name="display_name"/>
+    <wadl:param name="owner_link"><wadl:link resource_type="#person"/></wadl:param>
+    <wadl:param name="driver_link"><wadl:link resource_type="#person"/></wadl:param>
+    <wadl:param name="licenses" type="xsd:string"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="project-write">
+    <wadl:param name="display_name" required="true"/>
+    <wadl:param name="owner_link" required="true"><wadl:link resource_type="#person"/></wadl:param>
+    <wadl:param name="driver_link"><wadl:link resource_type="#person"/></wadl:param>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="person-full">
+    <wadl:param name="display_name"/>
+    <wadl:param name="latitude" required="true"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="archive-full">
+    <wadl:param name="name"/>
+    <wadl:param name="relative_build_score"/>
+    <wadl:param name="signing_key_fingerprint" required="true" type="xsd:string"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="bug-full">
+    <wadl:param name="id"/>
+    <wadl:param name="private"/>
+    <wadl:param name="tags" required="true"/>
+    <wadl:param name="duplicate_of_link" required="true">
+      <wadl:link resource_type="#bug"/>
+    </wadl:param>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="git_repository-full">
+    <wadl:param name="description"/>
+    <wadl:param name="builder_constraints" required="true"/>
+    <wadl:param name="owner_default"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="git_repository-diff">
+    <wadl:param name="builder_constraints"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="imaginary_project-full">
+    <wadl:param name="display_name" required="true"/>
+    <wadl:param name="active"/>
+    <wadl:param name="tags"/>
+    <wadl:param name="start" type="foreign:string"/>
+    <wadl:param name="total_size" type="foreign:string"/>
+    <wadl:param name="entries" type="foreign:string"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="imaginary_project-diff">
+    <wadl:param name="start"/>
+    <wadl:param name="total_size"/>
+    <wadl:param name="entries"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="snap-full">
+    <wadl:param name="private"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="builder-full">
+    <wadl:param name="processors"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="builder-diff">
+    <wadl:param name="processors"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="ci_build-full">
+    <wadl:param name="git_refs"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="snap_build-full">
+    <wadl:param name="target_architectures"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="person-page">
+    <wadl:param name="total_size" required="true" type="xsd:int"/>
+    <wadl:param name="entries" required="true"/>
+    <wadl:param name="entry_self_link" path="$['entries'][*]['self_link']">
+      <wadl:link resource_type="#person"/>
+    </wadl:param>
+    <wadl:param name="display_name"/>
+  </wadl:representation>
+</wadl:application>`;

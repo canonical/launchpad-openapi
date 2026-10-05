@@ -79,6 +79,18 @@ Online conversion uses service-root links to supplement source-backed canonical 
 
 OpenAPI cannot represent two differently named templates with the same path shape. The first route is primary; every other canonical route and its operations remain in `x-launchpad-route-alternatives`, even for variants of the same resource type.
 
+### Response field types
+
+Missing response-property types are supplemented by bundled metadata extracted from Launchpad's exported Python interfaces and registered JSON field marshallers. The same catalog is used online and offline, including inherited fields, exported wire-name aliases, array items, and dictionary values.
+
+Explicit WADL types always take precedence, including unsupported types that remain unconstrained. Unknown fields and unresolved serializers remain unconstrained; names, descriptions, and example responses are not used to guess types.
+
+Nullability is independent of WADL property-presence requirements. Declared optional fields with a `None` missing value permit null in both input and response schemas. Reference serializers additionally permit URL-or-null in `-full` responses, including nested references; that response-only allowance is excluded from `-diff` and `-write` inputs. These domains describe allowed values, not observations from sample responses.
+
+`-full` components are also shared by PUT request bodies. Their response nullability remains shared with those requests; separate PUT input schemas are not currently generated.
+
+Launchpad's serializer substitutes `tag:launchpad.net:2008:redacted` when access to a field is denied. Newly recovered non-string response types include that exact alternative; downstream consumers can narrow it with ordinary type guards rather than casts or custom decoders. Explicit WADL types and pagination schemas are unchanged.
+
 ## Development
 
 Install the locked development dependencies, then run the available checks or build:
@@ -95,6 +107,19 @@ pnpm build
 `pnpm format` formats source and configuration files; `pnpm check` runs Oxlint and verifies formatting without changing files.
 
 The test suite covers WADL parsing, OpenAPI generation, CLI behavior, local-file conversion, and validation of generated output with an OpenAPI parser.
+
+To refresh the field catalog, use Python 3.9+ and a bootstrapped Launchpad checkout containing its pinned `lazr.restful`, `zope.schema`, `zope.interface`, `lazr.enum`, and `lazr.lifecycle` source archives in `download-cache/dist`:
+
+```console
+python3 src/wadl/metadata/export.py /path/to/launchpad
+pnpm format
+pnpm check
+pnpm typecheck
+pnpm test
+pnpm build
+```
+
+The exporter resolves source declarations without importing or running Launchpad. `src/wadl/metadata/provenance.json` records dependency versions, source hashes, field origins, and unresolved declarations. Regenerate OpenAPI and downstream clients after refreshing the catalog; conversion itself requires neither Python nor a Launchpad checkout.
 
 ## License
 

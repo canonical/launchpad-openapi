@@ -97,12 +97,12 @@ export default function buildParamSchema(
       }
     } else if (param.options !== undefined) {
       item = { type: "string", enum: param.options };
+    } else if (untypedSchema !== undefined) {
+      item = untypedSchema;
     } else if (INTEGER_PARAM_NAMES.has(param.name)) {
       item = { type: "integer" };
     } else if (param.name === "entries") {
       item = { type: "array", items: { type: "object" } };
-    } else if (untypedSchema !== undefined) {
-      item = untypedSchema;
     } else {
       item = { type: "string" };
     }

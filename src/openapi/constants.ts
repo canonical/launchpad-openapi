@@ -3,7 +3,7 @@
  * GNU Lesser General Public License version 3 (see the file LICENSE).
  */
 
-import type { ReviewedFields, RouteCorrection } from "./types.js";
+import type { RouteCorrection } from "./types.js";
 
 /** Fixed protocol values and curated examples shared by OpenAPI builders. */
 
@@ -811,157 +811,22 @@ export const REVIEWED_NAMED_OPERATIONS: Record<
   },
 };
 
-/**
- * Observed response-field contracts missing or misrepresented in Launchpad's WADL.
- * Keys are representation IDs, not resource types: diff/write representations
- * have independent contracts. Null-only observations establish nullability,
- * but not a non-null type; buildSchemas retains a type only when WADL supplies it.
- */
-export const REVIEWED_RESOURCE_FIELDS: Record<string, ReviewedFields> = {
-  "bug-full": {
-    integer: [
-      "id",
-      "heat",
-      "number_of_duplicates",
-      "message_count",
-      "users_affected_count",
-      "users_unaffected_count",
-      "users_affected_count_with_dupes",
-      "other_users_affected_count_with_dupes",
-    ],
-    boolean: ["private", "security_related"],
-    stringArray: ["tags"],
-    nullable: [
-      "duplicate_of_link",
-      "who_made_private_link",
-      "date_made_private",
-      "latest_patch_uploaded",
-      "lock_reason",
-    ],
-  },
-  "project-full": {
-    boolean: [
-      "active",
-      "commercial_subscription_is_due",
-      "official_answers",
-      "official_blueprints",
-      "official_bugs",
-      "official_codehosting",
-      "private",
-      "qualifies_for_free_hosting",
-    ],
-    stringArray: ["licenses", "official_bug_tags"],
-    object: ["content_templates"],
-    nullable: [
-      "bug_tracker_link",
-      "download_url",
-      "driver_link",
-      "freshmeat_project",
-      "homepage_url",
-      "remote_product",
-      "screenshots_url",
-      "sourceforge_project",
-      "translation_focus_link",
-      "translationgroup_link",
-    ],
-  },
-  "distribution-full": {
-    boolean: [
-      "active",
-      "commercial_subscription_is_due",
-      "official_answers",
-      "official_blueprints",
-      "official_bugs",
-      "official_codehosting",
-      "official_packages",
-      "private",
-      "redirect_default_traversal",
-      "redirect_release_uploads",
-      "supports_mirrors",
-      "supports_ppas",
-    ],
-    stringArray: ["official_bug_tags"],
-    nullable: [
-      "commercial_subscription_link",
-      "content_templates",
-      "homepage_content",
-      "oci_project_admin_link",
-    ],
-  },
-  "team-full": {
-    integer: ["default_membership_period", "karma"],
-    boolean: [
-      "hide_email_addresses",
-      "is_probationary",
-      "is_team",
-      "is_ubuntu_coc_signer",
-      "is_valid",
-      "private",
-    ],
-    nullable: [
-      "default_renewal_period",
-      "homepage_content",
-      "preferred_email_address_link",
-    ],
-  },
-  "archive-full": {
-    integer: ["relative_build_score"],
-    boolean: [
-      "build_debug_symbols",
-      "permit_obsolete_series_uploads",
-      "private",
-      "publish",
-      "publish_debug_symbols",
-      "require_virtualized",
-      "suppress_subscription_notifications",
-    ],
-    stringArray: ["official_bug_tags"],
-    nullable: [
-      "authorized_size",
-      "bug_reported_acknowledgement",
-      "bug_reporting_guidelines",
-      "content_templates",
-      "external_dependencies",
-      "metadata_overrides",
-      "signing_key_fingerprint",
-    ],
-  },
-  "git_repository-full": {
-    integer: ["id", "loose_object_count", "pack_count"],
-    boolean: ["owner_default", "private", "target_default"],
-    nullable: ["builder_constraints", "code_import_link", "description"],
-  },
+/** Exact branch enum wire values whose newlines are normalized by WADL XML. */
+export const RESOURCE_ENUM_CORRECTIONS: Readonly<
+  Record<string, Readonly<Record<string, readonly [string, string]>>>
+> = {
   "branch-full": {
-    nullable: ["code_import_link", "sourcepackage_link"],
-    enumCorrections: {
-      branch_format: [
-        "Bazaar Branch Format 7 (needs bzr 1.6) ",
-        "Bazaar Branch Format 7 (needs bzr 1.6)\n",
-      ],
-      control_format: [
-        "Bazaar-NG meta directory, format 1 ",
-        "Bazaar-NG meta directory, format 1\n",
-      ],
-      repository_format: [
-        "Bazaar repository format 2a (needs bzr 1.16 or later) ",
-        "Bazaar repository format 2a (needs bzr 1.16 or later)\n",
-      ],
-    },
-  },
-  "bug_task-full": {
-    boolean: ["is_complete"],
-    nullable: [
-      "assignee_link",
-      "bug_watch_link",
-      "date_assigned",
-      "date_closed",
-      "date_deferred",
-      "date_fix_released",
-      "date_incomplete",
-      "date_left_new",
-      "importance_explanation",
-      "milestone_link",
-      "status_explanation",
+    branch_format: [
+      "Bazaar Branch Format 7 (needs bzr 1.6) ",
+      "Bazaar Branch Format 7 (needs bzr 1.6)\n",
+    ],
+    control_format: [
+      "Bazaar-NG meta directory, format 1 ",
+      "Bazaar-NG meta directory, format 1\n",
+    ],
+    repository_format: [
+      "Bazaar repository format 2a (needs bzr 1.16 or later) ",
+      "Bazaar repository format 2a (needs bzr 1.16 or later)\n",
     ],
   },
 };

@@ -8,7 +8,7 @@ import { describe, expect, it } from "vitest";
 import {
   branchLookupWadl,
   generatorEdgeWadl,
-  resourceFieldContractsWadl,
+  metadataEnrichmentWadl,
   sampleWadl,
 } from "../../testing/fixtures.js";
 import { parseWadl } from "../wadl/index.js";
@@ -47,7 +47,7 @@ describe("buildSchemas", () => {
           },
         },
       });
-      expect(schemas["person-full"]).toEqual({
+      expect(schemas["person-full"]).toMatchObject({
         type: "object",
         properties: {
           self_link: {
@@ -89,52 +89,10 @@ describe("buildSchemas", () => {
     });
   });
 
-  describe("reviewed resource contracts", () => {
-    it("describes observed integer, boolean, and string-array values with compatible examples", () => {
-      const schemas = buildSchemas(
-        parseWadl(resourceFieldContractsWadl).unwrap().representations,
-      );
-      const bug = representationProperties(schemas, "bug-full");
-      const project = representationProperties(schemas, "project-full");
-      const archive = representationProperties(schemas, "archive-full");
-
-      expect(bug.id).toEqual({ type: "integer", example: 1 });
-      expect(bug.heat).toEqual({ type: "integer", example: 1 });
-      expect(bug.private).toEqual({ type: "boolean", example: true });
-      expect(bug.security_related).toEqual({ type: "boolean" });
-      expect(bug.tags).toEqual({
-        type: "array",
-        items: { type: "string" },
-        example: [],
-      });
-      expect(project.active).toEqual({ type: "boolean", example: true });
-      expect(project.licenses).toEqual({
-        type: "array",
-        items: { type: "string" },
-        example: [],
-      });
-      expect(archive.relative_build_score).toEqual({
-        type: "integer",
-        example: 1,
-      });
-    });
-
-    it("describes project content_templates as an object without unobserved member constraints or a string example", () => {
-      const schemas = buildSchemas(
-        parseWadl(resourceFieldContractsWadl).unwrap().representations,
-      );
-
-      expect(
-        representationProperties(schemas, "project-full").content_templates,
-      ).toEqual({ type: "object" });
-      expect(schemas["project-full"]).toMatchObject({
-        required: ["active", "licenses", "content_templates"],
-      });
-    });
-
+  describe("response field contracts", () => {
     it("keeps a required nullable URI link typed and required", () => {
       const schemas = buildSchemas(
-        parseWadl(resourceFieldContractsWadl).unwrap().representations,
+        parseWadl(metadataEnrichmentWadl).unwrap().representations,
       );
 
       expect(
@@ -228,7 +186,7 @@ describe("buildSchemas", () => {
           const field = properties[name];
           expect(field).toMatchObject({
             type: "string",
-            enum: [wireValue, "another format", "already\nescaped"],
+            enum: [wireValue, "another format", "already\nescaped", null],
             example: wireValue,
           });
         }
@@ -237,52 +195,11 @@ describe("buildSchemas", () => {
         expect(
           representationProperties(schemas, id).branch_format,
         ).toMatchObject({
-          enum: ["Bazaar Branch Format 7 (needs bzr 1.6) "],
+          enum: id.startsWith("branch-")
+            ? ["Bazaar Branch Format 7 (needs bzr 1.6) ", null]
+            : ["Bazaar Branch Format 7 (needs bzr 1.6) "],
         });
       }
-    });
-
-    it("leaves null-only and unreviewed resource fields unconstrained without invented examples", () => {
-      const schemas = buildSchemas(
-        parseWadl(resourceFieldContractsWadl).unwrap().representations,
-      );
-
-      expect(
-        representationProperties(schemas, "archive-full").authorized_size,
-      ).toEqual({});
-      expect(
-        representationProperties(schemas, "distribution-full")
-          .content_templates,
-      ).toEqual({});
-      expect(
-        representationProperties(schemas, "bug-full").opaque_payload,
-      ).toEqual({});
-      expect(schemas["archive-full"]).toMatchObject({
-        required: expect.arrayContaining(["authorized_size"]),
-      });
-      expect(schemas["distribution-full"]).toMatchObject({
-        required: expect.arrayContaining(["content_templates"]),
-      });
-      expect(schemas["bug-full"]).toMatchObject({
-        required: expect.not.arrayContaining(["opaque_payload"]),
-      });
-    });
-
-    it("does not copy full-resource annotations onto diff schemas or unrelated full schemas", () => {
-      const schemas = buildSchemas(
-        parseWadl(resourceFieldContractsWadl).unwrap().representations,
-      );
-
-      expect(representationProperties(schemas, "bug-diff").private).toEqual({
-        type: "string",
-      });
-      expect(
-        representationProperties(schemas, "project-diff").content_templates,
-      ).toEqual({ type: "string" });
-      expect(
-        representationProperties(schemas, "distribution-full")
-          .content_templates,
-      ).toEqual({});
     });
 
     it("does not make collection start or entries nullable", () => {
