@@ -22,3 +22,6 @@ export {
   WadlResourceType,
 } from "./model.js";
 export { default as parseWadl } from "./parseWadl.js";
+export { REDACTED_FIELD_VALUE } from "./metadata/constants.js";
+export { default as resolveRepresentationMetadata } from "./metadata/resolveRepresentationMetadata.js";
+export type { SerializedFieldMetadata } from "./types.js";
