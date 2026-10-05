@@ -18,6 +18,7 @@
     "build": "npm run clean && tsc -p tsconfig.build.json && chmod +x dist/index.js",
     "prepare": "npm run build",
     "start": "node dist/index.js",
+    "metadata:export": "python3 src/wadl/metadata/export.py",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",

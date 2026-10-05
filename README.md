@@ -111,12 +111,19 @@ The test suite covers WADL parsing, OpenAPI generation, CLI behavior, local-file
 To refresh the field catalog, use Python 3.9+ and a bootstrapped Launchpad checkout containing its pinned `lazr.restful`, `zope.schema`, `zope.interface`, `lazr.enum`, and `lazr.lifecycle` source archives in `download-cache/dist`:
 
 ```console
-python3 src/wadl/metadata/export.py /path/to/launchpad
+pnpm metadata:export
 pnpm format
 pnpm check
 pnpm typecheck
 pnpm test
 pnpm build
+```
+
+The default checkout is `../launchpad`, next to this repository, and output defaults to `src/wadl/metadata/`. Override either path when needed:
+
+```console
+pnpm metadata:export /path/to/launchpad
+pnpm metadata:export /path/to/launchpad --output /path/to/catalog
 ```
 
 The exporter resolves source declarations without importing or running Launchpad. `src/wadl/metadata/provenance.json` records dependency versions, source hashes, field origins, and unresolved declarations. Regenerate OpenAPI and downstream clients after refreshing the catalog; conversion itself requires neither Python nor a Launchpad checkout.

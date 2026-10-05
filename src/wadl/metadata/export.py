@@ -3,7 +3,7 @@
 # GNU Lesser General Public License version 3 (see the file LICENSE).
 """Export conservative JSON field metadata without importing Launchpad.
 
-Usage: python3 src/wadl/metadata/export.py ../launchpad [--output DIRECTORY]
+Usage: python3 src/wadl/metadata/export.py [LAUNCHPAD] [--output DIRECTORY]
 
 Only registered webservice interfaces and registered, understood marshallers
 are used. Imports, interface inheritance, exported aliases, copied fields and
@@ -629,9 +629,20 @@ class Source:
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("launchpad", type=Path)
-    parser.add_argument("--output", type=Path, default=Path(__file__).resolve().parent)
+    metadata_directory = Path(__file__).resolve().parent
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    parser.add_argument(
+        "launchpad",
+        type=Path,
+        nargs="?",
+        default=metadata_directory.parents[3] / "launchpad",
+        help="Launchpad checkout",
+    )
+    parser.add_argument(
+        "--output", type=Path, default=metadata_directory, help="Generated catalog directory"
+    )
     args = parser.parse_args()
     source = Source(args.launchpad.resolve())
     catalog, origins = source.export()
