@@ -992,6 +992,16 @@ export const RESOURCE_FIELD_METADATA: Readonly<
     },
     "type": {
       "type": "string"
+    },
+    "vulnerability_patches": {
+      "items": {
+        "additionalProperties": {
+          "type": "string"
+        },
+        "type": "object"
+      },
+      "nullable": true,
+      "type": "array"
     }
   },
   "bug_branch": {
@@ -1056,6 +1066,45 @@ export const RESOURCE_FIELD_METADATA: Readonly<
     "target_link": {
       "format": "uri",
       "responseNullable": true,
+      "type": "string"
+    }
+  },
+  "bug_presence": {
+    "break_fix_data": {
+      "items": {
+        "additionalProperties": {
+          "type": "string"
+        },
+        "type": "object"
+      },
+      "nullable": true,
+      "type": "array"
+    },
+    "bug_link": {
+      "format": "uri",
+      "responseNullable": true,
+      "type": "string"
+    },
+    "distribution_link": {
+      "format": "uri",
+      "nullable": true,
+      "responseNullable": true,
+      "type": "string"
+    },
+    "git_repository_link": {
+      "format": "uri",
+      "nullable": true,
+      "responseNullable": true,
+      "type": "string"
+    },
+    "product_link": {
+      "format": "uri",
+      "nullable": true,
+      "responseNullable": true,
+      "type": "string"
+    },
+    "source_package_name": {
+      "nullable": true,
       "type": "string"
     }
   },
@@ -1170,6 +1219,14 @@ export const RESOURCE_FIELD_METADATA: Readonly<
       "responseNullable": true,
       "type": "string"
     },
+    "channel": {
+      "items": {
+        "nullable": true,
+        "type": "string"
+      },
+      "nullable": true,
+      "type": "array"
+    },
     "date_assigned": {
       "format": "date-time",
       "nullable": true,
@@ -1239,6 +1296,10 @@ export const RESOURCE_FIELD_METADATA: Readonly<
     "is_complete": {
       "type": "boolean"
     },
+    "metadata": {
+      "nullable": true,
+      "type": "object"
+    },
     "milestone_link": {
       "format": "uri",
       "nullable": true,
@@ -1248,6 +1309,10 @@ export const RESOURCE_FIELD_METADATA: Readonly<
     "owner_link": {
       "format": "uri",
       "responseNullable": true,
+      "type": "string"
+    },
+    "package_type": {
+      "nullable": true,
       "type": "string"
     },
     "related_tasks_collection_link": {
@@ -2613,6 +2678,10 @@ export const RESOURCE_FIELD_METADATA: Readonly<
       "nullable": true,
       "type": "object"
     },
+    "references_collection_link": {
+      "format": "uri",
+      "type": "string"
+    },
     "sequence": {
       "type": "string"
     },
@@ -2623,6 +2692,18 @@ export const RESOURCE_FIELD_METADATA: Readonly<
       "type": "string"
     },
     "url": {
+      "type": "string"
+    }
+  },
+  "cve_reference": {
+    "content": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    },
+    "url": {
+      "nullable": true,
       "type": "string"
     }
   },
@@ -3140,6 +3221,9 @@ export const RESOURCE_FIELD_METADATA: Readonly<
     "backports_not_automatic": {
       "type": "boolean"
     },
+    "binary_package_count": {
+      "type": "integer"
+    },
     "bug_reported_acknowledgement": {
       "nullable": true,
       "type": "string"
@@ -3262,6 +3346,9 @@ export const RESOURCE_FIELD_METADATA: Readonly<
       "format": "uri",
       "responseNullable": true,
       "type": "string"
+    },
+    "source_package_count": {
+      "type": "integer"
     },
     "status": {
       "type": "string"
@@ -5663,6 +5750,10 @@ export const RESOURCE_FIELD_METADATA: Readonly<
       "responseNullable": true,
       "type": "string"
     },
+    "group_name": {
+      "nullable": true,
+      "type": "string"
+    },
     "properties": {
       "nullable": true,
       "type": "object"
@@ -6480,6 +6571,111 @@ export const RESOURCE_FIELD_METADATA: Readonly<
       "format": "uri",
       "nullable": true,
       "responseNullable": true,
+      "type": "string"
+    }
+  },
+  "source_package_git_build": {
+    "archive_link": {
+      "format": "uri",
+      "responseNullable": true,
+      "type": "string"
+    },
+    "build_log_url": {
+      "nullable": true,
+      "type": "string"
+    },
+    "builder_link": {
+      "format": "uri",
+      "nullable": true,
+      "responseNullable": true,
+      "type": "string"
+    },
+    "buildstate": {
+      "type": "string"
+    },
+    "can_be_cancelled": {
+      "type": "boolean"
+    },
+    "can_be_rescored": {
+      "type": "boolean"
+    },
+    "can_be_retried": {
+      "type": "boolean"
+    },
+    "commit_sha1": {
+      "type": "string"
+    },
+    "date_created": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "date_finished": {
+      "format": "date-time",
+      "nullable": true,
+      "type": "string"
+    },
+    "date_first_dispatched": {
+      "format": "date-time",
+      "nullable": true,
+      "type": "string"
+    },
+    "date_started": {
+      "format": "date-time",
+      "nullable": true,
+      "type": "string"
+    },
+    "datebuilt": {
+      "format": "date-time",
+      "nullable": true,
+      "type": "string"
+    },
+    "datecreated": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "dependencies": {
+      "nullable": true,
+      "type": "string"
+    },
+    "distribution_link": {
+      "format": "uri",
+      "responseNullable": true,
+      "type": "string"
+    },
+    "distro_series_link": {
+      "format": "uri",
+      "responseNullable": true,
+      "type": "string"
+    },
+    "git_repository_link": {
+      "format": "uri",
+      "responseNullable": true,
+      "type": "string"
+    },
+    "log_url": {
+      "nullable": true,
+      "type": "string"
+    },
+    "pocket": {
+      "type": "string"
+    },
+    "requester_link": {
+      "format": "uri",
+      "responseNullable": true,
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "title": {
+      "nullable": true,
+      "type": "string"
+    },
+    "upload_log_url": {
+      "nullable": true,
+      "type": "string"
+    },
+    "version_suffix": {
       "type": "string"
     }
   },

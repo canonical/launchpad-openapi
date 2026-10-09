@@ -1,9 +1,9 @@
 {
   "name": "@canonical/launchpad-openapi",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "license": "LGPL-3.0-only",
   "bin": {
-    "launchpad-openapi": "./dist/index.js"
+    "launchpad-openapi": "dist/index.js"
   },
   "files": [
     "dist",

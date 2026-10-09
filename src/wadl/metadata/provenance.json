@@ -138,7 +138,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "bug_reported_acknowledgement",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 374,
+            "line": 382,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -147,7 +147,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "bug_reporting_guidelines",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 337,
+            "line": 345,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -165,7 +165,7 @@
             "constructor": "zope.schema._field.Dict",
             "field": "content_templates",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 351,
+            "line": 359,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -246,7 +246,7 @@
             "constructor": "zope.schema._field.List",
             "field": "official_bug_tags",
             "interface": "lp.bugs.interfaces.bugtarget.IHasOfficialBugTags",
-            "line": 417,
+            "line": 425,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -481,7 +481,7 @@
             "constructor": "lazr.restful.fields.Reference",
             "field": "archive",
             "interface": "lp.soyuz.interfaces.archivepermission.IArchivePermission",
-            "line": 44,
+            "line": 45,
             "source": "lib/lp/soyuz/interfaces/archivepermission.py"
           }
         ],
@@ -490,7 +490,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "component_name",
             "interface": "lp.soyuz.interfaces.archivepermission.IArchivePermission",
-            "line": 86,
+            "line": 87,
             "source": "lib/lp/soyuz/interfaces/archivepermission.py"
           }
         ],
@@ -499,7 +499,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "date_created",
             "interface": "lp.soyuz.interfaces.archivepermission.IArchivePermission",
-            "line": 35,
+            "line": 36,
             "source": "lib/lp/soyuz/interfaces/archivepermission.py"
           }
         ],
@@ -508,7 +508,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "distro_series_name",
             "interface": "lp.soyuz.interfaces.archivepermission.IArchivePermission",
-            "line": 117,
+            "line": 118,
             "source": "lib/lp/soyuz/interfaces/archivepermission.py"
           }
         ],
@@ -517,7 +517,7 @@
             "constructor": "lazr.restful.fields.Reference",
             "field": "distroseries",
             "interface": "lp.soyuz.interfaces.archivepermission.IArchivePermission",
-            "line": 136,
+            "line": 137,
             "source": "lib/lp/soyuz/interfaces/archivepermission.py"
           }
         ],
@@ -526,7 +526,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "explicit",
             "interface": "lp.soyuz.interfaces.archivepermission.IArchivePermission",
-            "line": 103,
+            "line": 104,
             "source": "lib/lp/soyuz/interfaces/archivepermission.py"
           }
         ],
@@ -535,7 +535,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "package_set_name",
             "interface": "lp.soyuz.interfaces.archivepermission.IArchivePermission",
-            "line": 113,
+            "line": 114,
             "source": "lib/lp/soyuz/interfaces/archivepermission.py"
           }
         ],
@@ -544,7 +544,7 @@
             "constructor": "zope.schema._field.Choice",
             "field": "permission",
             "interface": "lp.soyuz.interfaces.archivepermission.IArchivePermission",
-            "line": 52,
+            "line": 53,
             "source": "lib/lp/soyuz/interfaces/archivepermission.py"
           }
         ],
@@ -553,7 +553,7 @@
             "constructor": "lp.services.fields.PublicPersonChoice",
             "field": "person",
             "interface": "lp.soyuz.interfaces.archivepermission.IArchivePermission",
-            "line": 61,
+            "line": 62,
             "source": "lib/lp/soyuz/interfaces/archivepermission.py"
           }
         ],
@@ -562,7 +562,7 @@
             "constructor": "zope.schema._field.Choice",
             "field": "pocket",
             "interface": "lp.soyuz.interfaces.archivepermission.IArchivePermission",
-            "line": 127,
+            "line": 128,
             "source": "lib/lp/soyuz/interfaces/archivepermission.py"
           }
         ],
@@ -571,7 +571,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "source_package_name",
             "interface": "lp.soyuz.interfaces.archivepermission.IArchivePermission",
-            "line": 93,
+            "line": 94,
             "source": "lib/lp/soyuz/interfaces/archivepermission.py"
           }
         ]
@@ -1667,7 +1667,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "activity",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 284,
+            "line": 286,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1676,7 +1676,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "attachments",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 402,
+            "line": 405,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1685,7 +1685,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "bugtasks",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 261,
+            "line": 263,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1694,7 +1694,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "watches",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 359,
+            "line": 361,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1703,7 +1703,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "can_expire",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 308,
+            "line": 310,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1712,7 +1712,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "cves",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 367,
+            "line": 369,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1721,7 +1721,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "datecreated",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 279,
+            "line": 281,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1730,7 +1730,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "date_last_message",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 453,
+            "line": 466,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1739,7 +1739,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "date_last_updated",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 330,
+            "line": 332,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1748,7 +1748,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "date_made_private",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 353,
+            "line": 355,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1757,7 +1757,7 @@
             "constructor": "lp.services.fields.Description",
             "field": "description",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 243,
+            "line": 245,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1766,7 +1766,7 @@
             "constructor": "lp.services.fields.DuplicateBug",
             "field": "duplicateof",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 275,
+            "line": 277,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1775,7 +1775,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "duplicates",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 382,
+            "line": 385,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1784,7 +1784,7 @@
             "constructor": "zope.schema._bootstrapfields.Int",
             "field": "heat",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 356,
+            "line": 358,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1793,7 +1793,7 @@
             "constructor": "zope.schema._bootstrapfields.Int",
             "field": "id",
             "interface": "lp.bugs.interfaces.bug.IBugPublic",
-            "line": 190,
+            "line": 192,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1802,7 +1802,7 @@
             "constructor": "zope.schema._field.Choice",
             "field": "information_type",
             "interface": "lp.bugs.interfaces.bug.IBugPublic",
-            "line": 203,
+            "line": 205,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1811,7 +1811,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "latest_patch_uploaded",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 419,
+            "line": 432,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1827,7 +1827,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "linked_bugbranches",
             "interface": "lp.bugs.interfaces.bug.IBug",
-            "line": 1365,
+            "line": 1413,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1836,7 +1836,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "linked_merge_proposals",
             "interface": "lp.bugs.interfaces.bug.IBug",
-            "line": 1384,
+            "line": 1432,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1845,7 +1845,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "lock_reason",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 582,
+            "line": 595,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1854,7 +1854,7 @@
             "constructor": "zope.schema._field.Choice",
             "field": "lock_status",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 571,
+            "line": 584,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1863,7 +1863,7 @@
             "constructor": "zope.schema._bootstrapfields.Int",
             "field": "message_count",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 465,
+            "line": 478,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1872,7 +1872,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "indexed_messages",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 555,
+            "line": 568,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1881,7 +1881,7 @@
             "constructor": "lp.bugs.interfaces.bug.BugNameField",
             "field": "name",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 222,
+            "line": 224,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1890,7 +1890,7 @@
             "constructor": "zope.schema._bootstrapfields.Int",
             "field": "number_of_duplicates",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 458,
+            "line": 471,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1899,7 +1899,7 @@
             "constructor": "zope.schema._bootstrapfields.Int",
             "field": "other_users_affected_count_with_dupes",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 529,
+            "line": 542,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1908,7 +1908,7 @@
             "constructor": "lazr.restful.fields.Reference",
             "field": "owner",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 258,
+            "line": 260,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1917,7 +1917,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "private",
             "interface": "lp.bugs.interfaces.bug.IBugPublic",
-            "line": 193,
+            "line": 195,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1926,7 +1926,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "security_related",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 411,
+            "line": 424,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1935,7 +1935,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "subscriptions",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 321,
+            "line": 323,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1944,7 +1944,7 @@
             "constructor": "zope.schema._field.List",
             "field": "tags",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 432,
+            "line": 445,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1953,7 +1953,7 @@
             "constructor": "lp.services.fields.Title",
             "field": "title",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 234,
+            "line": 236,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1962,7 +1962,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "users_affected",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 495,
+            "line": 508,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1971,7 +1971,7 @@
             "constructor": "zope.schema._bootstrapfields.Int",
             "field": "users_affected_count",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 472,
+            "line": 485,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1980,7 +1980,7 @@
             "constructor": "zope.schema._bootstrapfields.Int",
             "field": "users_affected_count_with_dupes",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 519,
+            "line": 532,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1989,7 +1989,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "users_affected_with_dupes",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 539,
+            "line": 552,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -1998,7 +1998,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "users_unaffected",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 507,
+            "line": 520,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -2007,7 +2007,7 @@
             "constructor": "zope.schema._bootstrapfields.Int",
             "field": "users_unaffected_count",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 482,
+            "line": 495,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -2016,7 +2016,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "vulnerabilities",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 375,
+            "line": 378,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ],
@@ -2025,7 +2025,7 @@
             "constructor": "lp.services.fields.PublicPersonChoice",
             "field": "who_made_private",
             "interface": "lp.bugs.interfaces.bug.IBugView",
-            "line": 344,
+            "line": 346,
             "source": "lib/lp/bugs/interfaces/bug.py"
           }
         ]
@@ -2107,7 +2107,7 @@
             "constructor": "lazr.restful.fields.Reference",
             "field": "bug",
             "interface": "lp.bugs.interfaces.bugattachment.IBugAttachmentView",
-            "line": 67,
+            "line": 77,
             "source": "lib/lp/bugs/interfaces/bugattachment.py"
           }
         ],
@@ -2116,7 +2116,7 @@
             "constructor": "zope.schema._field.Bytes",
             "field": "libraryfile",
             "interface": "lp.bugs.interfaces.bugattachment.IBugAttachmentView",
-            "line": 91,
+            "line": 101,
             "source": "lib/lp/bugs/interfaces/bugattachment.py"
           }
         ],
@@ -2125,7 +2125,7 @@
             "constructor": "lazr.restful.fields.Reference",
             "field": "message",
             "interface": "lp.bugs.interfaces.bugattachment.IBugAttachmentView",
-            "line": 101,
+            "line": 111,
             "source": "lib/lp/bugs/interfaces/bugattachment.py"
           }
         ],
@@ -2134,7 +2134,7 @@
             "constructor": "lp.services.fields.Title",
             "field": "title",
             "interface": "lp.bugs.interfaces.bugattachment.IBugAttachmentView",
-            "line": 82,
+            "line": 92,
             "source": "lib/lp/bugs/interfaces/bugattachment.py"
           }
         ],
@@ -2143,7 +2143,7 @@
             "constructor": "zope.schema._field.Choice",
             "field": "type",
             "interface": "lp.bugs.interfaces.bugattachment.IBugAttachmentView",
-            "line": 70,
+            "line": 80,
             "source": "lib/lp/bugs/interfaces/bugattachment.py"
           }
         ],
@@ -2152,7 +2152,16 @@
             "constructor": "zope.schema._field.URI",
             "field": "url",
             "interface": "lp.bugs.interfaces.bugattachment.IBugAttachmentView",
-            "line": 97,
+            "line": 107,
+            "source": "lib/lp/bugs/interfaces/bugattachment.py"
+          }
+        ],
+        "vulnerability_patches": [
+          {
+            "constructor": "zope.schema._field.List",
+            "field": "vulnerability_patches",
+            "interface": "lp.bugs.interfaces.bugattachment.IBugAttachmentView",
+            "line": 131,
             "source": "lib/lp/bugs/interfaces/bugattachment.py"
           }
         ]
@@ -2281,6 +2290,65 @@
         ]
       },
       "interfaces": ["lp.bugs.interfaces.bugnomination.IBugNomination"]
+    },
+    "bug_presence": {
+      "fields": {
+        "break_fix_data": [
+          {
+            "constructor": "zope.schema._field.List",
+            "field": "break_fix_data",
+            "interface": "lp.bugs.interfaces.bugpresence.IBugPresence",
+            "line": 65,
+            "source": "lib/lp/bugs/interfaces/bugpresence.py"
+          }
+        ],
+        "bug_link": [
+          {
+            "constructor": "lp.services.fields.BugField",
+            "field": "bug",
+            "interface": "lp.bugs.interfaces.bugpresence.IBugPresence",
+            "line": 24,
+            "source": "lib/lp/bugs/interfaces/bugpresence.py"
+          }
+        ],
+        "distribution_link": [
+          {
+            "constructor": "lazr.restful.fields.Reference",
+            "field": "distribution",
+            "interface": "lp.bugs.interfaces.bugpresence.IBugPresence",
+            "line": 36,
+            "source": "lib/lp/bugs/interfaces/bugpresence.py"
+          }
+        ],
+        "git_repository_link": [
+          {
+            "constructor": "lazr.restful.fields.Reference",
+            "field": "git_repository",
+            "interface": "lp.bugs.interfaces.bugpresence.IBugPresence",
+            "line": 56,
+            "source": "lib/lp/bugs/interfaces/bugpresence.py"
+          }
+        ],
+        "product_link": [
+          {
+            "constructor": "lazr.restful.fields.Reference",
+            "field": "product",
+            "interface": "lp.bugs.interfaces.bugpresence.IBugPresence",
+            "line": 26,
+            "source": "lib/lp/bugs/interfaces/bugpresence.py"
+          }
+        ],
+        "source_package_name": [
+          {
+            "constructor": "zope.schema._bootstrapfields.TextLine",
+            "field": "api_source_package_name",
+            "interface": "lp.bugs.interfaces.bugpresence.IBugPresence",
+            "line": 48,
+            "source": "lib/lp/bugs/interfaces/bugpresence.py"
+          }
+        ]
+      },
+      "interfaces": ["lp.bugs.interfaces.bugpresence.IBugPresence"]
     },
     "bug_subscription": {
       "fields": {
@@ -2418,7 +2486,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "bug_reported_acknowledgement",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 374,
+            "line": 382,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -2427,7 +2495,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "bug_reporting_guidelines",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 337,
+            "line": 345,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -2436,7 +2504,7 @@
             "constructor": "zope.schema._field.Dict",
             "field": "content_templates",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 351,
+            "line": 359,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ]
@@ -2450,7 +2518,7 @@
             "constructor": "lp.services.fields.PersonChoice",
             "field": "assignee",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 565,
+            "line": 600,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2459,7 +2527,7 @@
             "constructor": "lp.services.fields.BugField",
             "field": "bug",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 476,
+            "line": 487,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2468,7 +2536,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "bugtargetdisplayname",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 574,
+            "line": 609,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2477,7 +2545,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "bugtargetname",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 580,
+            "line": 615,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2486,7 +2554,16 @@
             "constructor": "lazr.restful.fields.ReferenceChoice",
             "field": "bugwatch",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 587,
+            "line": 622,
+            "source": "lib/lp/bugs/interfaces/bugtask.py"
+          }
+        ],
+        "channel": [
+          {
+            "constructor": "zope.schema._field.List",
+            "field": "channel",
+            "interface": "lp.bugs.interfaces.bugtask.IBugTask",
+            "line": 512,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2495,7 +2572,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "date_assigned",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 605,
+            "line": 640,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2504,7 +2581,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "date_closed",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 654,
+            "line": 689,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2513,7 +2590,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "date_confirmed",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 623,
+            "line": 658,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2522,7 +2599,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "datecreated",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 615,
+            "line": 650,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2531,7 +2608,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "date_deferred",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 715,
+            "line": 750,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2540,7 +2617,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "date_fix_committed",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 687,
+            "line": 722,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2549,7 +2626,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "date_fix_released",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 697,
+            "line": 732,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2558,7 +2635,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "date_inprogress",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 643,
+            "line": 678,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2567,7 +2644,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "date_incomplete",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 633,
+            "line": 668,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2576,7 +2653,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "date_left_closed",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 707,
+            "line": 742,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2585,7 +2662,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "date_left_new",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 666,
+            "line": 701,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2594,7 +2671,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "date_triaged",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 677,
+            "line": 712,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2603,7 +2680,7 @@
             "constructor": "zope.schema._field.Choice",
             "field": "importance",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 546,
+            "line": 581,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2612,7 +2689,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "importance_explanation",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 554,
+            "line": 589,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2621,7 +2698,16 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "is_complete",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 800,
+            "line": 835,
+            "source": "lib/lp/bugs/interfaces/bugtask.py"
+          }
+        ],
+        "metadata": [
+          {
+            "constructor": "zope.schema._field.Dict",
+            "field": "metadata",
+            "interface": "lp.bugs.interfaces.bugtask.IBugTask",
+            "line": 523,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2630,7 +2716,7 @@
             "constructor": "lazr.restful.fields.ReferenceChoice",
             "field": "milestone",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 507,
+            "line": 542,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2639,7 +2725,16 @@
             "constructor": "lazr.restful.fields.Reference",
             "field": "owner",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 738,
+            "line": 773,
+            "source": "lib/lp/bugs/interfaces/bugtask.py"
+          }
+        ],
+        "package_type": [
+          {
+            "constructor": "zope.schema._field.Choice",
+            "field": "packagetype",
+            "interface": "lp.bugs.interfaces.bugtask.IBugTask",
+            "line": 500,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2648,7 +2743,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "related_tasks",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 757,
+            "line": 792,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2657,7 +2752,7 @@
             "constructor": "zope.schema._field.Choice",
             "field": "status",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 526,
+            "line": 561,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2666,7 +2761,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "status_explanation",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 535,
+            "line": 570,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2675,7 +2770,7 @@
             "constructor": "lazr.restful.fields.Reference",
             "field": "target",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 742,
+            "line": 777,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ],
@@ -2684,7 +2779,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "title",
             "interface": "lp.bugs.interfaces.bugtask.IBugTask",
-            "line": 751,
+            "line": 786,
             "source": "lib/lp/bugs/interfaces/bugtask.py"
           }
         ]
@@ -5632,7 +5727,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "bugs",
             "interface": "lp.bugs.interfaces.cve.ICve",
-            "line": 148,
+            "line": 149,
             "source": "lib/lp/bugs/interfaces/cve.py"
           }
         ],
@@ -5641,7 +5736,7 @@
             "constructor": "zope.schema._field.List",
             "field": "cvss",
             "interface": "lp.bugs.interfaces.cve.ICve",
-            "line": 205,
+            "line": 213,
             "source": "lib/lp/bugs/interfaces/cve.py"
           }
         ],
@@ -5650,7 +5745,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "datecreated",
             "interface": "lp.bugs.interfaces.cve.ICve",
-            "line": 140,
+            "line": 141,
             "source": "lib/lp/bugs/interfaces/cve.py"
           }
         ],
@@ -5659,7 +5754,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "date_made_public",
             "interface": "lp.bugs.interfaces.cve.ICve",
-            "line": 188,
+            "line": 196,
             "source": "lib/lp/bugs/interfaces/cve.py"
           }
         ],
@@ -5668,7 +5763,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "datemodified",
             "interface": "lp.bugs.interfaces.cve.ICve",
-            "line": 144,
+            "line": 145,
             "source": "lib/lp/bugs/interfaces/cve.py"
           }
         ],
@@ -5677,7 +5772,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "description",
             "interface": "lp.bugs.interfaces.cve.ICve",
-            "line": 129,
+            "line": 130,
             "source": "lib/lp/bugs/interfaces/cve.py"
           }
         ],
@@ -5686,7 +5781,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "discovered_by",
             "interface": "lp.bugs.interfaces.cve.ICve",
-            "line": 193,
+            "line": 201,
             "source": "lib/lp/bugs/interfaces/cve.py"
           }
         ],
@@ -5695,7 +5790,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "displayname",
             "interface": "lp.bugs.interfaces.cve.ICve",
-            "line": 167,
+            "line": 168,
             "source": "lib/lp/bugs/interfaces/cve.py"
           }
         ],
@@ -5704,7 +5799,16 @@
             "constructor": "zope.schema._field.Dict",
             "field": "metadata",
             "interface": "lp.bugs.interfaces.cve.ICve",
-            "line": 218,
+            "line": 226,
+            "source": "lib/lp/bugs/interfaces/cve.py"
+          }
+        ],
+        "references_collection_link": [
+          {
+            "constructor": "lazr.restful.fields.CollectionField",
+            "field": "references",
+            "interface": "lp.bugs.interfaces.cve.ICve",
+            "line": 185,
             "source": "lib/lp/bugs/interfaces/cve.py"
           }
         ],
@@ -5713,7 +5817,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "sequence",
             "interface": "lp.bugs.interfaces.cve.ICve",
-            "line": 102,
+            "line": 103,
             "source": "lib/lp/bugs/interfaces/cve.py"
           }
         ],
@@ -5722,7 +5826,7 @@
             "constructor": "zope.schema._field.Choice",
             "field": "status",
             "interface": "lp.bugs.interfaces.cve.ICve",
-            "line": 114,
+            "line": 115,
             "source": "lib/lp/bugs/interfaces/cve.py"
           }
         ],
@@ -5731,7 +5835,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "title",
             "interface": "lp.bugs.interfaces.cve.ICve",
-            "line": 177,
+            "line": 178,
             "source": "lib/lp/bugs/interfaces/cve.py"
           }
         ],
@@ -5740,12 +5844,44 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "url",
             "interface": "lp.bugs.interfaces.cve.ICve",
-            "line": 157,
+            "line": 158,
             "source": "lib/lp/bugs/interfaces/cve.py"
           }
         ]
       },
       "interfaces": ["lp.bugs.interfaces.cve.ICve"]
+    },
+    "cve_reference": {
+      "fields": {
+        "content": [
+          {
+            "constructor": "zope.schema._bootstrapfields.Text",
+            "field": "content",
+            "interface": "lp.bugs.interfaces.cvereference.ICveReference",
+            "line": 28,
+            "source": "lib/lp/bugs/interfaces/cvereference.py"
+          }
+        ],
+        "source": [
+          {
+            "constructor": "zope.schema._bootstrapfields.TextLine",
+            "field": "source",
+            "interface": "lp.bugs.interfaces.cvereference.ICveReference",
+            "line": 25,
+            "source": "lib/lp/bugs/interfaces/cvereference.py"
+          }
+        ],
+        "url": [
+          {
+            "constructor": "zope.schema._bootstrapfields.TextLine",
+            "field": "url",
+            "interface": "lp.bugs.interfaces.cvereference.ICveReference",
+            "line": 29,
+            "source": "lib/lp/bugs/interfaces/cvereference.py"
+          }
+        ]
+      },
+      "interfaces": ["lp.bugs.interfaces.cvereference.ICveReference"]
     },
     "distribution": {
       "fields": {
@@ -5817,7 +5953,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "bug_reported_acknowledgement",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 374,
+            "line": 382,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -5826,7 +5962,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "bug_reporting_guidelines",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 337,
+            "line": 345,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -5889,7 +6025,7 @@
             "constructor": "zope.schema._field.Dict",
             "field": "content_templates",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 351,
+            "line": 359,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -6087,7 +6223,7 @@
             "constructor": "zope.schema._field.List",
             "field": "official_bug_tags",
             "interface": "lp.bugs.interfaces.bugtarget.IOfficialBugTagTargetPublic",
-            "line": 447,
+            "line": 455,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -6495,7 +6631,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "bug_reported_acknowledgement",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 374,
+            "line": 382,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -6504,7 +6640,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "bug_reporting_guidelines",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 337,
+            "line": 345,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -6513,7 +6649,7 @@
             "constructor": "zope.schema._field.Dict",
             "field": "content_templates",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 351,
+            "line": 359,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -6549,7 +6685,7 @@
             "constructor": "zope.schema._field.List",
             "field": "official_bug_tags",
             "interface": "lp.bugs.interfaces.bugtarget.IHasOfficialBugTags",
-            "line": 417,
+            "line": 425,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -6802,7 +6938,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "advertise_by_hash",
             "interface": "lp.registry.interfaces.distroseries.IDistroSeriesPublic",
-            "line": 642,
+            "line": 676,
             "source": "lib/lp/registry/interfaces/distroseries.py"
           }
         ],
@@ -6829,7 +6965,7 @@
             "constructor": "zope.schema._field.List",
             "field": "allowed_hashes",
             "interface": "lp.registry.interfaces.distroseries.IDistroSeriesPublic",
-            "line": 655,
+            "line": 689,
             "source": "lib/lp/registry/interfaces/distroseries.py"
           }
         ],
@@ -6838,7 +6974,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "enabled_architectures",
             "interface": "lp.registry.interfaces.distroseries.IDistroSeriesPublic",
-            "line": 789,
+            "line": 823,
             "source": "lib/lp/registry/interfaces/distroseries.py"
           }
         ],
@@ -6847,7 +6983,16 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "backports_not_automatic",
             "interface": "lp.registry.interfaces.distroseries.IDistroSeriesPublic",
-            "line": 568,
+            "line": 602,
+            "source": "lib/lp/registry/interfaces/distroseries.py"
+          }
+        ],
+        "binary_package_count": [
+          {
+            "constructor": "zope.schema._bootstrapfields.Int",
+            "field": "binarycount",
+            "interface": "lp.registry.interfaces.distroseries.IDistroSeriesPublic",
+            "line": 409,
             "source": "lib/lp/registry/interfaces/distroseries.py"
           }
         ],
@@ -6856,7 +7001,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "bug_reported_acknowledgement",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 374,
+            "line": 382,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -6865,7 +7010,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "bug_reporting_guidelines",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 337,
+            "line": 345,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -6892,7 +7037,7 @@
             "constructor": "zope.schema._field.Dict",
             "field": "content_templates",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 351,
+            "line": 359,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -6973,7 +7118,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "include_long_descriptions",
             "interface": "lp.registry.interfaces.distroseries.IDistroSeriesPublic",
-            "line": 596,
+            "line": 630,
             "source": "lib/lp/registry/interfaces/distroseries.py"
           }
         ],
@@ -6982,7 +7127,7 @@
             "constructor": "zope.schema._field.List",
             "field": "index_compressors",
             "interface": "lp.registry.interfaces.distroseries.IDistroSeriesPublic",
-            "line": 616,
+            "line": 650,
             "source": "lib/lp/registry/interfaces/distroseries.py"
           }
         ],
@@ -6991,7 +7136,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "language_pack_full_export_requested",
             "interface": "lp.registry.interfaces.distroseries.IDistroSeriesPublic",
-            "line": 526,
+            "line": 560,
             "source": "lib/lp/registry/interfaces/distroseries.py"
           }
         ],
@@ -7000,7 +7145,7 @@
             "constructor": "lazr.restful.fields.Reference",
             "field": "main_archive",
             "interface": "lp.registry.interfaces.distroseries.IDistroSeriesPublic",
-            "line": 754,
+            "line": 788,
             "source": "lib/lp/registry/interfaces/distroseries.py"
           }
         ],
@@ -7018,7 +7163,7 @@
             "constructor": "lazr.restful.fields.Reference",
             "field": "nominatedarchindep",
             "interface": "lp.registry.interfaces.distroseries.IDistroSeriesPublic",
-            "line": 397,
+            "line": 431,
             "source": "lib/lp/registry/interfaces/distroseries.py"
           }
         ],
@@ -7027,7 +7172,7 @@
             "constructor": "zope.schema._field.List",
             "field": "official_bug_tags",
             "interface": "lp.bugs.interfaces.bugtarget.IHasOfficialBugTags",
-            "line": 417,
+            "line": 425,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -7070,7 +7215,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "proposed_not_automatic",
             "interface": "lp.registry.interfaces.distroseries.IDistroSeriesPublic",
-            "line": 582,
+            "line": 616,
             "source": "lib/lp/registry/interfaces/distroseries.py"
           }
         ],
@@ -7079,7 +7224,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "publish_by_hash",
             "interface": "lp.registry.interfaces.distroseries.IDistroSeriesPublic",
-            "line": 629,
+            "line": 663,
             "source": "lib/lp/registry/interfaces/distroseries.py"
           }
         ],
@@ -7088,7 +7233,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "publish_i18n_index",
             "interface": "lp.registry.interfaces.distroseries.IDistroSeriesPublic",
-            "line": 685,
+            "line": 719,
             "source": "lib/lp/registry/interfaces/distroseries.py"
           }
         ],
@@ -7098,6 +7243,15 @@
             "field": "registrant",
             "interface": "lp.registry.interfaces.distroseries.IDistroSeriesPublic",
             "line": 343,
+            "source": "lib/lp/registry/interfaces/distroseries.py"
+          }
+        ],
+        "source_package_count": [
+          {
+            "constructor": "zope.schema._bootstrapfields.Int",
+            "field": "sourcecount",
+            "interface": "lp.registry.interfaces.distroseries.IDistroSeriesPublic",
+            "line": 385,
             "source": "lib/lp/registry/interfaces/distroseries.py"
           }
         ],
@@ -7115,7 +7269,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "strict_supported_component_dependencies",
             "interface": "lp.registry.interfaces.distroseries.IDistroSeriesPublic",
-            "line": 670,
+            "line": 704,
             "source": "lib/lp/registry/interfaces/distroseries.py"
           }
         ],
@@ -7142,7 +7296,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "supported",
             "interface": "lp.registry.interfaces.distroseries.IDistroSeriesPublic",
-            "line": 762,
+            "line": 796,
             "source": "lib/lp/registry/interfaces/distroseries.py"
           }
         ],
@@ -7160,7 +7314,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "translation_coverage",
             "interface": "lp.registry.interfaces.distroseries.IDistroSeriesPublic",
-            "line": 417,
+            "line": 451,
             "source": "lib/lp/registry/interfaces/distroseries.py"
           }
         ],
@@ -7187,7 +7341,7 @@
             "constructor": "zope.schema._field.Dict",
             "field": "valid_until_config",
             "interface": "lp.registry.interfaces.distroseries.IDistroSeriesPublic",
-            "line": 696,
+            "line": 730,
             "source": "lib/lp/registry/interfaces/distroseries.py"
           }
         ],
@@ -7603,7 +7757,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "branches",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 388,
+            "line": 391,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7612,7 +7766,7 @@
             "constructor": "zope.schema._field.Tuple",
             "field": "builder_constraints",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryAdminAttributes",
-            "line": 1338,
+            "line": 1384,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7621,7 +7775,7 @@
             "constructor": "lazr.restful.fields.Reference",
             "field": "code_import",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 421,
+            "line": 424,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7630,7 +7784,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "date_created",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 140,
+            "line": 143,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7639,7 +7793,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "date_last_modified",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryModerateAttributes",
-            "line": 995,
+            "line": 998,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7648,7 +7802,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "date_last_repacked",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 301,
+            "line": 304,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7657,7 +7811,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "date_last_scanned",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 310,
+            "line": 313,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7666,7 +7820,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "default_branch",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryEditableAttributes",
-            "line": 1059,
+            "line": 1062,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7675,7 +7829,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "dependent_landings",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 740,
+            "line": 743,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7684,7 +7838,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "description",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryModerateAttributes",
-            "line": 1013,
+            "line": 1016,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7693,7 +7847,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "display_name",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 264,
+            "line": 267,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7702,7 +7856,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "git_https_url",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 358,
+            "line": 361,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7711,7 +7865,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "git_identity",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 341,
+            "line": 344,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7720,7 +7874,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "git_ssh_url",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 369,
+            "line": 372,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7729,7 +7883,7 @@
             "constructor": "zope.schema._bootstrapfields.Int",
             "field": "id",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 138,
+            "line": 141,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7738,7 +7892,7 @@
             "constructor": "zope.schema._field.Choice",
             "field": "information_type",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 217,
+            "line": 220,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7747,7 +7901,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "_api_landing_candidates",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 724,
+            "line": 727,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7756,7 +7910,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "_api_landing_targets",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 704,
+            "line": 707,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7765,7 +7919,7 @@
             "constructor": "zope.schema._bootstrapfields.Int",
             "field": "loose_object_count",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 289,
+            "line": 292,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7774,7 +7928,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "name",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 204,
+            "line": 207,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7783,7 +7937,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "owner_default",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 230,
+            "line": 233,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7792,7 +7946,7 @@
             "constructor": "lp.services.fields.PersonChoice",
             "field": "owner",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 174,
+            "line": 177,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7801,7 +7955,7 @@
             "constructor": "zope.schema._bootstrapfields.Int",
             "field": "pack_count",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 280,
+            "line": 283,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7810,7 +7964,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "private",
             "interface": "lp.code.interfaces.gitrepository.IGitRepository",
-            "line": 1367,
+            "line": 1413,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7828,7 +7982,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "refs",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 377,
+            "line": 380,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7837,7 +7991,7 @@
             "constructor": "lp.services.fields.PublicPersonChoice",
             "field": "registrant",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 164,
+            "line": 167,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7846,7 +8000,7 @@
             "constructor": "zope.schema._field.Choice",
             "field": "repository_type",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 144,
+            "line": 147,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7855,7 +8009,7 @@
             "constructor": "lp.services.fields.PublicPersonChoice",
             "field": "reviewer",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryModerateAttributes",
-            "line": 999,
+            "line": 1002,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7864,7 +8018,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "subscribers",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 413,
+            "line": 416,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7873,7 +8027,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "subscriptions",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 404,
+            "line": 407,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7882,7 +8036,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "target_default",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 242,
+            "line": 245,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7891,7 +8045,7 @@
             "constructor": "lazr.restful.fields.Reference",
             "field": "target",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 187,
+            "line": 190,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -7900,7 +8054,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "unique_name",
             "interface": "lp.code.interfaces.gitrepository.IGitRepositoryView",
-            "line": 253,
+            "line": 256,
             "source": "lib/lp/code/interfaces/gitrepository.py"
           }
         ],
@@ -8750,7 +8904,7 @@
             "constructor": "zope.schema._field.List",
             "field": "official_bug_tags",
             "interface": "lp.bugs.interfaces.bugtarget.IHasOfficialBugTags",
-            "line": 417,
+            "line": 425,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -8815,7 +8969,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "bug_reported_acknowledgement",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 374,
+            "line": 382,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -8824,7 +8978,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "bug_reporting_guidelines",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 337,
+            "line": 345,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -8833,7 +8987,7 @@
             "constructor": "zope.schema._field.Dict",
             "field": "content_templates",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 351,
+            "line": 359,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -8896,7 +9050,7 @@
             "constructor": "zope.schema._field.List",
             "field": "official_bug_tags",
             "interface": "lp.bugs.interfaces.bugtarget.IHasOfficialBugTags",
-            "line": 417,
+            "line": 425,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -9567,7 +9721,7 @@
             "constructor": "lazr.restful.fields.Reference",
             "field": "archive",
             "interface": "lp.soyuz.interfaces.queue.IPackageUpload",
-            "line": 257,
+            "line": 261,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ],
@@ -9576,7 +9730,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "changes_file_url",
             "interface": "lp.soyuz.interfaces.queue.IPackageUpload",
-            "line": 225,
+            "line": 229,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ],
@@ -9585,7 +9739,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "component_name",
             "interface": "lp.soyuz.interfaces.queue.IPackageUpload",
-            "line": 354,
+            "line": 358,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ],
@@ -9594,7 +9748,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "contains_build",
             "interface": "lp.soyuz.interfaces.queue.IPackageUpload",
-            "line": 371,
+            "line": 375,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ],
@@ -9603,7 +9757,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "contains_copy",
             "interface": "lp.soyuz.interfaces.queue.IPackageUpload",
-            "line": 378,
+            "line": 382,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ],
@@ -9612,7 +9766,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "contains_source",
             "interface": "lp.soyuz.interfaces.queue.IPackageUpload",
-            "line": 364,
+            "line": 368,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ],
@@ -9621,7 +9775,7 @@
             "constructor": "lazr.restful.fields.Reference",
             "field": "copy_source_archive",
             "interface": "lp.soyuz.interfaces.queue.IPackageUpload",
-            "line": 300,
+            "line": 304,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ],
@@ -9630,7 +9784,7 @@
             "constructor": "zope.schema._field.List",
             "field": "custom_file_urls",
             "interface": "lp.soyuz.interfaces.queue.IPackageUpload",
-            "line": 284,
+            "line": 288,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ],
@@ -9639,7 +9793,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "date_created",
             "interface": "lp.soyuz.interfaces.queue.IPackageUpload",
-            "line": 214,
+            "line": 218,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ],
@@ -9648,7 +9802,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "displayarchs",
             "interface": "lp.soyuz.interfaces.queue.IPackageUpload",
-            "line": 326,
+            "line": 330,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ],
@@ -9657,7 +9811,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "displayname",
             "interface": "lp.soyuz.interfaces.queue.IPackageUpload",
-            "line": 313,
+            "line": 317,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ],
@@ -9666,7 +9820,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "displayversion",
             "interface": "lp.soyuz.interfaces.queue.IPackageUpload",
-            "line": 319,
+            "line": 323,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ],
@@ -9675,7 +9829,7 @@
             "constructor": "lazr.restful.fields.Reference",
             "field": "distroseries",
             "interface": "lp.soyuz.interfaces.queue.IPackageUpload",
-            "line": 193,
+            "line": 197,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ],
@@ -9684,7 +9838,7 @@
             "constructor": "zope.schema._bootstrapfields.Int",
             "field": "id",
             "interface": "lp.soyuz.interfaces.queue.IPackageUpload",
-            "line": 175,
+            "line": 179,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ],
@@ -9693,7 +9847,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "logs",
             "interface": "lp.soyuz.interfaces.queue.IPackageUpload",
-            "line": 270,
+            "line": 274,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ],
@@ -9702,7 +9856,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "package_name",
             "interface": "lp.soyuz.interfaces.queue.IPackageUpload",
-            "line": 342,
+            "line": 346,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ],
@@ -9711,7 +9865,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "package_version",
             "interface": "lp.soyuz.interfaces.queue.IPackageUpload",
-            "line": 349,
+            "line": 353,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ],
@@ -9720,7 +9874,7 @@
             "constructor": "zope.schema._field.Choice",
             "field": "pocket",
             "interface": "lp.soyuz.interfaces.queue.IPackageUpload",
-            "line": 204,
+            "line": 208,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ],
@@ -9729,7 +9883,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "section_name",
             "interface": "lp.soyuz.interfaces.queue.IPackageUpload",
-            "line": 359,
+            "line": 363,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ],
@@ -9738,7 +9892,7 @@
             "constructor": "zope.schema._field.Choice",
             "field": "status",
             "interface": "lp.soyuz.interfaces.queue.IPackageUpload",
-            "line": 183,
+            "line": 187,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ]
@@ -9752,7 +9906,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "comment",
             "interface": "lp.soyuz.interfaces.queue.IPackageUploadLog",
-            "line": 162,
+            "line": 166,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ],
@@ -9761,7 +9915,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "date_created",
             "interface": "lp.soyuz.interfaces.queue.IPackageUploadLog",
-            "line": 129,
+            "line": 133,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ],
@@ -9770,7 +9924,7 @@
             "constructor": "zope.schema._field.Choice",
             "field": "new_status",
             "interface": "lp.soyuz.interfaces.queue.IPackageUploadLog",
-            "line": 153,
+            "line": 157,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ],
@@ -9779,7 +9933,7 @@
             "constructor": "zope.schema._field.Choice",
             "field": "old_status",
             "interface": "lp.soyuz.interfaces.queue.IPackageUploadLog",
-            "line": 144,
+            "line": 148,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ],
@@ -9788,7 +9942,7 @@
             "constructor": "lazr.restful.fields.Reference",
             "field": "package_upload",
             "interface": "lp.soyuz.interfaces.queue.IPackageUploadLog",
-            "line": 120,
+            "line": 124,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ],
@@ -9797,7 +9951,7 @@
             "constructor": "lazr.restful.fields.Reference",
             "field": "reviewer",
             "interface": "lp.soyuz.interfaces.queue.IPackageUploadLog",
-            "line": 135,
+            "line": 139,
             "source": "lib/lp/soyuz/interfaces/queue.py"
           }
         ]
@@ -9879,7 +10033,7 @@
             "constructor": "zope.schema._field.Choice",
             "field": "account_status",
             "interface": "lp.registry.interfaces.person.IPersonPublic",
-            "line": 703,
+            "line": 706,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -9888,7 +10042,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "account_status_history",
             "interface": "lp.registry.interfaces.person.IPersonModerateRestricted",
-            "line": 2353,
+            "line": 2402,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -9897,7 +10051,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "api_adminmembers",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1795,
+            "line": 1802,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -9915,7 +10069,7 @@
             "constructor": "lazr.restful.fields.Reference",
             "field": "archive",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1220,
+            "line": 1227,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -9924,7 +10078,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "validatedemails",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1121,
+            "line": 1128,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -9933,7 +10087,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "datecreated",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 939,
+            "line": 942,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -9942,7 +10096,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "api_deactivatedmembers",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1832,
+            "line": 1839,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -9951,7 +10105,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "description",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 895,
+            "line": 898,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -9960,7 +10114,7 @@
             "constructor": "lp.services.fields.StrippedTextLine",
             "field": "display_name",
             "interface": "lp.registry.interfaces.person.IPersonLimitedView",
-            "line": 771,
+            "line": 774,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -9969,7 +10123,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "api_expiredmembers",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1843,
+            "line": 1850,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -9978,7 +10132,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "gpg_keys",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 991,
+            "line": 998,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -9987,7 +10141,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "hide_email_addresses",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 930,
+            "line": 933,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -9996,7 +10150,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "homepage_content",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 887,
+            "line": 890,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10005,7 +10159,7 @@
             "constructor": "zope.schema._bootstrapfields.Int",
             "field": "exported_id",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 863,
+            "line": 866,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10014,7 +10168,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "api_invited_members",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1860,
+            "line": 1867,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10023,7 +10177,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "ircnicknames",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1021,
+            "line": 1028,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10032,7 +10186,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "is_probationary",
             "interface": "lp.registry.interfaces.person.IPersonLimitedView",
-            "line": 818,
+            "line": 821,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10041,7 +10195,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "is_team",
             "interface": "lp.registry.interfaces.person.IPersonPublic",
-            "line": 702,
+            "line": 705,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10050,7 +10204,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "is_ubuntu_coc_signer",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 985,
+            "line": 992,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10059,7 +10213,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "is_valid_person_or_team",
             "interface": "lp.registry.interfaces.person.IPersonPublic",
-            "line": 698,
+            "line": 701,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10068,7 +10222,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "jabberids",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1030,
+            "line": 1037,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10077,7 +10231,7 @@
             "constructor": "zope.schema._bootstrapfields.Int",
             "field": "karma",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 880,
+            "line": 883,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10086,7 +10240,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "languages",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 921,
+            "line": 924,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10104,7 +10258,7 @@
             "constructor": "lp.services.fields.LogoImageUpload",
             "field": "logo",
             "interface": "lp.registry.interfaces.person.IPersonLimitedView",
-            "line": 802,
+            "line": 805,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10122,7 +10276,7 @@
             "constructor": "zope.schema._field.Choice",
             "field": "mailing_list_auto_subscribe_policy",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1194,
+            "line": 1201,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10131,7 +10285,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "api_activemembers",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1783,
+            "line": 1790,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10140,7 +10294,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "member_memberships",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1874,
+            "line": 1881,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10149,7 +10303,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "team_memberships",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1060,
+            "line": 1067,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10158,7 +10312,7 @@
             "constructor": "lp.services.fields.MugshotImageUpload",
             "field": "mugshot",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 906,
+            "line": 909,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10167,7 +10321,7 @@
             "constructor": "lp.registry.interfaces.person.PersonNameField",
             "field": "name",
             "interface": "lp.registry.interfaces.person.IPersonLimitedView",
-            "line": 758,
+            "line": 761,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10176,7 +10330,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "open_membership_invitations",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1072,
+            "line": 1079,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10185,7 +10339,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "api_all_members",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1808,
+            "line": 1815,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10194,7 +10348,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "ppas",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1231,
+            "line": 1238,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10203,7 +10357,7 @@
             "constructor": "lazr.restful.fields.Reference",
             "field": "preferredemail",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1164,
+            "line": 1171,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10212,7 +10366,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "private",
             "interface": "lp.registry.interfaces.person.IPersonPublic",
-            "line": 685,
+            "line": 688,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10221,7 +10375,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "api_proposedmembers",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1894,
+            "line": 1901,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10239,7 +10393,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "social_accounts",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1039,
+            "line": 1046,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10248,7 +10402,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "sshkeys",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 972,
+            "line": 979,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10257,7 +10411,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "sub_teams",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1255,
+            "line": 1262,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10266,7 +10420,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "super_teams",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1280,
+            "line": 1287,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10275,7 +10429,7 @@
             "constructor": "lp.services.fields.PublicPersonChoice",
             "field": "teamowner",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1152,
+            "line": 1159,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10302,7 +10456,7 @@
             "constructor": "zope.schema._field.Choice",
             "field": "visibility",
             "interface": "lp.registry.interfaces.person.IPersonPublic",
-            "line": 712,
+            "line": 715,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -10311,7 +10465,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "wiki_names",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1010,
+            "line": 1017,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ]
@@ -10692,7 +10846,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "bug_reported_acknowledgement",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 374,
+            "line": 382,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -10701,7 +10855,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "bug_reporting_guidelines",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 337,
+            "line": 345,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -10755,7 +10909,7 @@
             "constructor": "zope.schema._field.Dict",
             "field": "content_templates",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 351,
+            "line": 359,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -10935,7 +11089,7 @@
             "constructor": "zope.schema._field.List",
             "field": "official_bug_tags",
             "interface": "lp.bugs.interfaces.bugtarget.IOfficialBugTagTargetPublic",
-            "line": 447,
+            "line": 455,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -11381,7 +11535,7 @@
             "constructor": "zope.schema._field.List",
             "field": "official_bug_tags",
             "interface": "lp.bugs.interfaces.bugtarget.IHasOfficialBugTags",
-            "line": 417,
+            "line": 425,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -11539,7 +11693,7 @@
             "constructor": "zope.schema._field.List",
             "field": "official_bug_tags",
             "interface": "lp.bugs.interfaces.bugtarget.IHasOfficialBugTags",
-            "line": 417,
+            "line": 425,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -11808,7 +11962,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "bug_reported_acknowledgement",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 374,
+            "line": 382,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -11817,7 +11971,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "bug_reporting_guidelines",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 337,
+            "line": 345,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -11826,7 +11980,7 @@
             "constructor": "zope.schema._field.Dict",
             "field": "content_templates",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 351,
+            "line": 359,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -11880,7 +12034,7 @@
             "constructor": "zope.schema._field.List",
             "field": "official_bug_tags",
             "interface": "lp.bugs.interfaces.bugtarget.IHasOfficialBugTags",
-            "line": 417,
+            "line": 425,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -12302,7 +12456,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "attestation_format",
             "interface": "lp.services.webauthn.interfaces.IRegisteredAuthenticator",
-            "line": 75,
+            "line": 82,
             "source": "lib/lp/services/webauthn/interfaces.py"
           }
         ],
@@ -12311,7 +12465,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "date_created",
             "interface": "lp.services.webauthn.interfaces.IRegisteredAuthenticator",
-            "line": 112,
+            "line": 119,
             "source": "lib/lp/services/webauthn/interfaces.py"
           }
         ],
@@ -12320,7 +12474,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "date_last_used",
             "interface": "lp.services.webauthn.interfaces.IRegisteredAuthenticator",
-            "line": 121,
+            "line": 128,
             "source": "lib/lp/services/webauthn/interfaces.py"
           }
         ],
@@ -12329,7 +12483,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "date_revoked",
             "interface": "lp.services.webauthn.interfaces.IRegisteredAuthenticator",
-            "line": 132,
+            "line": 139,
             "source": "lib/lp/services/webauthn/interfaces.py"
           }
         ],
@@ -12338,7 +12492,7 @@
             "constructor": "zope.schema._bootstrapfields.Int",
             "field": "id",
             "interface": "lp.services.webauthn.interfaces.IRegisteredAuthenticator",
-            "line": 26,
+            "line": 33,
             "source": "lib/lp/services/webauthn/interfaces.py"
           }
         ],
@@ -12347,7 +12501,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "is_revoked",
             "interface": "lp.services.webauthn.interfaces.IRegisteredAuthenticator",
-            "line": 156,
+            "line": 163,
             "source": "lib/lp/services/webauthn/interfaces.py"
           }
         ],
@@ -12356,7 +12510,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "name",
             "interface": "lp.services.webauthn.interfaces.IRegisteredAuthenticator",
-            "line": 100,
+            "line": 107,
             "source": "lib/lp/services/webauthn/interfaces.py"
           }
         ],
@@ -12365,7 +12519,7 @@
             "constructor": "lazr.restful.fields.Reference",
             "field": "owner",
             "interface": "lp.services.webauthn.interfaces.IRegisteredAuthenticator",
-            "line": 28,
+            "line": 35,
             "source": "lib/lp/services/webauthn/interfaces.py"
           }
         ],
@@ -12374,7 +12528,7 @@
             "constructor": "lazr.restful.fields.Reference",
             "field": "revoked_by",
             "interface": "lp.services.webauthn.interfaces.IRegisteredAuthenticator",
-            "line": 143,
+            "line": 150,
             "source": "lib/lp/services/webauthn/interfaces.py"
           }
         ],
@@ -12383,7 +12537,7 @@
             "constructor": "zope.schema._field.List",
             "field": "transports",
             "interface": "lp.services.webauthn.interfaces.IRegisteredAuthenticator",
-            "line": 87,
+            "line": 94,
             "source": "lib/lp/services/webauthn/interfaces.py"
           }
         ]
@@ -12397,7 +12551,7 @@
             "constructor": "lazr.restful.fields.Reference",
             "field": "ci_build",
             "interface": "lp.code.interfaces.revisionstatus.IRevisionStatusReportEditableAttributes",
-            "line": 154,
+            "line": 161,
             "source": "lib/lp/code/interfaces/revisionstatus.py"
           }
         ],
@@ -12406,7 +12560,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "commit_sha1",
             "interface": "lp.code.interfaces.revisionstatus.IRevisionStatusReportEditableAttributes",
-            "line": 120,
+            "line": 127,
             "source": "lib/lp/code/interfaces/revisionstatus.py"
           }
         ],
@@ -12442,7 +12596,7 @@
             "constructor": "lazr.restful.fields.Reference",
             "field": "distro_arch_series",
             "interface": "lp.code.interfaces.revisionstatus.IRevisionStatusReportEditableAttributes",
-            "line": 164,
+            "line": 171,
             "source": "lib/lp/code/interfaces/revisionstatus.py"
           }
         ],
@@ -12451,7 +12605,16 @@
             "constructor": "lazr.restful.fields.Reference",
             "field": "git_repository",
             "interface": "lp.code.interfaces.revisionstatus.IRevisionStatusReportEditableAttributes",
-            "line": 110,
+            "line": 117,
+            "source": "lib/lp/code/interfaces/revisionstatus.py"
+          }
+        ],
+        "group_name": [
+          {
+            "constructor": "zope.schema._bootstrapfields.TextLine",
+            "field": "group_name",
+            "interface": "lp.code.interfaces.revisionstatus.IRevisionStatusReportView",
+            "line": 81,
             "source": "lib/lp/code/interfaces/revisionstatus.py"
           }
         ],
@@ -12460,7 +12623,7 @@
             "constructor": "zope.schema._field.Dict",
             "field": "properties",
             "interface": "lp.code.interfaces.revisionstatus.IRevisionStatusReportEditableAttributes",
-            "line": 176,
+            "line": 183,
             "source": "lib/lp/code/interfaces/revisionstatus.py"
           }
         ],
@@ -12469,7 +12632,7 @@
             "constructor": "zope.schema._field.Choice",
             "field": "result",
             "interface": "lp.code.interfaces.revisionstatus.IRevisionStatusReportEditableAttributes",
-            "line": 145,
+            "line": 152,
             "source": "lib/lp/code/interfaces/revisionstatus.py"
           }
         ],
@@ -12478,7 +12641,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "result_summary",
             "interface": "lp.code.interfaces.revisionstatus.IRevisionStatusReportEditableAttributes",
-            "line": 137,
+            "line": 144,
             "source": "lib/lp/code/interfaces/revisionstatus.py"
           }
         ],
@@ -12487,7 +12650,7 @@
             "constructor": "zope.schema._bootstrapfields.TextLine",
             "field": "title",
             "interface": "lp.code.interfaces.revisionstatus.IRevisionStatusReportEditableAttributes",
-            "line": 102,
+            "line": 109,
             "source": "lib/lp/code/interfaces/revisionstatus.py"
           }
         ],
@@ -12496,7 +12659,7 @@
             "constructor": "lp.services.fields.URIField",
             "field": "url",
             "interface": "lp.code.interfaces.revisionstatus.IRevisionStatusReportEditableAttributes",
-            "line": 128,
+            "line": 135,
             "source": "lib/lp/code/interfaces/revisionstatus.py"
           }
         ]
@@ -14153,7 +14316,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "bug_reported_acknowledgement",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 374,
+            "line": 382,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -14162,7 +14325,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "bug_reporting_guidelines",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 337,
+            "line": 345,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -14171,7 +14334,7 @@
             "constructor": "zope.schema._field.Dict",
             "field": "content_templates",
             "interface": "lp.bugs.interfaces.bugtarget.IBugTarget",
-            "line": 351,
+            "line": 359,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -14225,7 +14388,7 @@
             "constructor": "zope.schema._field.List",
             "field": "official_bug_tags",
             "interface": "lp.bugs.interfaces.bugtarget.IHasOfficialBugTags",
-            "line": 417,
+            "line": 425,
             "source": "lib/lp/bugs/interfaces/bugtarget.py"
           }
         ],
@@ -14240,6 +14403,247 @@
         ]
       },
       "interfaces": ["lp.registry.interfaces.sourcepackage.ISourcePackage"]
+    },
+    "source_package_git_build": {
+      "fields": {
+        "archive_link": [
+          {
+            "constructor": "lazr.restful.fields.Reference",
+            "field": "archive",
+            "interface": "lp.buildmaster.interfaces.packagebuild.IPackageBuildView",
+            "line": 41,
+            "source": "lib/lp/buildmaster/interfaces/packagebuild.py"
+          }
+        ],
+        "build_log_url": [
+          {
+            "constructor": "zope.schema._bootstrapfields.TextLine",
+            "field": "log_url",
+            "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
+            "line": 222,
+            "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
+          }
+        ],
+        "builder_link": [
+          {
+            "constructor": "lazr.restful.fields.Reference",
+            "field": "builder",
+            "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
+            "line": 186,
+            "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
+          }
+        ],
+        "buildstate": [
+          {
+            "constructor": "zope.schema._field.Choice",
+            "field": "status",
+            "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
+            "line": 203,
+            "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
+          }
+        ],
+        "can_be_cancelled": [
+          {
+            "constructor": "zope.schema._bootstrapfields.Bool",
+            "field": "can_be_cancelled",
+            "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
+            "line": 356,
+            "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
+          }
+        ],
+        "can_be_rescored": [
+          {
+            "constructor": "zope.schema._bootstrapfields.Bool",
+            "field": "can_be_rescored",
+            "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
+            "line": 336,
+            "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
+          }
+        ],
+        "can_be_retried": [
+          {
+            "constructor": "zope.schema._bootstrapfields.Bool",
+            "field": "can_be_retried",
+            "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
+            "line": 347,
+            "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
+          }
+        ],
+        "commit_sha1": [
+          {
+            "constructor": "zope.schema._bootstrapfields.TextLine",
+            "field": "commit_sha1",
+            "interface": "lp.soyuz.interfaces.sourcepackagegitbuild.ISourcePackageGitBuildView",
+            "line": 46,
+            "source": "lib/lp/soyuz/interfaces/sourcepackagegitbuild.py"
+          }
+        ],
+        "date_created": [
+          {
+            "constructor": "zope.schema._field.Datetime",
+            "field": "date_created",
+            "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
+            "line": 122,
+            "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
+          }
+        ],
+        "date_finished": [
+          {
+            "constructor": "zope.schema._field.Datetime",
+            "field": "date_finished",
+            "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
+            "line": 147,
+            "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
+          }
+        ],
+        "date_first_dispatched": [
+          {
+            "constructor": "zope.schema._field.Datetime",
+            "field": "date_first_dispatched",
+            "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
+            "line": 173,
+            "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
+          }
+        ],
+        "date_started": [
+          {
+            "constructor": "zope.schema._field.Datetime",
+            "field": "date_started",
+            "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
+            "line": 135,
+            "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
+          }
+        ],
+        "datebuilt": [
+          {
+            "constructor": "zope.schema._field.Datetime",
+            "field": "date_finished",
+            "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
+            "line": 147,
+            "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
+          }
+        ],
+        "datecreated": [
+          {
+            "constructor": "zope.schema._field.Datetime",
+            "field": "date_created",
+            "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
+            "line": 122,
+            "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
+          }
+        ],
+        "dependencies": [
+          {
+            "constructor": "zope.schema._bootstrapfields.TextLine",
+            "field": "dependencies",
+            "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
+            "line": 316,
+            "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
+          }
+        ],
+        "distribution_link": [
+          {
+            "constructor": "lazr.restful.fields.Reference",
+            "field": "distribution",
+            "interface": "lp.buildmaster.interfaces.packagebuild.IPackageBuildView",
+            "line": 86,
+            "source": "lib/lp/buildmaster/interfaces/packagebuild.py"
+          }
+        ],
+        "distro_series_link": [
+          {
+            "constructor": "lazr.restful.fields.Reference",
+            "field": "distro_series",
+            "interface": "lp.buildmaster.interfaces.packagebuild.IPackageBuildView",
+            "line": 95,
+            "source": "lib/lp/buildmaster/interfaces/packagebuild.py"
+          }
+        ],
+        "duration": [
+          {
+            "constructor": "zope.schema._field.Timedelta",
+            "field": "duration",
+            "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
+            "line": 160,
+            "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
+          }
+        ],
+        "git_repository_link": [
+          {
+            "constructor": "lazr.restful.fields.Reference",
+            "field": "git_repository",
+            "interface": "lp.soyuz.interfaces.sourcepackagegitbuild.ISourcePackageGitBuildView",
+            "line": 39,
+            "source": "lib/lp/soyuz/interfaces/sourcepackagegitbuild.py"
+          }
+        ],
+        "log_url": [
+          {
+            "constructor": "zope.schema._bootstrapfields.TextLine",
+            "field": "log_url",
+            "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
+            "line": 222,
+            "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
+          }
+        ],
+        "pocket": [
+          {
+            "constructor": "zope.schema._field.Choice",
+            "field": "pocket",
+            "interface": "lp.buildmaster.interfaces.packagebuild.IPackageBuildView",
+            "line": 51,
+            "source": "lib/lp/buildmaster/interfaces/packagebuild.py"
+          }
+        ],
+        "requester_link": [
+          {
+            "constructor": "lazr.restful.fields.Reference",
+            "field": "requester",
+            "interface": "lp.soyuz.interfaces.sourcepackagegitbuild.ISourcePackageGitBuildView",
+            "line": 55,
+            "source": "lib/lp/soyuz/interfaces/sourcepackagegitbuild.py"
+          }
+        ],
+        "status": [
+          {
+            "constructor": "zope.schema._field.Choice",
+            "field": "status",
+            "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
+            "line": 203,
+            "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
+          }
+        ],
+        "title": [
+          {
+            "constructor": "zope.schema._bootstrapfields.TextLine",
+            "field": "title",
+            "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
+            "line": 310,
+            "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
+          }
+        ],
+        "upload_log_url": [
+          {
+            "constructor": "zope.schema._bootstrapfields.TextLine",
+            "field": "upload_log_url",
+            "interface": "lp.buildmaster.interfaces.packagebuild.IPackageBuildView",
+            "line": 70,
+            "source": "lib/lp/buildmaster/interfaces/packagebuild.py"
+          }
+        ],
+        "version_suffix": [
+          {
+            "constructor": "zope.schema._bootstrapfields.TextLine",
+            "field": "version_suffix",
+            "interface": "lp.soyuz.interfaces.sourcepackagegitbuild.ISourcePackageGitBuildView",
+            "line": 62,
+            "source": "lib/lp/soyuz/interfaces/sourcepackagegitbuild.py"
+          }
+        ]
+      },
+      "interfaces": [
+        "lp.soyuz.interfaces.sourcepackagegitbuild.ISourcePackageGitBuild"
+      ]
     },
     "source_package_publishing_history": {
       "fields": {
@@ -15266,7 +15670,7 @@
             "constructor": "zope.schema._field.Choice",
             "field": "account_status",
             "interface": "lp.registry.interfaces.person.IPersonPublic",
-            "line": 703,
+            "line": 706,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15275,7 +15679,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "account_status_history",
             "interface": "lp.registry.interfaces.person.IPersonModerateRestricted",
-            "line": 2353,
+            "line": 2402,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15284,7 +15688,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "api_adminmembers",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1795,
+            "line": 1802,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15302,7 +15706,7 @@
             "constructor": "lazr.restful.fields.Reference",
             "field": "archive",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1220,
+            "line": 1227,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15311,7 +15715,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "validatedemails",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1121,
+            "line": 1128,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15320,7 +15724,7 @@
             "constructor": "zope.schema._field.Datetime",
             "field": "datecreated",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 939,
+            "line": 942,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15329,7 +15733,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "api_deactivatedmembers",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1832,
+            "line": 1839,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15338,7 +15742,7 @@
             "constructor": "zope.schema._bootstrapfields.Int",
             "field": "defaultmembershipperiod",
             "interface": "lp.registry.interfaces.person.ITeamPublic",
-            "line": 2458,
+            "line": 2507,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15347,7 +15751,7 @@
             "constructor": "zope.schema._bootstrapfields.Int",
             "field": "defaultrenewalperiod",
             "interface": "lp.registry.interfaces.person.ITeamPublic",
-            "line": 2473,
+            "line": 2522,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15356,7 +15760,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "description",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 895,
+            "line": 898,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15365,7 +15769,7 @@
             "constructor": "lp.services.fields.StrippedTextLine",
             "field": "display_name",
             "interface": "lp.registry.interfaces.person.ITeam",
-            "line": 2579,
+            "line": 2628,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15374,7 +15778,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "api_expiredmembers",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1843,
+            "line": 1850,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15383,7 +15787,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "gpg_keys",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 991,
+            "line": 998,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15392,7 +15796,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "hide_email_addresses",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 930,
+            "line": 933,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15401,7 +15805,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "homepage_content",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 887,
+            "line": 890,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15410,7 +15814,7 @@
             "constructor": "zope.schema._bootstrapfields.Int",
             "field": "exported_id",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 863,
+            "line": 866,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15419,7 +15823,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "api_invited_members",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1860,
+            "line": 1867,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15428,7 +15832,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "ircnicknames",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1021,
+            "line": 1028,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15437,7 +15841,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "is_probationary",
             "interface": "lp.registry.interfaces.person.IPersonLimitedView",
-            "line": 818,
+            "line": 821,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15446,7 +15850,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "is_team",
             "interface": "lp.registry.interfaces.person.IPersonPublic",
-            "line": 702,
+            "line": 705,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15455,7 +15859,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "is_ubuntu_coc_signer",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 985,
+            "line": 992,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15464,7 +15868,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "is_valid_person_or_team",
             "interface": "lp.registry.interfaces.person.IPersonPublic",
-            "line": 698,
+            "line": 701,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15473,7 +15877,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "jabberids",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1030,
+            "line": 1037,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15482,7 +15886,7 @@
             "constructor": "zope.schema._bootstrapfields.Int",
             "field": "karma",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 880,
+            "line": 883,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15491,7 +15895,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "languages",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 921,
+            "line": 924,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15509,7 +15913,7 @@
             "constructor": "lp.services.fields.LogoImageUpload",
             "field": "logo",
             "interface": "lp.registry.interfaces.person.ITeam",
-            "line": 2558,
+            "line": 2607,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15527,7 +15931,7 @@
             "constructor": "zope.schema._field.Choice",
             "field": "mailing_list_auto_subscribe_policy",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1194,
+            "line": 1201,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15536,7 +15940,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "api_activemembers",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1783,
+            "line": 1790,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15545,7 +15949,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "member_memberships",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1874,
+            "line": 1881,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15554,7 +15958,7 @@
             "constructor": "lp.registry.interfaces.person.TeamMembershipPolicyChoice",
             "field": "membership_policy",
             "interface": "lp.registry.interfaces.person.ITeamPublic",
-            "line": 2428,
+            "line": 2477,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15563,7 +15967,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "team_memberships",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1060,
+            "line": 1067,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15572,7 +15976,7 @@
             "constructor": "lp.services.fields.MugshotImageUpload",
             "field": "mugshot",
             "interface": "lp.registry.interfaces.person.ITeam",
-            "line": 2569,
+            "line": 2618,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15581,7 +15985,7 @@
             "constructor": "lp.registry.interfaces.person.PersonNameField",
             "field": "name",
             "interface": "lp.registry.interfaces.person.IPersonLimitedView",
-            "line": 758,
+            "line": 761,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15590,7 +15994,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "open_membership_invitations",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1072,
+            "line": 1079,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15599,7 +16003,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "api_all_members",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1808,
+            "line": 1815,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15608,7 +16012,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "ppas",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1231,
+            "line": 1238,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15617,7 +16021,7 @@
             "constructor": "lazr.restful.fields.Reference",
             "field": "preferredemail",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1164,
+            "line": 1171,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15626,7 +16030,7 @@
             "constructor": "zope.schema._bootstrapfields.Bool",
             "field": "private",
             "interface": "lp.registry.interfaces.person.IPersonPublic",
-            "line": 685,
+            "line": 688,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15635,7 +16039,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "api_proposedmembers",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1894,
+            "line": 1901,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15653,7 +16057,7 @@
             "constructor": "zope.schema._field.Choice",
             "field": "renewal_policy",
             "interface": "lp.registry.interfaces.person.ITeamPublic",
-            "line": 2446,
+            "line": 2495,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15662,7 +16066,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "social_accounts",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1039,
+            "line": 1046,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15671,7 +16075,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "sshkeys",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 972,
+            "line": 979,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15680,7 +16084,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "sub_teams",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1255,
+            "line": 1262,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15689,7 +16093,7 @@
             "constructor": "lp.registry.interfaces.person.TeamMembershipPolicyChoice",
             "field": "subscription_policy",
             "interface": "lp.registry.interfaces.person.ITeamPublic",
-            "line": 2438,
+            "line": 2487,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15698,7 +16102,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "super_teams",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1280,
+            "line": 1287,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15707,7 +16111,7 @@
             "constructor": "zope.schema._bootstrapfields.Text",
             "field": "teamdescription",
             "interface": "lp.registry.interfaces.person.ITeamPublic",
-            "line": 2418,
+            "line": 2467,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15716,7 +16120,7 @@
             "constructor": "lp.services.fields.PublicPersonChoice",
             "field": "teamowner",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1152,
+            "line": 1159,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15743,7 +16147,7 @@
             "constructor": "zope.schema._field.Choice",
             "field": "visibility",
             "interface": "lp.registry.interfaces.person.IPersonPublic",
-            "line": 712,
+            "line": 715,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ],
@@ -15752,7 +16156,7 @@
             "constructor": "lazr.restful.fields.CollectionField",
             "field": "wiki_names",
             "interface": "lp.registry.interfaces.person.IPersonViewRestricted",
-            "line": 1010,
+            "line": 1017,
             "source": "lib/lp/registry/interfaces/person.py"
           }
         ]
@@ -16585,7 +16989,7 @@
     }
   },
   "response_nullable_semantics": "reference marshaller explicitly serializes URL-or-None; response-only, independent of input validation",
-  "source_digest": "cfa60ee646a61900956f2447d33f47ebb6003f1d48a3b3b55364e7fd3a62e138",
+  "source_digest": "aaa7d1ef72d0215d554b62e07ed2de949a894610b2a2f227d7f80e728efad8cb",
   "source_sha256": {
     "download-cache/dist/lazr.enum-1.2.1.tar.gz": "ee45a7e617e866d5a101293c6fd750a475303b66b648c46058e74026a298a087",
     "download-cache/dist/lazr.lifecycle-1.2.1.tar.gz": "cffc1a1e3a4431f11ea925a73c26c2e4bb1405fc4cfcfe9c3dbd2ef13e033160",
@@ -16626,37 +17030,39 @@
     "lib/lp/blueprints/interfaces/sprint.py": "9498806bf895a385fc856d86dd9e5c6db21a4d6661b7ec1ddf80c2a5636cd5b1",
     "lib/lp/blueprints/interfaces/webservice.py": "2d8201421d76a90ba854db66e0880063878b72c6b0c5a95b5dd123cd3d64f7a5",
     "lib/lp/blueprints/vocabularies/configure.zcml": "d8f0071e2ad73fd113fb194c063a50cf94590b984385d0e0f7fc8eb8d05e4e59",
-    "lib/lp/bugs/browser/configure.zcml": "af9e73689d6904281ab7d6475e53e13742f09a9e8d88d2616f44782ac53ea08d",
+    "lib/lp/bugs/browser/configure.zcml": "8c8cdff45daa704b15f086922346f884755e52d35c3d066c11df3137bbdeea24",
     "lib/lp/bugs/browser/widgets/configure.zcml": "483f084d65c446a6b2e4d4922634b73402ffb6f22d71b3fd77c1b0ac7aa2446e",
-    "lib/lp/bugs/configure.zcml": "f5b1002b82a260ab86dd8ff2c1030eaaf56bf9b7598a33b9ee656397a28125cf",
+    "lib/lp/bugs/configure.zcml": "d43b4947ee4b4aca14bd973b2b6b8c8043d287e9988ecc339bce88edc78ae526",
     "lib/lp/bugs/enums.py": "94e53fee3c19ffc98ad4f00ee3ad248ec370442f087fb5302857610305a04725",
-    "lib/lp/bugs/errors.py": "a35c0065795bd5fb9a5c2186c4d68771d8e8f31ca2b7dd5d6f712c0022be7cc5",
-    "lib/lp/bugs/interfaces/bug.py": "4c7192cd67af13424c7d45ba453ef07e2363b4ab127accdfdf55d8016f7bcfe1",
+    "lib/lp/bugs/errors.py": "69d03480a3c3bb8da7cad6cd3716c88e9753ddb43b70d567ccd9ba5c8826a762",
+    "lib/lp/bugs/interfaces/bug.py": "df1e567d0d22b8da5d56817b0f1f6dce3158131a4b9a1019a5d2abcb9f63c25d",
     "lib/lp/bugs/interfaces/bugactivity.py": "0470dbb00d62357e691f96546a0dffbaebe30bc10f857479390aac7068d76071",
-    "lib/lp/bugs/interfaces/bugattachment.py": "8c24e2da66f1b93ec80fe00be8a2b07209b7979b461acafd7527c946f59369c3",
+    "lib/lp/bugs/interfaces/bugattachment.py": "bac8afaaf1ae083f5a912eafe816417f39f7d69f275b881725a01399c4d985a8",
     "lib/lp/bugs/interfaces/bugbranch.py": "291054b272b50beb0a69747d97a9d49b3b6b957959b3df66834741e3ba2257f1",
     "lib/lp/bugs/interfaces/buglink.py": "69fb929ff3123b3417a2f535d5ac022dd308191f7f0422f90e935b399f26939c",
     "lib/lp/bugs/interfaces/bugnomination.py": "12a414eedd05ef2f12387ab47052c7f91e068d4c0d8948d5a90a0751044b9e11",
+    "lib/lp/bugs/interfaces/bugpresence.py": "fe9625200327bce66465f24e858924aee8a0b9ccf71c3a2e572be6ea2cbb4674",
     "lib/lp/bugs/interfaces/bugsubscription.py": "6fb3a851e5c24da0e263a7811097b3cdf2572b253b1f7de329628f783c322f76",
     "lib/lp/bugs/interfaces/bugsubscriptionfilter.py": "639fc7684468f8ee0c39741e6963ecd463a84b03abe99ff306bde961a4767703",
     "lib/lp/bugs/interfaces/bugsupervisor.py": "e0dd8e97dfcd06ba626452e9ef977ca0bc54ed48f67252741e903766c9b0c408",
-    "lib/lp/bugs/interfaces/bugtarget.py": "2a9b21dde48b49e24e16d3ff4102692582e5918a5c7d9b89548fd0c5010a1ba7",
+    "lib/lp/bugs/interfaces/bugtarget.py": "ad29cd6ce5a5f6158fcf938e264d4520e82d3b87ff94b8fc648b38d68f7ca3e3",
     "lib/lp/bugs/interfaces/bugtargetparent.py": "353175df488fac4b91a714bdb6f91ec9a1aed4234152480e6b357700cd2af8d5",
-    "lib/lp/bugs/interfaces/bugtask.py": "73c8adcad0f68f9c19ed8eb0f798c2b633c885dbff3e77d18fe196bb85ed0d1b",
-    "lib/lp/bugs/interfaces/bugtasksearch.py": "83e9d079b0202536248a87b0f942deda0bc73a845cf294ec2ea780c39d9d02e9",
+    "lib/lp/bugs/interfaces/bugtask.py": "ce3e7ec68598fc160e8228ae1457eb73c5c3b4d299f402405b867e783df6d908",
+    "lib/lp/bugs/interfaces/bugtasksearch.py": "375836f5ddee3cdf45340d1418ff54b0fc0dbff55d20f8d232b9f0c899d822ab",
     "lib/lp/bugs/interfaces/bugtracker.py": "62ecb8512eb0fe7296862c3dd250f92d6a5f7efd7eb05abff73ce52726cc61fc",
     "lib/lp/bugs/interfaces/bugwatch.py": "9961e5cddbfa85a15368183313c9890dd1a45b95a9cab619f5c4497cad8f3e70",
-    "lib/lp/bugs/interfaces/cve.py": "9eb34cc4f158323ef75e97b3b34ce7aca715577297eb15d657842e52a68b5478",
+    "lib/lp/bugs/interfaces/cve.py": "c632c0bd239f9c87baf8c9801cbc3d364c3704790c2e6ca40b9e4a8d26d233fb",
+    "lib/lp/bugs/interfaces/cvereference.py": "9f47812b1b5f3be1677edf469fab6503978d39caca2e4815aa85cf7aa32785d7",
     "lib/lp/bugs/interfaces/hasbug.py": "6fa513f21cdd3d8734140cf13ce67d708b6335fdab9157b44ebc907143347f54",
     "lib/lp/bugs/interfaces/malone.py": "e54b53694acc04e0922472ee06d25aa4e0cf9ba864542125fa0acdd2d4b768c4",
     "lib/lp/bugs/interfaces/structuralsubscription.py": "46d7105ecc327d34a871648d2c0315dbd068f5adb4af5b64db13450192f97451",
     "lib/lp/bugs/interfaces/vulnerability.py": "424b35ead9a72ac494dddad3091562a21ceee6ab86143022d444788423e606d9",
-    "lib/lp/bugs/interfaces/webservice.py": "0819a4dfc779722f79c8bae792eed9c3536488460d6d59bcd245b40576674c38",
+    "lib/lp/bugs/interfaces/webservice.py": "7bf94b3a78efa7195431ef556e7752292f94ae2266e080e3b7c79a0046e0b0ab",
     "lib/lp/bugs/vocabularies.zcml": "5a2417e606e744bff21294ef90e9c39a6535352c924cee36c6869718ab9e1050",
     "lib/lp/buildmaster/browser/configure.zcml": "56297143e8e94c880b4e0be684e75c1c55481b2540ffe4b310b640906bd1aefd",
     "lib/lp/buildmaster/builderproxy.py": "10cd4af5eddb8ba72cefa7e52194eb58a93db1f2a44ce5ecfcb9e171594488bb",
     "lib/lp/buildmaster/configure.zcml": "7c0beebccbe1787d5b90509e43ceea07a925daffe1d1db284438aadfa9748aca",
-    "lib/lp/buildmaster/enums.py": "5419862eb4011212dead25610acd5d70f207590dea588cac4c67123e83f4e0f2",
+    "lib/lp/buildmaster/enums.py": "d111959796ebe62d256ea81c811a0701995b3825600b39e9d75ac36b44b48332",
     "lib/lp/buildmaster/interfaces/builder.py": "706d5b974b78c6c2e0c75bcfeb219b4c2622d0871014f1c528842cf289a87149",
     "lib/lp/buildmaster/interfaces/buildfarmjob.py": "536eb1e298c24c392dbe98a78b3df76f31f162b5430071d3934b2106477f6aaa",
     "lib/lp/buildmaster/interfaces/packagebuild.py": "7a7b41f969d8f870469faaf9f1e93e081e81d7632ff06d8fa079b8a21c73916a",
@@ -16675,7 +17081,7 @@
     "lib/lp/code/bzr.py": "11d161416a9258d4cf975d1f4a6497a21ab11038a20ebe1bd18230d1d9e59b8a",
     "lib/lp/code/configure.zcml": "4d17f842f64475f7549e06ecd82b846bbd7586c17d076de85eb0cac01213eaf2",
     "lib/lp/code/enums.py": "80c26396494ab36ce322e3434d2cd092dea1293711f8136a0fd9915c777bf03c",
-    "lib/lp/code/errors.py": "1cb6aa10c0ece4e9092b8e757b0789567a00f4a96353c4b6a450affa7d8b7487",
+    "lib/lp/code/errors.py": "9f779eebb7b040df0bf5f39f52bb61980ea6ce2fd6af666bd099702a4906c489",
     "lib/lp/code/interfaces/branch.py": "f524d8d9290081ef03bc8c3282297c1d5ad611857054702a62435e10452f9f44",
     "lib/lp/code/interfaces/branchlink.py": "80da61e13420b9299993e2b769c0eeb8ec545884d978198bd902105a49c17b49",
     "lib/lp/code/interfaces/branchmergeproposal.py": "648e2938ac07135aedf5ca1cd8b506971c26d68ffa409d06d4da28ea01fbfc4e",
@@ -16687,15 +17093,15 @@
     "lib/lp/code/interfaces/codereviewvote.py": "e101f36985df2b6fc8a7a909fe850f8537e4126f95e772137c1be1f7426e4c81",
     "lib/lp/code/interfaces/diff.py": "4cb6ce27210e3928ef79ba4115c6c9d4a2ec941a89db3d27c601910a55dd19d8",
     "lib/lp/code/interfaces/gitref.py": "90beb925a3fb859a0d24147b196e2d58919d2684ffd3098ca79b8be6cbe91c15",
-    "lib/lp/code/interfaces/gitrepository.py": "eb7c7e14ea8f3c6b7f9c3db23f398df5a4ee7c4b8474da6eb4d19aa313eced66",
+    "lib/lp/code/interfaces/gitrepository.py": "b503c59e21c8b138d603fe6aa254e861151db7ab162b322664280e5a432498d0",
     "lib/lp/code/interfaces/gitsubscription.py": "5a333c0058268880b9051a499af15cc16e241a04fbf6f9f0c220776dfb6d2342",
     "lib/lp/code/interfaces/hasbranches.py": "d50fb51b97357eb337d4b2e261ecd40ab06f133eeb1249d8346a14619ce31a81",
     "lib/lp/code/interfaces/hasgitrepositories.py": "73442b72c80776cc161cdb54a886127d6cf5497a0a367a204ba49322b685341a",
     "lib/lp/code/interfaces/hasrecipes.py": "655dc718f6b1c6f7f9cc82905d9f7ef6088d3a7c557b5b4b05df85a398b190ec",
-    "lib/lp/code/interfaces/revisionstatus.py": "51d048fb70d94d4bf900089e093a46062859052e09c512ac5c633da6467fd578",
+    "lib/lp/code/interfaces/revisionstatus.py": "6198726bc459548ed732c5ff74d9df750ab068590b0a60e5b875ad2f928ec507",
     "lib/lp/code/interfaces/sourcepackagerecipe.py": "6ad64643628c3bb5c6cf095030124c13bdef7debd3f6624eecb9521c048151e5",
     "lib/lp/code/interfaces/sourcepackagerecipebuild.py": "96da131045e3a666b8a65de68d01b7f94222ec7773cfa822c061176d44226e92",
-    "lib/lp/code/interfaces/webservice.py": "f95c4e82cc32d5a30a864e4a3647c0526e276411b5547b4f060b6f726588a3b3",
+    "lib/lp/code/interfaces/webservice.py": "5cac2de3b7b9c4d1d6ae07f4a25499f125db39b637b5d7aeac9b1a3b9a5bf748",
     "lib/lp/code/vocabularies/configure.zcml": "fb24e4be94711cdda254e4bc0bb8deea279070b541712eefba4a76d21bc0af59",
     "lib/lp/configure.zcml": "81bb5eec4d89a41fe1c7e28a93f3c58efd959997246a7ab48df96e112c6fad6a",
     "lib/lp/coop/answersbugs/configure.zcml": "50e43faba9e776815f639b1f0cc0dd6b55a54a37fc6b02be015294e74e20a5af",
@@ -16715,14 +17121,14 @@
     "lib/lp/permissions.zcml": "257cec0a5c177d2f49d5e4bca13c40932bb5b7376fdf7f3d4bb54b6e9581dee4",
     "lib/lp/registry/browser/configure.zcml": "e7b78c48c15e03fb736fdc0b74fe560c18b64b7f0cdbdf3456c36f8f11d8f2b5",
     "lib/lp/registry/configure.zcml": "0b7d9b80498ae68a95e337399d2ca70a48aa8c2b2b490b31e8705b6a5e543c73",
-    "lib/lp/registry/enums.py": "2f47325bbb926f6258a31ee801bcc226f1ce71cf86c6e6ec9685665aaac06bfa",
+    "lib/lp/registry/enums.py": "3f9f1dc7082966c766e4d0e986b35c8b712505107fb9b5210fd0d7a6c6ce8db5",
     "lib/lp/registry/errors.py": "0d97c89900e2966b2c3994935a540a845f1330ca68c9474f4338dc591b5af3e4",
     "lib/lp/registry/interfaces/announcement.py": "604d94392d66fbcc6b150933310c3142f9e1f363fe18bfa053a23a093f928aa0",
     "lib/lp/registry/interfaces/commercialsubscription.py": "bbb5ec2f51483e54b9ef045d78ac6a199a842da6de08cafd995b515dc3cfccf3",
     "lib/lp/registry/interfaces/distribution.py": "d9404462173855ff8edcba9c66983091ecfb2c01fd6108d3ad931b9b7fd991d9",
     "lib/lp/registry/interfaces/distributionmirror.py": "f5d9cab9ccd07c957542c7b285527e15bd27951560d6e1c21c375a9f56fbe5b1",
     "lib/lp/registry/interfaces/distributionsourcepackage.py": "ec2369464c5601cb4cb3a046a662c4a007d69c4b5eacc71ded3eec7946aa2b4a",
-    "lib/lp/registry/interfaces/distroseries.py": "e731d2858417accb584c5984c5348d2223c3ffba34bfd180df5d98c26edd95a3",
+    "lib/lp/registry/interfaces/distroseries.py": "31458ec8218ce7aa3ac09e54486039020ee5b81ad237869cee913ccc4290a801",
     "lib/lp/registry/interfaces/distroseriesdifference.py": "396845e59b7e8863acf6feced902219f034f7190272d895fd42536b1ceeab137",
     "lib/lp/registry/interfaces/distroseriesdifferencecomment.py": "e5f0cf4be3ead4eb5053a8db456abc06f7ec7172b87419f091dfaef608938e82",
     "lib/lp/registry/interfaces/gpg.py": "b3b4586e83d3c1dc698c3c04251b3d3c05c1cfe3fd5660d1f37b21109877ac16",
@@ -16735,7 +17141,7 @@
     "lib/lp/registry/interfaces/ociproject.py": "7a3209bf6418f639a28776274403d2ca4e759cb49fbb4994bdf35d2f7f928e3a",
     "lib/lp/registry/interfaces/ociprojectseries.py": "e964b5c739c277d9cf3b29328458852f14792617d7987a15d11294f20d5e9131",
     "lib/lp/registry/interfaces/oopsreferences.py": "8d7a5d74e25fcf650ee78ba7b89b44d9648d3b67104f6b27dfbaf05ce55c518f",
-    "lib/lp/registry/interfaces/person.py": "1935539fbeed810fc29da51d1a22484945da34b448dc3b2fb6e138959ab58555",
+    "lib/lp/registry/interfaces/person.py": "97d3685a838139a878098da083393c52798b494b03076aa943b6528eb7f93fd0",
     "lib/lp/registry/interfaces/pillar.py": "21d980d9ca3261a26debf66763a694a2e6b040eec47af139e8fcba731c62a9c0",
     "lib/lp/registry/interfaces/pocket.py": "d4668c4a2105d463d53bec0cf829ef6b8dab3daef5360b510a24baae48ea7dd8",
     "lib/lp/registry/interfaces/poll.py": "b8a43f4b4646d24fd00b6cdf1f84a0eb64b0fcbc561e64c7b78fa27790a1dc50",
@@ -16770,7 +17176,7 @@
     "lib/lp/services/comments/configure.zcml": "007220f6eefc25f171f3060c86495598278b5c4dc9f4500890d31c1cec2a6ef2",
     "lib/lp/services/config/meta.zcml": "1e1296d59c9b2859072c6416b5f63678528c2e543ccebbad35b031f1372ffbd3",
     "lib/lp/services/configure.zcml": "4d5f7f53a57fb2d88af3bc528436acb31836600eb2dc844e2412f5fd8da3dc19",
-    "lib/lp/services/database/configure.zcml": "e7c0147f12a7cdbf472f7dd476ed5f55439a464d80e7a6402d67b3205973f574",
+    "lib/lp/services/database/configure.zcml": "b61c21f8deb59c3e450053fc84a8e3e959bc667414e3e7a0efc91d5a69c5017b",
     "lib/lp/services/features/browser/configure.zcml": "9cb81afcb5627e367e106deb653357aae256544768623e936be63a7456dbc0ee",
     "lib/lp/services/features/configure.zcml": "7a6a209538313e71b90974101f053285780aeaa2638db9483a7393b26986423f",
     "lib/lp/services/feeds/configure.zcml": "3a5b2b28ec63439fe79ce775168ba8bd43e247d6156831ec09056d63ed01f2c9",
@@ -16796,8 +17202,8 @@
     "lib/lp/services/messages/interfaces/message.py": "3d69d2137831f28bed58fef4c9184cf4bbfc025342e1a38166a018bab30a31ea",
     "lib/lp/services/messages/interfaces/messagerevision.py": "bf92f008722fc86769c7c2edb72ff8e47585bfc99b8715968d384ef3681c2b12",
     "lib/lp/services/messages/interfaces/webservice.py": "34783682a81ebd678188f7d781e1b9929fff3074bbca32fee7f4be75ea632d0b",
-    "lib/lp/services/oauth/browser/configure.zcml": "2a97643e6de22d0d4255bc54796c2e0959da12fbabbb1f62af5a4e8216653ac6",
-    "lib/lp/services/oauth/configure.zcml": "8eb10e14c80defccb37c541bb67f17211bc402f51f09f7202652086012b73ec4",
+    "lib/lp/services/oauth/browser/configure.zcml": "65a46cfc3fa1100dfbfbcdd0b4165644130cf41391bde0d4645262c786f51425",
+    "lib/lp/services/oauth/configure.zcml": "2182f7ee3c75dfb2ec5d4981749af344c938b2cc578237f1b9fa75d8a23809d2",
     "lib/lp/services/openid/configure.zcml": "dbcacca8ad98ed5d70d2a272aae408364f3d93d1e12467c8071004c524bd9268",
     "lib/lp/services/profile/configure.zcml": "7f2c53cc243e67119987ff2727255a8e55c1800f559a622fb71728e2dc3143a3",
     "lib/lp/services/scripts/configure.zcml": "204c8fe8ede599dced3d45c8c194e1bb260230aac0256e562d0e58d1a0f01f42",
@@ -16819,7 +17225,7 @@
     "lib/lp/services/webapp/meta.zcml": "885944efa74dcc6a0fed3399addde6f702d9cdb093729763c104d960cb527f14",
     "lib/lp/services/webapp/vocabulary.py": "da23c202e6c9c382007d1a6097e9403eaa0a46b61db7329ffcd7de9e5c5e87a3",
     "lib/lp/services/webauthn/configure.zcml": "e6453b42f6e3ba7a29c77012be9a0adc08cce87ddc2d240e577ae591554361c7",
-    "lib/lp/services/webauthn/interfaces.py": "8f3c1ca9e6aa97a2ba4e9ea7e5a340fb0368d1d620a627bd4bbe8e3bba676fb8",
+    "lib/lp/services/webauthn/interfaces.py": "1d451347d1fbea7163b74be873e88549b7d40c0366a23041797a75d07330a85e",
     "lib/lp/services/webauthn/webservice.py": "81dc80bdd604c355decf9b8a0fbe9cea6de178029aab28d3d750d37915c2d52b",
     "lib/lp/services/webhooks/configure.zcml": "56cb1f428b937a1544e6a86c2f25300410b4d28d6103206712314b7adab7c642",
     "lib/lp/services/webhooks/interfaces.py": "a769033ed4da15e4eda4d4e818e49695b87f1b8b8752cd40fb03623331acb7bb",
@@ -16844,12 +17250,12 @@
     "lib/lp/snappy/interfaces/snappyseries.py": "3e69840594c18df26888c81150235623c9a1b18c4f93b87e17d18f97820fe7d8",
     "lib/lp/snappy/interfaces/webservice.py": "066893d392ae23721b12f8d092051e812b7c50b75bf2cfc867a6c786b4d7295b",
     "lib/lp/snappy/vocabularies.zcml": "47f13c8529625c62e0375645fc7fde5706b86a94e8c5038076baee1d6d423beb",
-    "lib/lp/soyuz/browser/configure.zcml": "be62e3eac4d308c74fe501dbd6fac6203aec2ccd79cdb1d7f3912d467df554b1",
-    "lib/lp/soyuz/configure.zcml": "f6f07f2038837e5e4a8efbd2547aca6473ea173d88abb178564c497b26a0aacc",
+    "lib/lp/soyuz/browser/configure.zcml": "aa29a92c1f7a0b5982cbd786a94f1b1700687beb43d2d55a58619a38fd2da98b",
+    "lib/lp/soyuz/configure.zcml": "30ab45a584f5cebe41ebe09be56da14b4e18cfc100a557a61bd706570b2e3ed4",
     "lib/lp/soyuz/enums.py": "a84510bf3e4254cece5b0508f7d6e8c946e077a9c0e1d214dd2671abb1d2a505",
     "lib/lp/soyuz/interfaces/archive.py": "0a660cc77444bf7e224859110d1f928af377c0806ed1a0902aaae382243ad8c3",
     "lib/lp/soyuz/interfaces/archivedependency.py": "5a03c805bc2bb5790c3b235976a786953423088482f06a9e7bebdfa068f8213e",
-    "lib/lp/soyuz/interfaces/archivepermission.py": "10422fc130f6e1f2e1080a1c75af194a0226893a9869006af1edb64969976be0",
+    "lib/lp/soyuz/interfaces/archivepermission.py": "d2e518dcac680ae33d796050f25746f3ad1695f87379c2a313b2845e6c47b996",
     "lib/lp/soyuz/interfaces/archivesubscriber.py": "9835c578329b877654eb09adac45310cf393299f743a5255359ea9b3311b7ef8",
     "lib/lp/soyuz/interfaces/binarypackagebuild.py": "0abdc557c42e6b70b1ad4d917d7026bedb2723d46e7b8244eabaca36bd00369d",
     "lib/lp/soyuz/interfaces/binarypackagerelease.py": "579620dbf1bdea2e643438c404ccc0005677620a61de15dbb954118372772225",
@@ -16860,8 +17266,9 @@
     "lib/lp/soyuz/interfaces/livefsbuild.py": "bdb29db55639e898fe68fa0b3817b2c45720e0862979e34da4920a2154017437",
     "lib/lp/soyuz/interfaces/packageset.py": "751c69543a78ab254d11a06d955755317641d03eda4cb63d7bcfc613c416dac1",
     "lib/lp/soyuz/interfaces/publishing.py": "33a6dcf33f3db83e471dda93b22c1453ce92fe627f61eb575e7d35d94d3a678f",
-    "lib/lp/soyuz/interfaces/queue.py": "27647bbc632048d9200adf08a58a9fe9846e63cb7ffec899df25408ac1cf869c",
-    "lib/lp/soyuz/interfaces/webservice.py": "538ea3a53f268ffb6d4128c30f290b52db3279eab8e6395bd1974462d4b18de6",
+    "lib/lp/soyuz/interfaces/queue.py": "78a0c9c1ca8d24f6a0b837ae84fccbf2091472db9e888ccfb4479570f0f5c6fa",
+    "lib/lp/soyuz/interfaces/sourcepackagegitbuild.py": "9c8626199835a35eba2f169a50a6a50f9b9ef216b0819ae48fb4573a291f8a1a",
+    "lib/lp/soyuz/interfaces/webservice.py": "979941e4fbbb97a6ecfcd88fee2ecd7c91077b9a02c681a9cbf112d5e31f9b76",
     "lib/lp/soyuz/vocabularies.zcml": "0010d73ddffcd0f8f6c4c4bdfed5d42d534c5a5dbff3f077bc123eb26a34a9b9",
     "lib/lp/testing/configure.zcml": "1b03e7454503b626bf5126b9b33048d9ab498bcb052f88c4ce5191235c0cc86d",
     "lib/lp/testopenid/browser/configure.zcml": "4a233637d01a06867b46c45068697104038cdb0aa6afd3dfd0963e5275a9e361",
@@ -16887,17 +17294,17 @@
     "requirements/launchpad.txt": "aacc89d6d081f9c2081664dcebf5ba7ec88e3ea4f1ed6e4b2471253614ea1c66"
   },
   "statistics": {
-    "fields": 1740,
-    "resources": 133,
+    "fields": 1782,
+    "resources": 136,
     "types": {
-      "array": 44,
-      "boolean": 182,
-      "integer": 64,
+      "array": 47,
+      "boolean": 185,
+      "integer": 66,
       "number": 4,
-      "object": 34,
-      "string": 1412
+      "object": 35,
+      "string": 1445
     },
-    "unresolved": 45
+    "unresolved": 47
   },
   "unresolved": [
     {
@@ -16949,7 +17356,7 @@
       "constructor": "zope.schema._field.Choice",
       "field": "permission",
       "interface": "lp.soyuz.interfaces.archivepermission.IArchivePermission",
-      "line": 52,
+      "line": 53,
       "reason": "dynamic or unsupported choice vocabulary",
       "resource": "archive_permission",
       "source": "lib/lp/soyuz/interfaces/archivepermission.py"
@@ -17056,6 +17463,15 @@
     {
       "constructor": "zope.schema._field.Dict",
       "field": "metadata",
+      "interface": "lp.bugs.interfaces.bugtask.IBugTask",
+      "line": 523,
+      "reason": "container value_type not declared",
+      "resource": "bug_task",
+      "source": "lib/lp/bugs/interfaces/bugtask.py"
+    },
+    {
+      "constructor": "zope.schema._field.Dict",
+      "field": "metadata",
       "interface": "lp.bugs.interfaces.vulnerability.IVulnerabilityEditableAttributes",
       "line": 337,
       "reason": "container value_type not declared",
@@ -17102,7 +17518,7 @@
       "constructor": "zope.schema._field.Dict",
       "field": "properties",
       "interface": "lp.code.interfaces.revisionstatus.IRevisionStatusReportEditableAttributes",
-      "line": 176,
+      "line": 183,
       "reason": "container value_type not declared",
       "resource": "revision_status_report",
       "source": "lib/lp/code/interfaces/revisionstatus.py"
@@ -17120,7 +17536,7 @@
       "constructor": "zope.schema._field.List",
       "field": "cvss",
       "interface": "lp.bugs.interfaces.cve.ICve",
-      "line": 205,
+      "line": 213,
       "reason": "container value_type not declared",
       "resource": "cve",
       "source": "lib/lp/bugs/interfaces/cve.py"
@@ -17293,6 +17709,15 @@
       "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
       "line": 160,
       "reason": "unsupported custom marshaller: lazr.restful.marshallers.SimpleFieldMarshaller",
+      "resource": "source_package_git_build",
+      "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
+    },
+    {
+      "constructor": "zope.schema._field.Timedelta",
+      "field": "duration",
+      "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
+      "line": 160,
+      "reason": "unsupported custom marshaller: lazr.restful.marshallers.SimpleFieldMarshaller",
       "resource": "source_package_recipe_build",
       "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
     },
@@ -17300,7 +17725,7 @@
       "constructor": "zope.schema._field.URI",
       "field": "url",
       "interface": "lp.bugs.interfaces.bugattachment.IBugAttachmentView",
-      "line": 97,
+      "line": 107,
       "reason": "unresolved or ambiguous marshaller",
       "resource": "bug_attachment",
       "source": "lib/lp/bugs/interfaces/bugattachment.py"
