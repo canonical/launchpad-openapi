@@ -147,6 +147,15 @@ export function buildNamedOperation(args: NamedOperationArgs): OperationObject {
       const returnDoc = findReturnDoc(method.doc);
       let responseBodySchema = inferResponseSchema(returnDoc);
       if (
+        reviewed?.fileUrlMetadata !== undefined &&
+        method.params.some((param) => param.name === "include_meta") &&
+        statusless.every((response) => response.representations.length === 0)
+      ) {
+        responseBodySchema = buildFileUrlResponseSchema(
+          reviewed.fileUrlMetadata,
+        );
+      }
+      if (
         reviewed?.nullableMapValues !== undefined &&
         statusless.every((response) => response.representations.length === 0)
       ) {
@@ -181,6 +190,36 @@ export function buildNamedOperation(args: NamedOperationArgs): OperationObject {
     if (parameters.length) operation.parameters = parameters;
   }
   return operation;
+}
+
+/** Build source-reviewed file responses as homogeneous arrays; both allow empty results. */
+function buildFileUrlResponseSchema(
+  checksums: readonly string[],
+): SchemaObject {
+  const properties: Record<string, SchemaObject> = {
+    url: { type: "string", format: "uri" },
+    size: { type: "integer" },
+  };
+  for (const checksum of checksums) properties[checksum] = { type: "string" };
+  return {
+    // Empty arrays match both modes, so oneOf would incorrectly reject them.
+    anyOf: [
+      {
+        description: "File URLs when include_meta is omitted or false.",
+        type: "array",
+        items: { type: "string", format: "uri" },
+      },
+      {
+        description: "File metadata when include_meta is true.",
+        type: "array",
+        items: {
+          type: "object",
+          properties,
+          required: ["url", "size", ...checksums],
+        },
+      },
+    ],
+  };
 }
 
 /** Reuse the generated branch variant when available, otherwise preserve WADL fields inline. */

@@ -91,6 +91,12 @@ Links matching canonical paths deduplicate without changing canonical IDs or par
 
 This is a breaking naming migration with no compatibility aliases. URL templates, parameters, response schemas, and `x-launchpad-route-alternatives` are unchanged.
 
+### Publication file responses
+
+For binary publications, `binaryFileUrls` returns URI strings when `include_meta` is omitted or false, and objects with required `url` (URI string), `size` (integer), `sha1` (string), and `sha256` (string) when true. Source publications' `sourceFileUrls` uses the same switch, but its metadata has only `url`, `size`, and `sha256`, without `sha1`. These fields are non-null.
+
+Both distribution and PPA routes describe the two homogeneous array shapes with `anyOf`: empty arrays are valid, but mixed URL/object arrays are not. These source-backed contracts supplement missing WADL responses without replacing declared response representations.
+
 ### Response field types
 
 Missing response-property types are supplemented by bundled metadata extracted from Launchpad's exported Python interfaces and registered JSON field marshallers. The same catalog is used online and offline, including inherited fields, exported wire-name aliases, array items, and dictionary values.

@@ -524,3 +524,77 @@ export const metadataEnrichmentWadl = `<?xml version="1.0"?>
     <wadl:param name="display_name"/>
   </wadl:representation>
 </wadl:application>`;
+
+/** Publication dict returns are absent from representations; only return prose survives WADL. */
+export const publicationFileResponsesWadl = `<?xml version="1.0"?>
+<wadl:application xmlns:wadl="http://research.sun.com/wadl/2006/10"
+                  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wadl:resources base="https://api.launchpad.test/devel/"/>
+  <wadl:resource_type id="binary_package_publishing_history">
+    <wadl:method name="GET" id="binary_package_publishing_history-binaryFileUrls">
+      <wadl:doc>URLs for this binary publication's binary files.
+        :param include_meta: Return a list of dicts with keys url, size, sha1, and sha256 for each URL instead of a simple list.
+        :return: A collection of URLs for this binary.</wadl:doc>
+      <wadl:request>
+        <wadl:param name="ws.op" fixed="binaryFileUrls" required="true"/>
+        <wadl:param name="include_meta" type="xsd:boolean" required="false"/>
+      </wadl:request>
+    </wadl:method>
+  </wadl:resource_type>
+  <wadl:resource_type id="source_package_publishing_history">
+    <wadl:method name="GET" id="source_package_publishing_history-sourceFileUrls">
+      <wadl:doc>URLs for this source publication's uploaded source files.
+        :param include_meta: Return a list of dicts with keys url, size, and sha256 for each URL instead of a simple list.
+        :return: A collection of URLs for this source.</wadl:doc>
+      <wadl:request>
+        <wadl:param name="ws.op" fixed="sourceFileUrls" required="true"/>
+        <wadl:param name="include_meta" type="xsd:boolean" required="false"/>
+      </wadl:request>
+    </wadl:method>
+    <wadl:method name="GET" id="source_package_publishing_history-binaryFileUrls">
+      <wadl:doc>URLs for this source publication's binary files. :return: A collection of URLs for this source.</wadl:doc>
+      <wadl:request><wadl:param name="ws.op" fixed="binaryFileUrls"/></wadl:request>
+    </wadl:method>
+  </wadl:resource_type>
+  <wadl:resource_type id="package_upload">
+    <wadl:method name="GET" id="package_upload-sourceFileUrls">
+      <wadl:doc>:return: A collection of URLs for this upload.</wadl:doc>
+      <wadl:request><wadl:param name="ws.op" fixed="sourceFileUrls"/></wadl:request>
+    </wadl:method>
+    <wadl:method name="GET" id="package_upload-binaryFileUrls">
+      <wadl:doc>:return: A collection of URLs for this upload.</wadl:doc>
+      <wadl:request><wadl:param name="ws.op" fixed="binaryFileUrls"/></wadl:request>
+    </wadl:method>
+    <wadl:method name="GET" id="package_upload-customFileUrls">
+      <wadl:doc>:return: A collection of URLs for this upload.</wadl:doc>
+      <wadl:request><wadl:param name="ws.op" fixed="customFileUrls"/></wadl:request>
+    </wadl:method>
+  </wadl:resource_type>
+  <wadl:resource_type id="person">
+    <wadl:method name="GET" id="person-binaryFileUrls">
+      <wadl:doc>:return: A collection of URLs for this unrelated operation.</wadl:doc>
+      <wadl:request>
+        <wadl:param name="ws.op" fixed="binaryFileUrls"/>
+        <wadl:param name="include_meta" type="xsd:boolean"/>
+      </wadl:request>
+    </wadl:method>
+  </wadl:resource_type>
+  <wadl:representation id="publication-explicit" mediaType="application/json">
+    <wadl:param name="declared_value" type="xsd:string" required="true"/>
+  </wadl:representation>
+</wadl:application>`;
+
+/** Rechecked production binary metadata, from a read-only include_meta=true request. */
+export const observedBinaryFileMetadata = {
+  url: "https://launchpad.net/ubuntu/+archive/primary/+files/hello_2.10-3build1_amd64.deb",
+  size: 26006,
+  sha1: "5766f9c21afcace4669cdb6f110bb564a009974b",
+  sha256: "e68cf4365b7aa9c4e2af4af6eee1710d6f967059b7b4af62786e8870d7366333",
+};
+
+/** Synthetic source metadata matching sourceFileUrls; no sha1 is returned by the server. */
+export const sourceFileMetadata = {
+  url: "https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/hello/2.10-3/hello_2.10-3.dsc",
+  size: 1335,
+  sha256: "synthetic-checksum",
+};

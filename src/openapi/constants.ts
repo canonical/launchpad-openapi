@@ -1047,8 +1047,8 @@ export const SPECIAL_RESOURCE_TYPES: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * Observed branch operation contracts missing from WADL. Keep overrides
- * operation-scoped; other branch responses and parameters retain WADL behavior.
+ * Source-reviewed operation contracts missing from WADL. Keys are pre-route
+ * WADL method IDs; other responses and parameters retain WADL behavior.
  */
 export const REVIEWED_NAMED_OPERATIONS: Record<
   string,
@@ -1056,12 +1056,28 @@ export const REVIEWED_NAMED_OPERATIONS: Record<
     repeatedQueryParams?: readonly string[];
     nullableResponse?: string;
     nullableMapValues?: string;
+    fileUrlMetadata?: readonly string[];
   }
 > = {
   "branches-getByPath": { nullableResponse: "branch-full" },
   "branches-getByUrls": {
     repeatedQueryParams: ["urls"],
     nullableMapValues: "branch-full",
+  },
+  // lib/lp/soyuz/interfaces/publishing.py:656-675,1066-1077 and
+  // lib/lp/soyuz/model/publishing.py:744-775,1380-1402 return complete dicts.
+  // lib/lp/services/librarian/interfaces/__init__.py:159-163 declares types;
+  // database/schema/launchpad-2211-00-0.sql:10442-10449 makes filesize and both
+  // checksums NOT NULL, including sha256 despite its nullable model property.
+  // The publication queries inner-join content, excluding deleted aliases
+  // (lib/lp/services/librarian/model.py:222-224). Thus the proxied http_url
+  // properties in librarian/browser.py and soyuz/adapters/proxiedsourcefiles.py
+  // return non-null URLs too. Every declared metadata value is required non-null.
+  "binary_package_publishing_history-binaryFileUrls": {
+    fileUrlMetadata: ["sha1", "sha256"],
+  },
+  "source_package_publishing_history-sourceFileUrls": {
+    fileUrlMetadata: ["sha256"],
   },
 };
 
