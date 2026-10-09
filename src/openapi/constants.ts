@@ -3,6 +3,7 @@
  * GNU Lesser General Public License version 3 (see the file LICENSE).
  */
 
+import type { ParameterObject } from "openapi3-ts/oas30";
 import type { RouteCorrection, RouteTemplate } from "./types.js";
 
 /** Fixed protocol values and curated examples shared by OpenAPI builders. */
@@ -21,6 +22,39 @@ export const NULLABLE_BRANCH_SCHEMA_ID = "branch-full-nullable";
 export const COLLECTION_LINK_SUFFIXES = ["_collection_link", "_link"] as const;
 export const HTTP_METHODS = ["get", "put", "post", "patch", "delete"] as const;
 export type SupportedHttpMethod = (typeof HTTP_METHODS)[number];
+
+/** lazr.restful 2.0.2 WebServiceBatchNavigator and inherited batch controls. */
+export const COLLECTION_PAGING_PARAMETERS: readonly ParameterObject[] = [
+  {
+    name: "ws.start",
+    in: "query",
+    required: false,
+    schema: { type: "integer" },
+  },
+  {
+    name: "ws.size",
+    in: "query",
+    required: false,
+    schema: { type: "integer" },
+  },
+  { name: "memo", in: "query", required: false, schema: { type: "string" } },
+  {
+    name: "direction",
+    in: "query",
+    required: false,
+    schema: { type: "string" },
+  },
+];
+
+/** Only exact total_size selects a count; other strings leave the normal page. */
+export const COLLECTION_SHOW_PARAMETER: ParameterObject = {
+  name: "ws.show",
+  in: "query",
+  required: false,
+  description:
+    "ws.show=total_size returns the collection count instead of a page; other values return the normal page.",
+  schema: { type: "string" },
+};
 
 export const EXAMPLE_BY_PARAM: Record<string, string> = {
   name: "ubuntu",

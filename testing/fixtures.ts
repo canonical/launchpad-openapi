@@ -598,3 +598,195 @@ export const sourceFileMetadata = {
   size: 1335,
   sha256: "synthetic-checksum",
 };
+
+/** Collection identity comes from resolved page refs, not method names or return prose. */
+export const collectionControlsWadl = `<?xml version="1.0"?>
+<wadl:application xmlns:wadl="http://research.sun.com/wadl/2006/10"
+                  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wadl:resources base="https://api.launchpad.test/devel/"/>
+  <wadl:resource_type id="archive">
+    <wadl:method name="GET" id="archive-get">
+      <wadl:response><wadl:representation href="#archive-full"/></wadl:response>
+    </wadl:method>
+    <wadl:method name="GET" id="archive-getPublishedSources">
+      <wadl:request>
+        <wadl:param name="ws.op" fixed="getPublishedSources" required="true"/>
+        <wadl:param name="source_name" type="xsd:string"/>
+        <wadl:param name="exact_match" type="xsd:boolean"/>
+        <wadl:param name="version" type="xsd:string"/>
+      </wadl:request>
+      <wadl:response><wadl:representation href="#source_package_publishing_history-page"/></wadl:response>
+    </wadl:method>
+    <wadl:method name="GET" id="archive-declaredControls">
+      <wadl:request>
+        <wadl:param name="ws.op" fixed="declaredControls"/>
+        <wadl:param name="ws.start" type="xsd:string" required="true"/>
+        <wadl:param name="ws.size" type="xsd:boolean"/>
+        <wadl:param name="memo" type="xsd:int" required="true"/>
+        <wadl:param name="direction" type="xsd:string" required="true">
+          <wadl:option value="backwards"/><wadl:option value="forwards"/>
+        </wadl:param>
+        <wadl:param name="ws.show" type="xsd:boolean" required="true"/>
+        <wadl:param name="ws.accept" type="xsd:string"/>
+      </wadl:request>
+      <wadl:response><wadl:representation href="#processor-page"/></wadl:response>
+    </wadl:method>
+    <wadl:method name="GET" id="archive-partialControls">
+      <wadl:request>
+        <wadl:param name="ws.op" fixed="partialControls"/>
+        <wadl:param name="ws.start" type="xsd:string" required="true"/>
+        <wadl:param name="start" type="xsd:int"/>
+        <wadl:param name="size" type="xsd:int"/>
+      </wadl:request>
+      <wadl:response><wadl:representation href="#processor-page"/></wadl:response>
+    </wadl:method>
+    <wadl:method name="GET" id="archive-mixedResponses">
+      <wadl:request><wadl:param name="ws.op" fixed="mixedResponses"/></wadl:request>
+      <wadl:response status="200 206">
+        <wadl:representation href="#source_package_publishing_history-page" mediaType="application/json"/>
+        <wadl:representation href="#processor-page" mediaType="application/json"/>
+        <wadl:representation href="#archive-full" mediaType="application/json"/>
+        <wadl:representation href="#processor-page" mediaType="application/vnd.launchpad+json; charset=UTF-8"/>
+        <wadl:representation href="#processor-page" mediaType="text/csv"/>
+      </wadl:response>
+      <wadl:response status="201"><wadl:representation href="#archive-full" mediaType="application/json"/></wadl:response>
+      <wadl:response status="400"><wadl:representation href="#processor-page" mediaType="application/json"/></wadl:response>
+    </wadl:method>
+    <wadl:method name="GET" id="archive-failureOnly">
+      <wadl:request><wadl:param name="ws.op" fixed="failureOnly"/></wadl:request>
+      <wadl:response status="400"><wadl:representation href="#processor-page" mediaType="application/json"/></wadl:response>
+    </wadl:method>
+    <wadl:method name="GET" id="archive-nonJsonOnly">
+      <wadl:request><wadl:param name="ws.op" fixed="nonJsonOnly"/></wadl:request>
+      <wadl:response status="200"><wadl:representation href="#processor-page" mediaType="text/csv"/></wadl:response>
+    </wadl:method>
+    <wadl:method name="GET" id="archive-statuslessNonJson">
+      <wadl:request><wadl:param name="ws.op" fixed="statuslessNonJson"/></wadl:request>
+      <wadl:response><wadl:representation href="#processor-page" mediaType="text/csv"/></wadl:response>
+    </wadl:method>
+    <wadl:method name="GET" id="archive-unresolved">
+      <wadl:request><wadl:param name="ws.op" fixed="unresolved"/></wadl:request>
+      <wadl:response><wadl:representation href="#missing-page"/></wadl:response>
+    </wadl:method>
+    <wadl:method name="GET" id="archive-explicitUnresolved">
+      <wadl:request><wadl:param name="ws.op" fixed="explicitUnresolved"/></wadl:request>
+      <wadl:response status="206"><wadl:representation href="#missing-page" mediaType="application/json"/></wadl:response>
+    </wadl:method>
+    <wadl:method name="GET" id="archive-rawArray">
+      <wadl:doc>:return: A collection of URLs.</wadl:doc>
+      <wadl:request><wadl:param name="ws.op" fixed="rawArray"/></wadl:request>
+    </wadl:method>
+    <wadl:method name="GET" id="archive-untyped">
+      <wadl:doc>:return: A collection of entries.</wadl:doc>
+      <wadl:request><wadl:param name="ws.op" fixed="untyped"/></wadl:request>
+    </wadl:method>
+    <wadl:method name="GET" id="archive-singleEntry">
+      <wadl:doc>:return: A collection of URLs.</wadl:doc>
+      <wadl:request><wadl:param name="ws.op" fixed="singleEntry"/></wadl:request>
+      <wadl:response><wadl:representation href="#archive-full"/></wadl:response>
+    </wadl:method>
+    <wadl:method name="POST" id="archive-nonGet">
+      <wadl:request><wadl:param name="ws.op" fixed="nonGet"/></wadl:request>
+      <wadl:response status="200"><wadl:representation href="#processor-page" mediaType="application/json"/></wadl:response>
+    </wadl:method>
+  </wadl:resource_type>
+  <wadl:resource_type id="processors">
+    <wadl:method name="GET" id="processors-get">
+      <wadl:response><wadl:representation href="#processor-page"/></wadl:response>
+    </wadl:method>
+  </wadl:resource_type>
+  <wadl:resource_type id="people">
+    <wadl:method name="GET" id="people-get">
+      <wadl:request>
+        <wadl:param name="ws.start" type="xsd:string" required="true"/>
+        <wadl:param name="filter" type="xsd:boolean" required="true"/>
+        <wadl:param name="ws.show" type="xsd:string"/>
+      </wadl:request>
+      <wadl:response status="206"><wadl:representation href="#processor-page" mediaType="application/json"/></wadl:response>
+    </wadl:method>
+  </wadl:resource_type>
+  <wadl:resource_type id="project">
+    <wadl:method name="GET" id="project-get">
+      <wadl:response status="404"><wadl:representation href="#processor-page" mediaType="application/json"/></wadl:response>
+    </wadl:method>
+  </wadl:resource_type>
+  <wadl:representation id="archive-full" mediaType="application/json">
+    <wadl:param name="name" type="xsd:string" required="true"/>
+  </wadl:representation>
+  <wadl:representation id="source_package_publishing_history-full" mediaType="application/json">
+    <wadl:param name="self_link" type="xsd:anyURI" required="true"/>
+    <wadl:param name="source_package_name" type="xsd:string" required="true"/>
+  </wadl:representation>
+  <wadl:representation id="processor-full" mediaType="application/json">
+    <wadl:param name="self_link" type="xsd:anyURI" required="true"/>
+    <wadl:param name="name" type="xsd:string" required="true"/>
+  </wadl:representation>
+  <wadl:representation id="source_package_publishing_history-page" mediaType="application/json">
+    <wadl:param name="start" required="true"/>
+    <wadl:param name="entries" required="true"/>
+    <wadl:param name="total_size"/>
+    <wadl:param name="total_size_link" type="xsd:anyURI"/>
+    <wadl:param name="next_collection_link" type="xsd:anyURI"/>
+    <wadl:param name="prev_collection_link" type="xsd:anyURI"/>
+    <wadl:param name="entry_links" path="$['entries'][*]['self_link']">
+      <wadl:link resource_type="#source_package_publishing_history"/>
+    </wadl:param>
+  </wadl:representation>
+  <wadl:representation id="processor-page" mediaType="application/json">
+    <wadl:param name="start" required="true"/>
+    <wadl:param name="entries" required="true"/>
+    <wadl:param name="total_size"/>
+    <wadl:param name="total_size_link" type="xsd:anyURI"/>
+    <wadl:param name="next_collection_link" type="xsd:anyURI"/>
+    <wadl:param name="prev_collection_link" type="xsd:anyURI"/>
+    <wadl:param name="entry_links" path="$['entries'][*]['self_link']">
+      <wadl:link resource_type="#processor"/>
+    </wadl:param>
+  </wadl:representation>
+</wadl:application>`;
+
+/** Selected fields from read-only production pages, plus a source-backed empty page. */
+export const collectionPageBodies = {
+  normal: {
+    start: 0,
+    total_size_link:
+      "https://api.launchpad.net/devel/ubuntu/+archive/primary?ws.op=getPublishedSources&ws.show=total_size",
+    next_collection_link:
+      "https://api.launchpad.net/devel/ubuntu/+archive/primary?ws.op=getPublishedSources&ws.size=1&memo=1&ws.start=1",
+    entries: [
+      {
+        self_link:
+          "https://api.launchpad.net/devel/ubuntu/+archive/primary/+sourcepub/15997651",
+        source_package_name: "hello",
+      },
+    ],
+  },
+  last: {
+    start: 2,
+    total_size: 3,
+    prev_collection_link:
+      "https://api.launchpad.net/devel/ubuntu/+archive/primary?ws.op=getPublishedSources&ws.size=1&direction=backwards&memo=2&ws.start=1",
+    entries: [
+      {
+        self_link:
+          "https://api.launchpad.net/devel/ubuntu/+archive/primary/+sourcepub/15920299",
+        source_package_name: "hello",
+      },
+    ],
+  },
+  empty: { start: 0, total_size: 0, entries: [] },
+  standard: {
+    start: 1,
+    total_size: 14,
+    next_collection_link:
+      "https://api.launchpad.net/devel/+processors?ws.size=1&memo=2&ws.start=2",
+    prev_collection_link:
+      "https://api.launchpad.net/devel/+processors?ws.size=1&direction=backwards&memo=1",
+    entries: [
+      {
+        self_link: "https://api.launchpad.net/devel/+processors/sparc",
+        name: "sparc",
+      },
+    ],
+  },
+};

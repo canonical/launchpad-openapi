@@ -72,6 +72,32 @@ describe("buildStandardOperation", () => {
         summary: "List people",
         description: "Collection of people.",
         operationId: "people-get",
+        parameters: [
+          expect.objectContaining({
+            name: "ws.start",
+            in: "query",
+            required: false,
+            schema: { type: "integer" },
+          }),
+          expect.objectContaining({
+            name: "ws.size",
+            in: "query",
+            required: false,
+            schema: { type: "integer" },
+          }),
+          expect.objectContaining({
+            name: "memo",
+            in: "query",
+            required: false,
+            schema: { type: "string" },
+          }),
+          expect.objectContaining({
+            name: "direction",
+            in: "query",
+            required: false,
+            schema: { type: "string" },
+          }),
+        ],
         responses: {
           "200": {
             description: "Successful response",

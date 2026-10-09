@@ -22,6 +22,8 @@ import type {
 import type { WadlMethod, WadlParam, WadlResponse } from "../wadl/index.js";
 import {
   BRANCH_FULL_SCHEMA_ID,
+  COLLECTION_PAGING_PARAMETERS,
+  COLLECTION_SHOW_PARAMETER,
   FORM_MEDIA_TYPE,
   JSON_MEDIA_TYPE,
   NULLABLE_BRANCH_SCHEMA_ID,
@@ -85,6 +87,9 @@ export function buildStandardOperation({
     ),
   };
   if (pathParams.length) operation.parameters = [...pathParams];
+  if (verb === "get") {
+    enrichCollectionOperation(operation, method, schemas, false);
+  }
 
   const requestId = method.requestRepresentationId;
   // Reference only schemas that exist; never emit a dangling `$ref`.
@@ -189,7 +194,128 @@ export function buildNamedOperation(args: NamedOperationArgs): OperationObject {
     );
     if (parameters.length) operation.parameters = parameters;
   }
+  if (method.httpMethod.toUpperCase() === "GET") {
+    enrichCollectionOperation(operation, method, schemas, true);
+  }
   return operation;
+}
+
+/**
+ * Supplement resolved JSON collections without changing WADL declarations or shared pages.
+ * @note - Mutates the operation being assembled by the caller.
+ */
+function enrichCollectionOperation(
+  operation: OperationObject,
+  method: WadlMethod,
+  schemas: SchemasObject,
+  named: boolean,
+): void {
+  const collectionMedia = findCollectionResponseMedia(
+    operation,
+    method,
+    schemas,
+  );
+  if (collectionMedia.size === 0) return;
+  const parameters = [...(operation.parameters ?? [])];
+  if (!named) {
+    parameters.push(
+      ...method.params.map((param) => buildQueryParameter(param)),
+    );
+  }
+  const countMedia = named ? collectionMedia.get("200") : undefined;
+  const controls =
+    countMedia === undefined
+      ? COLLECTION_PAGING_PARAMETERS
+      : [...COLLECTION_PAGING_PARAMETERS, COLLECTION_SHOW_PARAMETER];
+  for (const control of controls) {
+    if (
+      !parameters.some(
+        (param) =>
+          "in" in param && param.in === "query" && param.name === control.name,
+      )
+    ) {
+      parameters.push({ ...control, schema: { ...control.schema } });
+    }
+  }
+  operation.parameters = parameters;
+  for (const media of countMedia ?? []) {
+    const responseMedia = operation.responses["200"]?.content?.[media];
+    const pageSchema = responseMedia?.schema;
+    if (responseMedia === undefined || pageSchema === undefined) continue;
+    responseMedia.schema = {
+      anyOf: [pageSchema, { type: "integer", minimum: 0 }],
+      description:
+        "Collection page, or a non-negative integer count for ws.show=total_size.",
+    };
+  }
+}
+
+/** Match source JSON page references to their actual generated successful response media. */
+function findCollectionResponseMedia(
+  operation: OperationObject,
+  method: WadlMethod,
+  schemas: SchemasObject,
+): Map<string, Set<string>> {
+  const collectionMedia = new Map<string, Set<string>>();
+  const statusless = method.responses.filter(
+    (response) => response.statusCodes.length === 0,
+  );
+  // Legacy conversion selects only the first resolved reference, regardless of media.
+  // Check that selected source's media, not its projected application/json output.
+  const legacyRepresentation = statusless
+    .flatMap((response) => response.representations)
+    .find(
+      (representation) =>
+        representation.id !== undefined && representation.id in schemas,
+    );
+  for (const response of method.responses) {
+    const isStatusless = response.statusCodes.length === 0;
+    const representations = isStatusless
+      ? legacyRepresentation === undefined
+        ? []
+        : [legacyRepresentation]
+      : response.representations;
+    for (const representation of representations) {
+      const id = representation.id;
+      if (
+        id === undefined ||
+        !id.endsWith("-page") ||
+        !(id in schemas) ||
+        !isJsonMediaType(representation.mediaType ?? JSON_MEDIA_TYPE)
+      )
+        continue;
+      const media = isStatusless
+        ? JSON_MEDIA_TYPE
+        : (representation.mediaType ?? JSON_MEDIA_TYPE);
+      for (const status of isStatusless ? ["200"] : response.statusCodes) {
+        if (!/^2\d\d$/.test(status)) continue;
+        const generatedSchema =
+          operation.responses[status]?.content?.[media]?.schema;
+        if (
+          !hasResponseReference(generatedSchema, `#/components/schemas/${id}`)
+        )
+          continue;
+        const mediaTypes = collectionMedia.get(status) ?? new Set<string>();
+        mediaTypes.add(media);
+        collectionMedia.set(status, mediaTypes);
+      }
+    }
+  }
+  return collectionMedia;
+}
+
+/** Check references in operation-level alternatives, not arbitrary nested object fields. */
+function hasResponseReference(
+  schema: SchemaObject | ReferenceObject | undefined,
+  ref: string,
+): boolean {
+  if (schema === undefined) return false;
+  if ("$ref" in schema) return schema.$ref === ref;
+  return (
+    schema.anyOf?.some((alternative) =>
+      hasResponseReference(alternative, ref),
+    ) ?? false
+  );
 }
 
 /** Build source-reviewed file responses as homogeneous arrays; both allow empty results. */

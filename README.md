@@ -91,6 +91,12 @@ Links matching canonical paths deduplicate without changing canonical IDs or par
 
 This is a breaking naming migration with no compatibility aliases. URL templates, parameters, response schemas, and `x-launchpad-route-alternatives` are unchanged.
 
+### Collection GET controls
+
+Resolved collection GET responses include optional `ws.start` and `ws.size` integer query parameters, plus the `memo` and `direction` string controls used by pagination links. Default and maximum page sizes are server-configured. Non-positive sizes fall back to the configured default; `direction=backwards` selects backward navigation. Existing WADL parameter declarations take precedence.
+
+Named collection GETs additionally support `ws.show=total_size`, returning a non-negative JSON integer instead of a page. Omission or other values retain the page response. Their HTTP 200 JSON response schemas use `anyOf` for the existing page and the count, without changing shared page components. Standard collection GETs do not implement the count switch, and other statuses and non-JSON responses are not widened.
+
 ### Publication file responses
 
 For binary publications, `binaryFileUrls` returns URI strings when `include_meta` is omitted or false, and objects with required `url` (URI string), `size` (integer), `sha1` (string), and `sha256` (string) when true. Source publications' `sourceFileUrls` uses the same switch, but its metadata has only `url`, `size`, and `sha256`, without `sha1`. These fields are non-null.
