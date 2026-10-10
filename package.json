@@ -21,10 +21,12 @@
     "metadata:export": "python3 src/wadl/metadata/export.py",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:site": "node --test --test-concurrency=1 site/*.test.mjs site/search/*.test.mjs",
+    "build:site": "node site/build.mjs",
     "test:coverage": "vitest run --coverage",
-    "lint": "oxlint --max-warnings 0 src testing vitest.config.ts",
-    "format": "oxfmt src testing vitest.config.ts package.json tsconfig.json tsconfig.build.json .oxlintrc.json .oxfmtrc.json",
-    "format:check": "oxfmt --check src testing vitest.config.ts package.json tsconfig.json tsconfig.build.json .oxlintrc.json .oxfmtrc.json",
+    "lint": "oxlint --max-warnings 0 src testing site vitest.config.ts",
+    "format": "oxfmt src testing site/*.mjs site/search/*.mjs pnpm-workspace.yaml vitest.config.ts package.json tsconfig.json tsconfig.build.json .oxlintrc.json .oxfmtrc.json",
+    "format:check": "oxfmt --check src testing site/*.mjs site/search/*.mjs pnpm-workspace.yaml vitest.config.ts package.json tsconfig.json tsconfig.build.json .oxlintrc.json .oxfmtrc.json",
     "check": "pnpm run lint && pnpm run format:check"
   },
   "dependencies": {
@@ -36,11 +38,15 @@
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "^12.1.0",
+    "@scalar/helpers": "0.16.2",
     "@types/node": "^26.2.0",
     "@vitest/coverage-v8": "^4.1.11",
+    "esbuild": "0.28.2",
+    "fuse.js": "7.5.0",
     "openapi3-ts": "^4.6.1",
     "oxfmt": "^0.70.0",
     "oxlint": "^1.85.0",
+    "playwright": "1.62.1",
     "typescript": "^7.0.2",
     "vitest": "^4.1.11"
   },

@@ -3,7 +3,124 @@
  * GNU Lesser General Public License version 3 (see the file LICENSE).
  */
 
-/** WADL test inputs, with runtime links kept beside the sample they describe. */
+/** Shared WADL and static-page test inputs. */
+
+/** Minimal spec exercising HTML escaping without changing source semantics. */
+export const siteOpenApi = {
+  openapi: "3.0.3",
+  info: {
+    title: "Launchpad test API",
+    version: "devel",
+    description: '</script><script>alert("injected")</script> $&',
+  },
+  servers: [{ url: "https://api.launchpad.test/devel/" }],
+  paths: {},
+};
+
+/** Search inputs exercise local references, inherited parameters and recursive composition. */
+export const siteSearchOpenApi = {
+  openapi: "3.0.3",
+  info: {
+    title: "Search test",
+    version: "devel",
+    description: "Reference introduction",
+  },
+  tags: [{ name: "archive" }, { name: "private", "x-internal": true }],
+  paths: {
+    "/{distribution}/+archive/{archive}?ws.op=getPublishedSources": {
+      parameters: [
+        {
+          name: "inheritedToken",
+          in: "query",
+          description: "Find inherited credentials",
+        },
+      ],
+      get: {
+        tags: ["archive"],
+        operationId: "archive-getPublishedSources-distribution",
+        summary: "Get published sources",
+        description: "Find source publications",
+        responses: {
+          "200": {
+            description: "OK",
+            content: {
+              "application/json": { example: { value: "exampleNeedle" } },
+            },
+          },
+        },
+      },
+    },
+    "/{owner}/+archive/{distribution}/{archive}?ws.op=getPublishedSources": {
+      get: {
+        tags: ["archive"],
+        operationId: "archive-getPublishedSources-ppa",
+        summary: "Get published sources",
+        responses: {},
+      },
+    },
+    "/submit": {
+      parameters: [
+        { name: "overrideToken", in: "query", description: "obsoleteNeedle" },
+      ],
+      post: {
+        tags: ["archive"],
+        operationId: "submit-source",
+        parameters: [
+          {
+            name: "overrideToken",
+            in: "query",
+            description: "replacementNeedle",
+          },
+        ],
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/Envelope" },
+            },
+          },
+        },
+        responses: {},
+      },
+    },
+    "/hidden": { get: { tags: ["private"], summary: "hiddenOperationNeedle" } },
+  },
+  components: {
+    schemas: {
+      Envelope: {
+        allOf: [
+          {
+            $ref: "#/components/schemas/Envelope",
+            description: "Recursive composition",
+          },
+          {
+            type: "object",
+            properties: {
+              metadata_flag: {
+                type: "string",
+                description: "bodyDescriptionNeedle",
+              },
+              alias: { $ref: "#/components/schemas/a~1b~0c" },
+            },
+          },
+        ],
+      },
+      "a/b~c": {
+        type: "object",
+        properties: { nestedFlag: { type: "string" } },
+      },
+      Hidden: { "x-scalar-ignore": true, description: "hiddenModelNeedle" },
+    },
+  },
+};
+
+/** Hidden-only schemas must not create an otherwise absent Models section link. */
+export const siteHiddenSearchOpenApi = {
+  ...siteSearchOpenApi,
+  paths: {},
+  components: {
+    schemas: { Hidden: siteSearchOpenApi.components.schemas.Hidden },
+  },
+};
 
 /** Shared Launchpad-style WADL for parser and common generator behavior. */
 export const sampleWadl = `<?xml version="1.0"?>

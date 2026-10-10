@@ -152,6 +152,49 @@ pnpm metadata:export /path/to/launchpad --output /path/to/catalog
 
 The exporter resolves source declarations without importing or running Launchpad. `src/wadl/metadata/provenance.json` records dependency versions, source hashes, field origins, and unresolved declarations. Regenerate OpenAPI and downstream clients after refreshing the catalog; conversion itself requires neither Python nor a Launchpad checkout.
 
+## Static API reference page
+
+`site/index.html` is the Scalar page template. Build a self-contained page with
+fresh specs from both environments:
+
+```console
+pnpm build
+mkdir -p site/dist
+node dist/index.js --format json --output site/dist/production.json
+node dist/index.js --environment qastaging --format json --output site/dist/qastaging.json
+pnpm build:site site/dist/production.json site/dist/qastaging.json
+```
+
+Deploy `site/dist/index.html` to a static web server. Generated files are ignored
+by Git; the builder preserves the OpenAPI documents unchanged.
+
+Search uses one embedded Web Worker to build and cache an index per environment
+and run fuzzy queries off the main thread. Only bounded result summaries return
+to the page; stale query/source responses are discarded. The input-styled search
+control sits in the sidebar below the environment picker, with formatted ⌘ K or
+Ctrl K key badges. On mobile it appears below the global navigation. Clicking it
+or pressing Ctrl/Cmd+K opens the dialog. Arrow keys and Enter select results; Escape closes
+it and restores focus. Navigation still uses Scalar's existing section links.
+
+Scalar's built-in search is disabled so it does not rebuild a second index on the
+main thread. The worker and search library are bundled into the HTML at build
+time, with no extra runtime dependency or deployed worker file. If a Content
+Security Policy is configured, it must permit `worker-src blob:`. A blocked or
+failed worker displays an accessible error without disabling the API reference;
+search does not silently fall back to main-thread indexing.
+
+Run browser regressions against the full generated page (requires CDN access):
+
+```console
+pnpm exec playwright install chromium
+pnpm test:site
+```
+
+Alternatively, use an installed Chrome with `PLAYWRIGHT_CHANNEL=chrome pnpm test:site`.
+Set `SITE_PAGE` to test another generated HTML file. Browser checks cover initial
+search stalls, real worker execution, source isolation, worker failure handling,
+keyboard navigation, and search-result/sidebar synchronization in both environments.
+
 ## License
 
 Licensed under the [GNU Lesser General Public License version 3](LICENSE), which incorporates the [GNU General Public License version 3](COPYING).
