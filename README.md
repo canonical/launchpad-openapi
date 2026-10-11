@@ -81,15 +81,24 @@ OpenAPI cannot represent two differently named templates with the same path shap
 
 ### Operation IDs
 
-Canonical route variants have explicit semantic labels in `src/openapi/constants.ts`. The existing base-ID policy is unchanged: archive operations now use names such as `archive-getPublishedSources-distribution` and `archive-getPublishedSources-ppa`.
+Operation IDs use `subject[.namespace...].operation`, with lowerCamelCase
+components: `archive.ppa.getPublishedSources`, `person.me.get`,
+`gitRepository.sourcePackage.get`, and `projects.newProject`.
+Each operation also exposes its separate `subject`, ordered `namespace` array,
+and `operation` in `x-launchpad-naming-path`.
 
-Route templates declare `template` and optional `operationSuffix`; parent branches declare `resourceType` and optional `operationSuffixPrefix`. Children inherit parent labels, with explicit prefixes distinguishing multi-parent targets. The URL `suffix` remains separate from operation naming. For a canonical catalog template, an absent operation suffix preserves the base ID even when routes are added, removed, or reordered.
+Names follow WADL definitions and explicit route or service-root alias metadata,
+not runtime URLs or route counts. Unsupported spelling and duplicate IDs return
+`Err(ConversionError)`; collisions identify both source definitions rather than
+receiving numeric suffixes.
 
-Service-root aliases retain field identity (`me_link` produces the `me` label). An uncatalogued link-only route uses its field-derived label even when it is the only route: `polls-get` reached through `polls_collection_link` becomes `polls-get-polls`. Runtime route count never determines labels. Adding a matching canonical entry can change the ID through explicit catalog metadata; an entry without an operation suffix uses `polls-get`.
+**This is a breaking naming migration with no compatibility aliases.** Regenerate
+operation lookups in downstream consumers. URL templates, wire fields, `ws.op`
+values, and response schemas are unchanged: `projects.newProject` still sends
+`ws.op=new_project`.
 
-Links matching canonical paths deduplicate without changing canonical IDs or parameters. Conflicting discovered alias labels or final operation IDs return `Err(ConversionError)` from `generateOpenApi` rather than receiving numeric suffixes. Malformed checked-in catalog definitions (cycles, missing URL suffixes, or conflicting canonical metadata) remain programming exceptions.
-
-This is a breaking naming migration with no compatibility aliases. URL templates, parameters, response schemas, and `x-launchpad-route-alternatives` are unchanged.
+See [ADR 0001: Namespace-first naming paths](docs/adr/0001-namespace-first-naming-paths.md)
+for normalization, namespace inheritance, aliases, and stability guarantees.
 
 ### Collection GET controls
 

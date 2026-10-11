@@ -4,8 +4,8 @@
  */
 
 import { assert, describe, expect, it } from "vitest";
-import { sampleWadl } from "../../testing/fixtures.js";
-import { parseWadl } from "../wadl/index.js";
+import { sampleWadl } from "../../../testing/fixtures.js";
+import { parseWadl } from "../../wadl/index.js";
 import buildParamSchema from "./buildParamSchema.js";
 
 const typedWadl = `<application xmlns="http://wadl.dev.java.net/2009/02"

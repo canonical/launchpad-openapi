@@ -10,7 +10,7 @@ import type {
   TagObject,
 } from "openapi3-ts/oas30";
 import { Result, type Result as ResultType } from "better-result";
-import type { WadlDocument } from "../wadl/index.js";
+import type { WadlDocument } from "../../wadl/index.js";
 import {
   ABOUT_SERVICE_DOC,
   API_TITLE,
@@ -20,11 +20,11 @@ import {
   PAGE_RESOURCE_SUFFIX,
   ROUTELESS_RESOURCE_TYPES,
   SPECIAL_RESOURCE_TYPES,
-} from "./constants.js";
-import { ConversionError } from "./errors.js";
-import buildPaths from "./buildPaths.js";
-import buildSchemas from "./buildSchemas.js";
-import type { GenerateOptions } from "./types.js";
+} from "../constants.js";
+import { ConversionError } from "../errors.js";
+import buildPaths from "../paths/buildPaths.js";
+import buildSchemas from "../schemas/buildSchemas.js";
+import type { GenerateOptions } from "../types.js";
 
 /**
  * Generate an OpenAPI 3.0.3 document from typed WADL values.

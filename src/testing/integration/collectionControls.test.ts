@@ -20,11 +20,11 @@ import {
   publicationFileResponsesWadl,
 } from "../../../testing/fixtures.js";
 import { generateOpenApi } from "../../openapi/index.js";
-import buildSchemas from "../../openapi/buildSchemas.js";
+import buildSchemas from "../../openapi/schemas/buildSchemas.js";
 import {
   buildNamedOperation,
   buildStandardOperation,
-} from "../../openapi/operations.js";
+} from "../../openapi/operations/buildOperations.js";
 import { parseWadl } from "../../wadl/index.js";
 
 // Use SwaggerParser's existing real validator; no new dependency or schema evaluator.
@@ -157,7 +157,7 @@ function expectCountUnion(
 describe("generated collection controls", () => {
   describe("named archive collections", () => {
     for (const route of routes) {
-      const id = `archive-getPublishedSources-${route.label}`;
+      const id = `archive.${route.label}.getPublishedSources`;
       const operation = findOperation(id);
 
       it(`retains the ${route.label} semantic ID and supplements only missing controls`, () => {
@@ -237,7 +237,7 @@ describe("generated collection controls", () => {
       "accepts unbounded integer primitives for %s",
       (name) => {
         const parameter = expectOptionalControl(
-          findOperation("archive-getPublishedSources-distribution"),
+          findOperation("archive.distribution.getPublishedSources"),
           name,
           "integer",
         );
@@ -261,7 +261,7 @@ describe("generated collection controls", () => {
       "keeps $name an unrestricted string rather than a guessed enum",
       ({ name, values }) => {
         const parameter = expectOptionalControl(
-          findOperation("archive-getPublishedSources-distribution"),
+          findOperation("archive.distribution.getPublishedSources"),
           name,
           "string",
         );
@@ -275,9 +275,9 @@ describe("generated collection controls", () => {
 
   describe("standard collections and declaration precedence", () => {
     it("adds paging but neither ws.show nor scalar counts to the standard processors route", () => {
-      const operation = findOperation("processors-get");
+      const operation = findOperation("processors.get");
       expect(document.paths["/+processors"]?.get?.operationId).toBe(
-        "processors-get",
+        "processors.get",
       );
       expect(
         getQueryParameters(operation).map((parameter) => parameter.name),
@@ -294,7 +294,7 @@ describe("generated collection controls", () => {
     });
 
     it("preserves standard WADL query declarations and required flags while filling missing paging controls", () => {
-      const operation = findOperation("people-get");
+      const operation = findOperation("people.get");
       expect(
         getQueryParameters(operation).map((parameter) => parameter.name),
       ).toEqual([
@@ -323,7 +323,7 @@ describe("generated collection controls", () => {
     });
 
     it("does not replace or double explicitly declared named controls", () => {
-      const operation = findOperation("archive-declaredControls-distribution");
+      const operation = findOperation("archive.distribution.declaredControls");
       expect(getQueryParameters(operation)).toEqual([
         {
           name: "ws.start",
@@ -376,7 +376,7 @@ describe("generated collection controls", () => {
     });
 
     it("distinguishes ws.start/ws.size from unrelated start/size query names", () => {
-      const operation = findOperation("archive-partialControls-distribution");
+      const operation = findOperation("archive.distribution.partialControls");
       expect(
         getQueryParameters(operation).map((parameter) => parameter.name),
       ).toEqual([
@@ -444,7 +444,7 @@ describe("generated collection controls", () => {
 
   describe("response status, media and identity boundaries", () => {
     it("preserves multiple page refs and existing alternatives for explicit successful JSON responses", () => {
-      const operation = findOperation("archive-mixedResponses-distribution");
+      const operation = findOperation("archive.distribution.mixedResponses");
       for (const [name, type] of pagingControls)
         expectOptionalControl(operation, name, type);
       expectOptionalControl(operation, "ws.show", "string");
@@ -510,7 +510,7 @@ describe("generated collection controls", () => {
     ])(
       "does not enrich %s based on names, prose, dangling refs, errors or non-JSON bodies",
       (name) => {
-        const operation = findOperation(`archive-${name}-distribution`);
+        const operation = findOperation(`archive.distribution.${name}`);
         expect(getQueryParameters(operation)).toEqual([]);
         for (const response of Object.values(operation.responses)) {
           assert(!("$ref" in response));
@@ -542,7 +542,7 @@ describe("generated collection controls", () => {
     );
 
     it("does not infer paging for a standard operation with only failure page responses", () => {
-      const operation = findOperation("project-get");
+      const operation = findOperation("project.get");
       expect(getQueryParameters(operation)).toEqual([]);
       expect(getResponseSchema(operation, "404")).toEqual({
         $ref: "#/components/schemas/processor-page",
@@ -557,8 +557,8 @@ describe("generated collection controls", () => {
         expect(
           getQueryParameters(operation).map((parameter) => parameter.name),
         ).toEqual(
-          operation.operationId?.startsWith("person-") ||
-            /^(binary_package_publishing_history-binaryFileUrls|source_package_publishing_history-sourceFileUrls)-/.test(
+          operation.operationId?.startsWith("person.") ||
+            /^(binaryPackagePublishingHistory\.[^.]+\.binaryFileUrls|sourcePackagePublishingHistory\.[^.]+\.sourceFileUrls)$/.test(
               operation.operationId ?? "",
             )
             ? ["include_meta"]

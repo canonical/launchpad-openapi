@@ -11,11 +11,11 @@ import {
   sampleWadl,
   routeCorrectionsWadl,
   serviceRootLinks,
-} from "../../testing/fixtures.js";
-import { parseWadl } from "../wadl/index.js";
-import { HYPERMEDIA_NOTE } from "./constants.js";
-import type * as Constants from "./constants.js";
-import { ConversionError } from "./errors.js";
+} from "../../../testing/fixtures.js";
+import { parseWadl } from "../../wadl/index.js";
+import { HYPERMEDIA_NOTE } from "../constants.js";
+import type * as Constants from "../constants.js";
+import { ConversionError } from "../errors.js";
 import generateOpenApi from "./generateOpenApi.js";
 
 describe("generateOpenApi", () => {
@@ -127,25 +127,49 @@ describe("generateOpenApi", () => {
       expect(result.error.message).toContain("/people/+me");
     });
 
-    it("returns a typed error for duplicate WADL operation IDs across routes", () => {
+    it("identifies both WADL methods when normalization collides on one route", () => {
+      const model = parseWadl(sampleWadl).unwrap();
+      const person = model.resourceTypes.person;
+      const method = person?.methods.find(
+        (candidate) => candidate.id === "person-get",
+      );
+      assert(person !== undefined && method !== undefined);
+      person.methods.splice(
+        0,
+        person.methods.length,
+        { ...method, id: "person-read_name" },
+        { ...method, id: "person-readName" },
+      );
+
+      const result = generateOpenApi(model);
+
+      assert(Result.isError(result));
+      expect(result.error).toBeInstanceOf(ConversionError);
+      expect(result.error.message).toContain("person.readName");
+      expect(result.error.message).toContain("GET /{person}");
+      expect(result.error.message).toContain('WADL method "person-read_name"');
+      expect(result.error.message).toContain('WADL method "person-readName"');
+    });
+
+    it("returns a typed error for conflicting source operation names", () => {
       const model = parseWadl(
-        sampleWadl.replace('id="person-get"', 'id="people-get"'),
+        sampleWadl.replace('id="person-get"', 'id="person-put"'),
       ).unwrap();
 
       const result = generateOpenApi(model);
 
       assert(Result.isError(result));
       expect(result.error).toBeInstanceOf(ConversionError);
-      expect(result.error.message).toContain("people-get");
-      expect(result.error.message).toContain("/people");
-      expect(result.error.message).toContain("/{person}");
+      expect(result.error.message).toContain("person.put");
+      expect(result.error.message).toContain("GET /{person}");
+      expect(result.error.message).toContain("PUT /{person}");
     });
   });
 
   describe("invalid route catalog", () => {
     it("lets a cyclic route correction escape as an unexpected Error", async () => {
       vi.resetModules();
-      vi.doMock("./constants.js", async (importOriginal) => {
+      vi.doMock("../constants.js", async (importOriginal) => {
         const constants = await importOriginal<typeof Constants>();
         return {
           ...constants,
@@ -173,7 +197,7 @@ describe("generateOpenApi", () => {
         expect(failure.message).toMatch(/cyclic/i);
         expect(failure.message).toContain("person");
       } finally {
-        vi.doUnmock("./constants.js");
+        vi.doUnmock("../constants.js");
         vi.resetModules();
       }
     });

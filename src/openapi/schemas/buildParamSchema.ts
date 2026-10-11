@@ -3,8 +3,8 @@
  * GNU Lesser General Public License version 3 (see the file LICENSE).
  */
 
-import type { WadlParam } from "../wadl/index.js";
-import { EXAMPLE_BY_PARAM, INTEGER_PARAM_NAMES } from "./constants.js";
+import type { WadlParam } from "../../wadl/index.js";
+import { EXAMPLE_BY_PARAM, INTEGER_PARAM_NAMES } from "../constants.js";
 import type { SchemaObject } from "openapi3-ts/oas30";
 
 const XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema";

@@ -4,7 +4,8 @@
  */
 
 import type { ParameterObject } from "openapi3-ts/oas30";
-import type { RouteCorrection, RouteTemplate } from "./types.js";
+import buildExternalPackageTemplates from "./paths/buildExternalPackageTemplates.js";
+import type { RouteCorrection } from "./types.js";
 
 /** Fixed protocol values and curated examples shared by OpenAPI builders. */
 
@@ -21,7 +22,6 @@ export const BRANCH_FULL_SCHEMA_ID = "branch-full";
 export const NULLABLE_BRANCH_SCHEMA_ID = "branch-full-nullable";
 export const COLLECTION_LINK_SUFFIXES = ["_collection_link", "_link"] as const;
 export const HTTP_METHODS = ["get", "put", "post", "patch", "delete"] as const;
-export type SupportedHttpMethod = (typeof HTTP_METHODS)[number];
 
 /** lazr.restful 2.0.2 WebServiceBatchNavigator and inherited batch controls. */
 export const COLLECTION_PAGING_PARAMETERS: readonly ParameterObject[] = [
@@ -88,97 +88,82 @@ export const EXAMPLE_BY_PARAM: Record<string, string> = {
 const DISTRO_SERIES_TEMPLATES = [
   {
     template: "{distribution=ubuntu}/{series=resolute}",
-    operationSuffix: "series",
+    namespace: ["series"],
   },
   {
     template: "{distribution=ubuntu}/+series/{series=resolute}",
-    operationSuffix: "explicit-series",
+    namespace: ["explicit-series"],
   },
 ] as const;
 const EXTERNAL_PACKAGE_TYPES = [
-  { template: "unknown", operationSuffix: "unknown" },
-  { template: "generic", operationSuffix: "generic" },
-  { template: "snap", operationSuffix: "snap" },
-  { template: "charm", operationSuffix: "charm" },
-  { template: "rock", operationSuffix: "rock" },
-  { template: "python", operationSuffix: "python" },
-  { template: "conda", operationSuffix: "conda" },
-  { template: "cargo", operationSuffix: "cargo" },
-  { template: "maven", operationSuffix: "maven" },
+  { template: "unknown", namespace: ["unknown"] },
+  { template: "generic", namespace: ["generic"] },
+  { template: "snap", namespace: ["snap"] },
+  { template: "charm", namespace: ["charm"] },
+  { template: "rock", namespace: ["rock"] },
+  { template: "python", namespace: ["python"] },
+  { template: "conda", namespace: ["conda"] },
+  { template: "cargo", namespace: ["cargo"] },
+  { template: "maven", namespace: ["maven"] },
 ] as const;
 // services/channels.py:23-68 requires a risk whenever a channel is present.
 const EXTERNAL_PACKAGE_CHANNELS = [
-  { template: "", operationSuffix: "unchanneled" },
-  { template: "/+risk/{risk=stable}", operationSuffix: "risk" },
+  { template: "", namespace: ["unchanneled"] },
+  { template: "/+risk/{risk=stable}", namespace: ["risk"] },
   {
     template: "/+track/{track=latest}/+risk/{risk=stable}",
-    operationSuffix: "track-risk",
+    namespace: ["track-risk"],
   },
   {
     template: "/+risk/{risk=stable}/+branch/{branch=main}",
-    operationSuffix: "risk-branch",
+    namespace: ["risk-branch"],
   },
   {
     template:
       "/+track/{track=latest}/+risk/{risk=stable}/+branch/{branch=main}",
-    operationSuffix: "track-risk-branch",
+    namespace: ["track-risk-branch"],
   },
 ] as const;
 
-// registry/browser/externalpackage.py:123-150 and
-// externalpackageseries.py:90-114; ExternalPackageType in
-// registry/interfaces/externalpackage.py:81-150.
-function externalPackageTemplates(
-  parents: readonly { template: string; operationSuffix: string }[],
-): RouteTemplate[] {
-  return parents.flatMap((parent) =>
-    EXTERNAL_PACKAGE_TYPES.flatMap((type) =>
-      EXTERNAL_PACKAGE_CHANNELS.map((channel) => ({
-        template: `${parent.template}/+${type.template}/{package=firefox}${channel.template}`,
-        operationSuffix: `${parent.operationSuffix}-${type.operationSuffix}-${channel.operationSuffix}`,
-      })),
-    ),
-  );
-}
 // blueprints/browser/specificationbranch.py:27-43 embeds the branch
 // unique_name without its leading '~'; code/model/branchnamespace.py:
 // 311-314,359-362,425-428 and registry/model/sourcepackage.py:291-300.
 const SPECIFICATION_TARGET_TEMPLATES = [
-  { template: "{project=launchpad}", operationSuffix: "project" },
-  { template: "{distribution=ubuntu}", operationSuffix: "distribution" },
+  { template: "{project=launchpad}", namespace: ["project"] },
+  { template: "{distribution=ubuntu}", namespace: ["distribution"] },
   {
     template: "{project=launchpad}/{series=trunk}",
-    operationSuffix: "project-series",
+    namespace: ["project-series"],
   },
   ...DISTRO_SERIES_TEMPLATES.map((series) => ({
     template: series.template,
-    operationSuffix: `distro-series-${series.operationSuffix}`,
+    namespace: ["distro-series", ...series.namespace],
   })),
 ] as const;
 const SPECIFICATION_BRANCH_NAMES = [
   {
     template: "{branch_owner=launchpad}/+junk/{branch=example}",
-    operationSuffix: "personal",
+    namespace: ["personal"],
   },
   {
     template:
       "{branch_owner=launchpad}/{branch_project=launchpad}/{branch=example}",
-    operationSuffix: "project",
+    namespace: ["project"],
   },
   {
     template:
       "{branch_owner=launchpad}/{branch_distribution=ubuntu}/{branch_series=resolute}/{branch_source=bash}/{branch=example}",
-    operationSuffix: "source-package",
+    namespace: ["source-package"],
   },
 ] as const;
 const ARCHIVE_TEMPLATES = [
   {
     template: "{distribution=ubuntu}/+archive/{archive=primary}",
-    operationSuffix: "distribution",
+    namespace: ["distribution"],
   },
   {
     template: "{owner=~launchpad}/+archive/{distribution=ubuntu}/{archive=ppa}",
-    operationSuffix: "ppa",
+    namespace: ["ppa"],
   },
 ] as const;
 
@@ -248,11 +233,11 @@ export const ROUTE_CORRECTIONS: Readonly<Record<string, RouteCorrection>> = {
     templates: [
       {
         template: "{distribution=ubuntu}/+source/{source=bash}",
-        operationSuffix: "source",
+        namespace: ["source"],
       },
       {
         template: "{distribution=ubuntu}/{source=bash}",
-        operationSuffix: "bare-source",
+        namespace: ["bare-source"],
       },
     ],
   },
@@ -266,15 +251,15 @@ export const ROUTE_CORRECTIONS: Readonly<Record<string, RouteCorrection>> = {
     templates: [
       {
         template: "{distribution=ubuntu}/+oci/{oci_project=base}",
-        operationSuffix: "distribution",
+        namespace: ["distribution"],
       },
       {
         template: "{project=launchpad}/+oci/{oci_project=base}",
-        operationSuffix: "project",
+        namespace: ["project"],
       },
       {
         template: "{distribution=ubuntu}/{oci_project=base}",
-        operationSuffix: "bare-distribution",
+        namespace: ["bare-distribution"],
       },
     ],
   },
@@ -283,13 +268,22 @@ export const ROUTE_CORRECTIONS: Readonly<Record<string, RouteCorrection>> = {
     parents: [{ resourceType: "oci_project" }],
     suffix: "+series/{series=resolute}",
   },
+  // registry/browser/externalpackage.py:123-150 and
+  // externalpackageseries.py:90-114; ExternalPackageType in
+  // registry/interfaces/externalpackage.py:81-150.
   external_package: {
-    templates: externalPackageTemplates([
-      { template: "{distribution=ubuntu}", operationSuffix: "distribution" },
-    ]),
+    templates: buildExternalPackageTemplates(
+      [{ template: "{distribution=ubuntu}", namespace: ["distribution"] }],
+      EXTERNAL_PACKAGE_TYPES,
+      EXTERNAL_PACKAGE_CHANNELS,
+    ),
   },
   external_package_series: {
-    templates: externalPackageTemplates(DISTRO_SERIES_TEMPLATES),
+    templates: buildExternalPackageTemplates(
+      DISTRO_SERIES_TEMPLATES,
+      EXTERNAL_PACKAGE_TYPES,
+      EXTERNAL_PACKAGE_CHANNELS,
+    ),
   },
   archive_series: {
     // registry/browser/archiveseries.py:90-108.
@@ -310,9 +304,9 @@ export const ROUTE_CORRECTIONS: Readonly<Record<string, RouteCorrection>> = {
     // registry/browser/configure.zcml:1674-1678; milestone.target is a
     // pillar, not a series (registry/model/milestone.py:381-388).
     parents: [
-      { resourceType: "project", operationSuffixPrefix: "project" },
-      { resourceType: "distribution", operationSuffixPrefix: "distribution" },
-      { resourceType: "project_group", operationSuffixPrefix: "project-group" },
+      { resourceType: "project", namespace: ["project"] },
+      { resourceType: "distribution", namespace: ["distribution"] },
+      { resourceType: "project_group", namespace: ["project-group"] },
     ],
     suffix: "+milestone/{milestone=1.0}",
   },
@@ -350,9 +344,9 @@ export const ROUTE_CORRECTIONS: Readonly<Record<string, RouteCorrection>> = {
   commercial_subscription: {
     // registry/browser/configure.zcml:795-799.
     parents: [
-      { resourceType: "project", operationSuffixPrefix: "project" },
-      { resourceType: "distribution", operationSuffixPrefix: "distribution" },
-      { resourceType: "project_group", operationSuffixPrefix: "project-group" },
+      { resourceType: "project", namespace: ["project"] },
+      { resourceType: "distribution", namespace: ["distribution"] },
+      { resourceType: "project_group", namespace: ["project-group"] },
     ],
     suffix: "+commercialsubscription/{id=1}",
   },
@@ -403,42 +397,42 @@ export const ROUTE_CORRECTIONS: Readonly<Record<string, RouteCorrection>> = {
   bug: { templates: [{ template: "bugs/{id=1}" }] },
   bug_task: {
     parents: [
-      { resourceType: "project", operationSuffixPrefix: "project" },
+      { resourceType: "project", namespace: ["project"] },
       {
         resourceType: "project_series",
-        operationSuffixPrefix: "project-series",
+        namespace: ["project-series"],
       },
-      { resourceType: "distribution", operationSuffixPrefix: "distribution" },
-      { resourceType: "distro_series", operationSuffixPrefix: "distro-series" },
+      { resourceType: "distribution", namespace: ["distribution"] },
+      { resourceType: "distro_series", namespace: ["distro-series"] },
       {
         resourceType: "distribution_source_package",
-        operationSuffixPrefix: "distribution-source-package",
+        namespace: ["distribution-source-package"],
       },
       {
         resourceType: "source_package",
-        operationSuffixPrefix: "source-package",
+        namespace: ["source-package"],
       },
       {
         resourceType: "external_package",
-        operationSuffixPrefix: "external-package",
+        namespace: ["external-package"],
       },
       {
         resourceType: "external_package_series",
-        operationSuffixPrefix: "external-package-series",
+        namespace: ["external-package-series"],
       },
-      { resourceType: "oci_project", operationSuffixPrefix: "oci-project" },
-      { resourceType: "archive", operationSuffixPrefix: "archive" },
+      { resourceType: "oci_project", namespace: ["oci-project"] },
+      { resourceType: "archive", namespace: ["archive"] },
       {
         resourceType: "archive_series",
-        operationSuffixPrefix: "archive-series",
+        namespace: ["archive-series"],
       },
       {
         resourceType: "archive_source_package",
-        operationSuffixPrefix: "archive-source-package",
+        namespace: ["archive-source-package"],
       },
       {
         resourceType: "archive_source_package_series",
-        operationSuffixPrefix: "archive-source-package-series",
+        namespace: ["archive-source-package-series"],
       },
     ],
     suffix: "+bug/{id=1}",
@@ -461,8 +455,8 @@ export const ROUTE_CORRECTIONS: Readonly<Record<string, RouteCorrection>> = {
     // bugs/browser/bugattachment.py:76-100: LaunchBag may select the
     // traversed task, otherwise the bug itself.
     parents: [
-      { resourceType: "bug", operationSuffixPrefix: "bug" },
-      { resourceType: "bug_task", operationSuffixPrefix: "bug-task" },
+      { resourceType: "bug", namespace: ["bug"] },
+      { resourceType: "bug_task", namespace: ["bug-task"] },
     ],
     suffix: "+attachment/{attachment_id=1}",
   },
@@ -485,20 +479,20 @@ export const ROUTE_CORRECTIONS: Readonly<Record<string, RouteCorrection>> = {
     // bugs/browser/configure.zcml:1138-1141; target implementations
     // are registry interfaces plus bugs/model/structuralsubscription.py.
     parents: [
-      { resourceType: "project", operationSuffixPrefix: "project" },
+      { resourceType: "project", namespace: ["project"] },
       {
         resourceType: "project_series",
-        operationSuffixPrefix: "project-series",
+        namespace: ["project-series"],
       },
-      { resourceType: "project_group", operationSuffixPrefix: "project-group" },
-      { resourceType: "distribution", operationSuffixPrefix: "distribution" },
-      { resourceType: "distro_series", operationSuffixPrefix: "distro-series" },
+      { resourceType: "project_group", namespace: ["project-group"] },
+      { resourceType: "distribution", namespace: ["distribution"] },
+      { resourceType: "distro_series", namespace: ["distro-series"] },
       {
         resourceType: "distribution_source_package",
-        operationSuffixPrefix: "distribution-source-package",
+        namespace: ["distribution-source-package"],
       },
-      { resourceType: "oci_project", operationSuffixPrefix: "oci-project" },
-      { resourceType: "milestone", operationSuffixPrefix: "milestone" },
+      { resourceType: "oci_project", namespace: ["oci-project"] },
+      { resourceType: "milestone", namespace: ["milestone"] },
     ],
     suffix: "+subscription/{subscriber=launchpad}",
   },
@@ -535,11 +529,11 @@ export const ROUTE_CORRECTIONS: Readonly<Record<string, RouteCorrection>> = {
     templates: ARCHIVE_TEMPLATES.flatMap((archive) => [
       {
         template: `${archive.template}/+upload/{user=launchpad}`,
-        operationSuffix: `${archive.operationSuffix}-upload`,
+        namespace: [...archive.namespace, "upload"],
       },
       {
         template: `${archive.template}/+queue-admin/{user=launchpad}`,
-        operationSuffix: `${archive.operationSuffix}-queue-admin`,
+        namespace: [...archive.namespace, "queue-admin"],
       },
     ]),
     queryParameters: [
@@ -586,12 +580,12 @@ export const ROUTE_CORRECTIONS: Readonly<Record<string, RouteCorrection>> = {
       {
         template:
           "{distribution=ubuntu}/+source/{source=bash}/{version=1.0}/+build/{id=1}",
-        operationSuffix: "source",
+        namespace: ["source"],
       },
       {
         template:
           "{distribution=ubuntu}/{source=bash}/{version=1.0}/+build/{id=1}",
-        operationSuffix: "bare-source",
+        namespace: ["bare-source"],
       },
     ],
     parents: [{ resourceType: "archive" }],
@@ -601,8 +595,8 @@ export const ROUTE_CORRECTIONS: Readonly<Record<string, RouteCorrection>> = {
     // soyuz/browser/configure.zcml:681-685; its parent is either an
     // archive or a snap base (soyuz/interfaces/archivedependency.py:39-63).
     parents: [
-      { resourceType: "archive", operationSuffixPrefix: "archive" },
-      { resourceType: "snap_base", operationSuffixPrefix: "snap-base" },
+      { resourceType: "archive", namespace: ["archive"] },
+      { resourceType: "snap_base", namespace: ["snap-base"] },
     ],
     suffix: "+dependency/{id=1}",
   },
@@ -670,16 +664,16 @@ export const ROUTE_CORRECTIONS: Readonly<Record<string, RouteCorrection>> = {
     templates: [
       {
         template: "{owner=~launchpad}/+junk/{branch=example}",
-        operationSuffix: "personal",
+        namespace: ["personal"],
       },
       {
         template: "{owner=~launchpad}/{project=launchpad}/{branch=example}",
-        operationSuffix: "project",
+        namespace: ["project"],
       },
       {
         template:
           "{owner=~launchpad}/{distribution=ubuntu}/{series=resolute}/{source=bash}/{branch=example}",
-        operationSuffix: "source-package",
+        namespace: ["source-package"],
       },
     ],
   },
@@ -687,22 +681,22 @@ export const ROUTE_CORRECTIONS: Readonly<Record<string, RouteCorrection>> = {
     templates: [
       {
         template: "{owner=~launchpad}/+git/{repository=example}",
-        operationSuffix: "personal",
+        namespace: ["personal"],
       },
       {
         template:
           "{owner=~launchpad}/{project=launchpad}/+git/{repository=launchpad}",
-        operationSuffix: "project",
+        namespace: ["project"],
       },
       {
         template:
           "{owner=~launchpad}/{distribution=ubuntu}/+source/{source=bash}/+git/{repository=example}",
-        operationSuffix: "source-package",
+        namespace: ["source-package"],
       },
       {
         template:
           "{owner=~launchpad}/{pillar=ubuntu}/+oci/{oci_project=base}/+git/{repository=example}",
-        operationSuffix: "oci-project",
+        namespace: ["oci-project"],
       },
     ],
   },
@@ -714,10 +708,10 @@ export const ROUTE_CORRECTIONS: Readonly<Record<string, RouteCorrection>> = {
   },
   branch_merge_proposal: {
     parents: [
-      { resourceType: "branch", operationSuffixPrefix: "branch" },
+      { resourceType: "branch", namespace: ["branch"] },
       {
         resourceType: "git_repository",
-        operationSuffixPrefix: "git-repository",
+        namespace: ["git-repository"],
       },
     ],
     suffix: "+merge/{id=1}",
@@ -732,10 +726,10 @@ export const ROUTE_CORRECTIONS: Readonly<Record<string, RouteCorrection>> = {
   },
   code_import: {
     parents: [
-      { resourceType: "branch", operationSuffixPrefix: "branch" },
+      { resourceType: "branch", namespace: ["branch"] },
       {
         resourceType: "git_repository",
-        operationSuffixPrefix: "git-repository",
+        namespace: ["git-repository"],
       },
     ],
     suffix: "+code-import",
@@ -774,11 +768,11 @@ export const ROUTE_CORRECTIONS: Readonly<Record<string, RouteCorrection>> = {
     templates: [
       {
         template: "{owner=~launchpad}/+snap/{snap=example}",
-        operationSuffix: "personal",
+        namespace: ["personal"],
       },
       {
         template: "{owner=~launchpad}/{project=launchpad}/+snap/{snap=example}",
-        operationSuffix: "project",
+        namespace: ["project"],
       },
     ],
   },
@@ -869,35 +863,35 @@ export const ROUTE_CORRECTIONS: Readonly<Record<string, RouteCorrection>> = {
   // answers/configure.zcml:160-183 registers series/source-package adapters.
   question: {
     parents: [
-      { resourceType: "project", operationSuffixPrefix: "project" },
-      { resourceType: "distribution", operationSuffixPrefix: "distribution" },
+      { resourceType: "project", namespace: ["project"] },
+      { resourceType: "distribution", namespace: ["distribution"] },
       {
         resourceType: "distribution_source_package",
-        operationSuffixPrefix: "distribution-source-package",
+        namespace: ["distribution-source-package"],
       },
       {
         resourceType: "project_series",
-        operationSuffixPrefix: "project-series",
+        namespace: ["project-series"],
       },
-      { resourceType: "distro_series", operationSuffixPrefix: "distro-series" },
+      { resourceType: "distro_series", namespace: ["distro-series"] },
       {
         resourceType: "source_package",
-        operationSuffixPrefix: "source-package",
+        namespace: ["source-package"],
       },
     ],
     suffix: "+question/{id=1}",
   },
   faq: {
     parents: [
-      { resourceType: "project", operationSuffixPrefix: "project" },
-      { resourceType: "distribution", operationSuffixPrefix: "distribution" },
+      { resourceType: "project", namespace: ["project"] },
+      { resourceType: "distribution", namespace: ["distribution"] },
       {
         resourceType: "distribution_source_package",
-        operationSuffixPrefix: "distribution-source-package",
+        namespace: ["distribution-source-package"],
       },
       {
         resourceType: "source_package",
-        operationSuffixPrefix: "source-package",
+        namespace: ["source-package"],
       },
     ],
     suffix: "+faq/{id=1}",
@@ -914,13 +908,13 @@ export const ROUTE_CORRECTIONS: Readonly<Record<string, RouteCorrection>> = {
   // registry/tests/test_implements.py:51-70 lists target implementations.
   specification: {
     parents: [
-      { resourceType: "project", operationSuffixPrefix: "project" },
-      { resourceType: "distribution", operationSuffixPrefix: "distribution" },
+      { resourceType: "project", namespace: ["project"] },
+      { resourceType: "distribution", namespace: ["distribution"] },
       {
         resourceType: "project_series",
-        operationSuffixPrefix: "project-series",
+        namespace: ["project-series"],
       },
-      { resourceType: "distro_series", operationSuffixPrefix: "distro-series" },
+      { resourceType: "distro_series", namespace: ["distro-series"] },
     ],
     suffix: "+spec/{specification=example}",
   },
@@ -934,7 +928,7 @@ export const ROUTE_CORRECTIONS: Readonly<Record<string, RouteCorrection>> = {
     templates: SPECIFICATION_TARGET_TEMPLATES.flatMap((target) =>
       SPECIFICATION_BRANCH_NAMES.map((branch) => ({
         template: `${target.template}/+spec/{specification=example}/+branch/${branch.template}`,
-        operationSuffix: `${target.operationSuffix}-${branch.operationSuffix}`,
+        namespace: [...target.namespace, ...branch.namespace],
       })),
     ),
   },
@@ -945,11 +939,11 @@ export const ROUTE_CORRECTIONS: Readonly<Record<string, RouteCorrection>> = {
     parents: [
       {
         resourceType: "source_package",
-        operationSuffixPrefix: "source-package",
+        namespace: ["source-package"],
       },
       {
         resourceType: "project_series",
-        operationSuffixPrefix: "project-series",
+        namespace: ["project-series"],
       },
     ],
     suffix: "+pots/{template=launchpad}",
@@ -984,10 +978,10 @@ export const ROUTE_CORRECTIONS: Readonly<Record<string, RouteCorrection>> = {
   // registry/interfaces/product.py:613 and code/interfaces/gitrepository.py:135.
   access_token: {
     parents: [
-      { resourceType: "project", operationSuffixPrefix: "project" },
+      { resourceType: "project", namespace: ["project"] },
       {
         resourceType: "git_repository",
-        operationSuffixPrefix: "git-repository",
+        namespace: ["git-repository"],
       },
     ],
     suffix: "+access-token/{id=1}",
@@ -1015,22 +1009,22 @@ export const ROUTE_CORRECTIONS: Readonly<Record<string, RouteCorrection>> = {
     // implemented by these interfaces across code, registry, Soyuz,
     // snappy, charms, OCI, and livefs.
     parents: [
-      { resourceType: "branch", operationSuffixPrefix: "branch" },
+      { resourceType: "branch", namespace: ["branch"] },
       {
         resourceType: "git_repository",
-        operationSuffixPrefix: "git-repository",
+        namespace: ["git-repository"],
       },
-      { resourceType: "project", operationSuffixPrefix: "project" },
-      { resourceType: "distribution", operationSuffixPrefix: "distribution" },
+      { resourceType: "project", namespace: ["project"] },
+      { resourceType: "distribution", namespace: ["distribution"] },
       {
         resourceType: "distribution_source_package",
-        operationSuffixPrefix: "distribution-source-package",
+        namespace: ["distribution-source-package"],
       },
-      { resourceType: "archive", operationSuffixPrefix: "archive" },
-      { resourceType: "snap", operationSuffixPrefix: "snap" },
-      { resourceType: "charm_recipe", operationSuffixPrefix: "charm-recipe" },
-      { resourceType: "oci_recipe", operationSuffixPrefix: "oci-recipe" },
-      { resourceType: "livefs", operationSuffixPrefix: "livefs" },
+      { resourceType: "archive", namespace: ["archive"] },
+      { resourceType: "snap", namespace: ["snap"] },
+      { resourceType: "charm_recipe", namespace: ["charm-recipe"] },
+      { resourceType: "oci_recipe", namespace: ["oci-recipe"] },
+      { resourceType: "livefs", namespace: ["livefs"] },
     ],
     suffix: "+webhook/{id=1}",
   },

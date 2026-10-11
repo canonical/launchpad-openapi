@@ -40,6 +40,7 @@ const publicationKinds = [
   {
     kind: "binary",
     resource: "binary_package_publishing_history",
+    subject: "binaryPackagePublishingHistory",
     operation: "binaryFileUrls",
     segment: "+binarypub",
     metadata: observedBinaryFileMetadata,
@@ -48,6 +49,7 @@ const publicationKinds = [
   {
     kind: "source",
     resource: "source_package_publishing_history",
+    subject: "sourcePackagePublishingHistory",
     operation: "sourceFileUrls",
     segment: "+sourcepub",
     metadata: sourceFileMetadata,
@@ -138,7 +140,7 @@ function updateMethod(
 describe("generated publication file response contracts", () => {
   for (const publication of publicationKinds) {
     for (const route of routes) {
-      const id = `${publication.resource}-${publication.operation}-${route.label}`;
+      const id = `${publication.subject}.${route.label}.${publication.operation}`;
       describe(`${publication.kind} ${route.label}`, () => {
         it("retains semantic operation IDs, canonical routes, and optional include_meta", () => {
           const path = `${route.prefix}/${publication.segment}/{id}?ws.op=${publication.operation}`;
@@ -297,7 +299,7 @@ describe("publication response fallback boundaries", () => {
     );
     for (const publication of publicationKinds) {
       for (const route of routes) {
-        const id = `${publication.resource}-${publication.operation}-${route.label}`;
+        const id = `${publication.subject}.${route.label}.${publication.operation}`;
         const validate = compileResponse(untyped, id);
         expect(validate([publication.metadata])).toBe(true);
         expect(validate([publication.metadata.url])).toBe(true);
@@ -325,7 +327,7 @@ describe("publication response fallback boundaries", () => {
         ),
       );
       for (const route of routes) {
-        const id = `${baseId}-${route.label}`;
+        const id = `${publication.subject}.${route.label}.${publication.operation}`;
         expect(getResponseSchema(emptyResponse, id)).toEqual(
           getResponseSchema(document, id),
         );
@@ -349,7 +351,7 @@ describe("publication response fallback boundaries", () => {
         ),
       );
       for (const route of routes) {
-        const id = `${baseId}-${route.label}`;
+        const id = `${publication.subject}.${route.label}.${publication.operation}`;
         expect(getResponseSchema(unresolved, id)).toEqual({
           type: "array",
           items: { type: "string", format: "uri" },
@@ -376,7 +378,7 @@ describe("publication response fallback boundaries", () => {
       );
       const legacy = convertWadl(wadl);
       for (const route of routes) {
-        const id = `${baseId}-${route.label}`;
+        const id = `${publication.subject}.${route.label}.${publication.operation}`;
         expect(getResponseSchema(legacy, id)).toEqual({
           type: "array",
           items: { type: "string", format: "uri" },
@@ -396,15 +398,15 @@ describe("publication response fallback boundaries", () => {
 
   it("does not widen unrelated URL operations, even one accepting include_meta", () => {
     for (const id of [
-      "source_package_publishing_history-binaryFileUrls-distribution",
-      "source_package_publishing_history-binaryFileUrls-ppa",
-      "package_upload-sourceFileUrls-series",
-      "package_upload-sourceFileUrls-explicit-series",
-      "package_upload-binaryFileUrls-series",
-      "package_upload-binaryFileUrls-explicit-series",
-      "package_upload-customFileUrls-series",
-      "package_upload-customFileUrls-explicit-series",
-      "person-binaryFileUrls",
+      "sourcePackagePublishingHistory.distribution.binaryFileUrls",
+      "sourcePackagePublishingHistory.ppa.binaryFileUrls",
+      "packageUpload.series.sourceFileUrls",
+      "packageUpload.explicitSeries.sourceFileUrls",
+      "packageUpload.series.binaryFileUrls",
+      "packageUpload.explicitSeries.binaryFileUrls",
+      "packageUpload.series.customFileUrls",
+      "packageUpload.explicitSeries.customFileUrls",
+      "person.binaryFileUrls",
     ]) {
       expect(getResponseSchema(document, id)).toEqual({
         type: "array",
@@ -428,14 +430,17 @@ describe("publication response fallback boundaries", () => {
         ),
       );
       for (const route of routes) {
-        const operation = findOperation(explicit, `${baseId}-${route.label}`);
+        const operation = findOperation(
+          explicit,
+          `${publication.subject}.${route.label}.${publication.operation}`,
+        );
         expect(
           operation.responses["200"]?.content?.["application/json"]?.schema,
         ).toEqual({ $ref: "#/components/schemas/publication-explicit" });
         expect(
           compileResponse(
             explicit,
-            `${baseId}-${route.label}`,
+            `${publication.subject}.${route.label}.${publication.operation}`,
           )([{ ...publication.metadata }]),
         ).toBe(false);
       }
@@ -451,7 +456,10 @@ describe("publication response fallback boundaries", () => {
         ),
       );
       for (const route of routes) {
-        const operation = findOperation(explicit, `${baseId}-${route.label}`);
+        const operation = findOperation(
+          explicit,
+          `${publication.subject}.${route.label}.${publication.operation}`,
+        );
         expect(Object.keys(operation.responses)).toEqual([
           "200",
           "400",

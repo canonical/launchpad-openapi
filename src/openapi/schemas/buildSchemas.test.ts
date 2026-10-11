@@ -10,8 +10,8 @@ import {
   generatorEdgeWadl,
   metadataEnrichmentWadl,
   sampleWadl,
-} from "../../testing/fixtures.js";
-import { parseWadl } from "../wadl/index.js";
+} from "../../../testing/fixtures.js";
+import { parseWadl } from "../../wadl/index.js";
 import buildSchemas from "./buildSchemas.js";
 
 function representationProperties(schemas: SchemasObject, id: string) {

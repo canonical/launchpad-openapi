@@ -50,7 +50,7 @@ describe("offline WADL conversion", () => {
     expect(Object.keys(document.paths)).toHaveLength(6);
     expect(Object.keys(document.components?.schemas ?? {})).toHaveLength(4);
     expect(document.paths["/people?ws.op=getByName"]?.get?.operationId).toBe(
-      "people-getByName",
+      "people.getByName",
     );
   });
 

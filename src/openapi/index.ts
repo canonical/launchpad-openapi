@@ -8,7 +8,7 @@
  * @module openapi
  */
 
-export { default as generateOpenApi } from "./generateOpenApi.js";
+export { default as generateOpenApi } from "./document/generateOpenApi.js";
 export { ConversionError } from "./errors.js";
 export type { GenerateOptions } from "./types.js";
 export type {

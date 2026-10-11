@@ -12,19 +12,19 @@ import {
   sampleWadl,
   semanticRoutesWadl,
   serviceRootLinks,
-} from "../../testing/fixtures.js";
-import { parseWadl } from "../wadl/index.js";
+} from "../../../testing/fixtures.js";
+import { parseWadl } from "../../wadl/index.js";
 import buildPaths from "./buildPaths.js";
-import buildSchemas from "./buildSchemas.js";
-import type * as Constants from "./constants.js";
-import type { RouteCorrection } from "./types.js";
+import buildSchemas from "../schemas/buildSchemas.js";
+import type * as Constants from "../constants.js";
+import type { RouteCorrection } from "../types.js";
 
 async function withRouteCorrections(
   overrides: Readonly<Record<string, RouteCorrection>>,
   check: (builder: typeof buildPaths) => void,
 ): Promise<void> {
   vi.resetModules();
-  vi.doMock("./constants.js", async (importOriginal) => {
+  vi.doMock("../constants.js", async (importOriginal) => {
     const constants = await importOriginal<typeof Constants>();
     return {
       ...constants,
@@ -36,12 +36,14 @@ async function withRouteCorrections(
     const { default: builder } = await import("./buildPaths.js");
     check(builder);
   } finally {
-    vi.doUnmock("./constants.js");
+    vi.doUnmock("../constants.js");
     vi.resetModules();
   }
 }
 
-function sourceRoutes(paths: PathsObject): { path: string; item: unknown }[] {
+function collectSourceRoutes(
+  paths: PathsObject,
+): { path: string; item: unknown }[] {
   const routes: { path: string; item: unknown }[] = [];
   for (const [path, item] of Object.entries(paths)) {
     routes.push({ path, item });
@@ -67,8 +69,10 @@ function sourceRoutes(paths: PathsObject): { path: string; item: unknown }[] {
   return routes;
 }
 
-function sourceRoute(paths: PathsObject, path: string): unknown {
-  const matches = sourceRoutes(paths).filter((route) => route.path === path);
+function findSourceRoute(paths: PathsObject, path: string): unknown {
+  const matches = collectSourceRoutes(paths).filter(
+    (route) => route.path === path,
+  );
   expect(matches, `Source route ${path}`).toHaveLength(1);
   return matches[0]?.item;
 }
@@ -76,14 +80,15 @@ function sourceRoute(paths: PathsObject, path: string): unknown {
 function expectSemanticItem(
   paths: PathsObject,
   path: string,
-  suffix?: string,
+  namespacePath?: string,
 ): void {
-  const ending = suffix === undefined ? "" : `-${suffix}`;
-  expect(sourceRoute(paths, path)).toMatchObject({
-    get: { operationId: `semantic_item-get${ending}` },
+  const namespacePrefix =
+    namespacePath === undefined ? "" : `${namespacePath}.`;
+  expect(findSourceRoute(paths, path)).toMatchObject({
+    get: { operationId: `semanticItem.${namespacePrefix}get` },
   });
-  expect(sourceRoute(paths, `${path}?ws.op=inspect`)).toMatchObject({
-    get: { operationId: `semantic-source-inspect${ending}` },
+  expect(findSourceRoute(paths, `${path}?ws.op=inspect`)).toMatchObject({
+    get: { operationId: `semanticItem.${namespacePrefix}inspect` },
   });
 }
 
@@ -95,7 +100,7 @@ describe("buildPaths", () => {
 
       expect(paths["/"]?.get).toMatchObject({
         tags: ["service-root"],
-        operationId: "service-root-get",
+        operationId: "serviceRoot.get",
         responses: {
           "200": {
             content: {
@@ -145,21 +150,64 @@ describe("buildPaths", () => {
     });
   });
 
-  describe("semantic operation IDs", () => {
+  describe("namespace inheritance", () => {
+    it("keeps multiword contexts whole and inherited contexts separate", async () => {
+      await withRouteCorrections(
+        {
+          semantic_item: {
+            templates: [
+              { template: "items/{item=one}", namespace: ["source-package"] },
+            ],
+          },
+          semantic_child: {
+            parents: [
+              { resourceType: "semantic_item", namespace: ["API_client"] },
+            ],
+            suffix: "+child/{child=two}",
+          },
+        },
+        (builder) => {
+          const model = parseWadl(
+            semanticRoutesWadl.replace('fixed="inspect"', 'fixed="get_a_b"'),
+          ).unwrap();
+          const paths = builder(model, buildSchemas(model.representations));
+          expect(
+            findSourceRoute(paths, "/items/{item}/+child/{child}"),
+          ).toMatchObject({
+            get: {
+              operationId: "semanticChild.apiClient.sourcePackage.get",
+              "x-launchpad-naming-path": {
+                subject: "semanticChild",
+                namespace: ["apiClient", "sourcePackage"],
+                operation: "get",
+              },
+            },
+          });
+          expect(
+            findSourceRoute(paths, "/items/{item}?ws.op=get_a_b"),
+          ).toMatchObject({
+            get: { operationId: "semanticItem.sourcePackage.getAB" },
+          });
+        },
+      );
+    });
+  });
+
+  describe("operation identity and stability", () => {
     it.each([
       ["/{distribution}/+archive/{archive}", "distribution"],
       ["/{owner}/+archive/{distribution}/{archive}", "ppa"],
     ])(
       "labels standard and getPublishedSources archive operations at %s",
-      (path, suffix) => {
+      (path, namespacePath) => {
         const model = parseWadl(curatedPathsWadl).unwrap();
         const paths = buildPaths(model, buildSchemas(model.representations));
         expect
           .soft(paths[path]?.get?.operationId)
-          .toBe(`archive-get-${suffix}`);
+          .toBe(`archive.${namespacePath}.get`);
         expect
           .soft(paths[`${path}?ws.op=getPublishedSources`]?.get?.operationId)
-          .toBe(`archive-getPublishedSources-${suffix}`);
+          .toBe(`archive.${namespacePath}.getPublishedSources`);
       },
     );
 
@@ -178,14 +226,14 @@ describe("buildPaths", () => {
             .toBe(canonical["/{person}"]?.[verb]?.operationId);
           expect
             .soft(aliased[`/${aliasPath}`]?.[verb]?.operationId)
-            .toBe(`person-${verb}-me`);
+            .toBe(`person.me.${verb}`);
         }
         expect
           .soft(aliased["/{person}?ws.op=getMembers"]?.get?.operationId)
-          .toBe("person-getMembers");
+          .toBe("person.getMembers");
         expect
           .soft(aliased[`/${aliasPath}?ws.op=getMembers`]?.get?.operationId)
-          .toBe("person-getMembers-me");
+          .toBe("person.me.getMembers");
       },
     );
 
@@ -194,13 +242,13 @@ describe("buildPaths", () => {
       const paths = buildPaths(model, buildSchemas(model.representations), {
         people_collection_link: `${model.baseUrl}/directory`,
       });
-      expect.soft(paths["/people"]?.get?.operationId).toBe("people-get");
+      expect.soft(paths["/people"]?.get?.operationId).toBe("people.get");
       expect
         .soft(paths["/directory"]?.get?.operationId)
-        .toBe("people-get-people");
+        .toBe("people.people.get");
       expect
         .soft(paths["/directory?ws.op=getByName"]?.get?.operationId)
-        .toBe("people-getByName-people");
+        .toBe("people.people.getByName");
     });
 
     it("keeps field-derived IDs for uncatalogued resources as root routes are added", () => {
@@ -230,9 +278,9 @@ describe("buildPaths", () => {
         future_collection_link: `${model.baseUrl}/future`,
         other_collection_link: `${model.baseUrl}/other`,
       });
-      expect(single["/future"]?.get?.operationId).toBe("unknown-get-future");
-      expect(multiple["/future"]?.get?.operationId).toBe("unknown-get-future");
-      expect(multiple["/other"]?.get?.operationId).toBe("unknown-get-other");
+      expect(single["/future"]?.get?.operationId).toBe("unknown.future.get");
+      expect(multiple["/future"]?.get?.operationId).toBe("unknown.future.get");
+      expect(multiple["/other"]?.get?.operationId).toBe("unknown.other.get");
     });
 
     it("deduplicates exact canonical root links without dropping canonical parameters", () => {
@@ -243,14 +291,14 @@ describe("buildPaths", () => {
         people_collection_link: `${model.baseUrl}/people`,
         me_link: `${model.baseUrl}/{person}`,
       });
-      expect(sourceRoute(linked, "/people")).toEqual(
-        sourceRoute(canonical, "/people"),
+      expect(findSourceRoute(linked, "/people")).toEqual(
+        findSourceRoute(canonical, "/people"),
       );
-      expect(sourceRoute(linked, "/{person}")).toEqual(
-        sourceRoute(canonical, "/{person}"),
+      expect(findSourceRoute(linked, "/{person}")).toEqual(
+        findSourceRoute(canonical, "/{person}"),
       );
-      expect(sourceRoute(linked, "/{person}?ws.op=getMembers")).toEqual(
-        sourceRoute(canonical, "/{person}?ws.op=getMembers"),
+      expect(findSourceRoute(linked, "/{person}?ws.op=getMembers")).toEqual(
+        findSourceRoute(canonical, "/{person}?ws.op=getMembers"),
       );
     });
 
@@ -297,8 +345,8 @@ describe("buildPaths", () => {
         me_link: `${model.baseUrl}/{person}`,
         current_person_link: `${model.baseUrl}/{person}`,
       });
-      expect(sourceRoute(linked, "/{person}")).toEqual(
-        sourceRoute(canonical, "/{person}"),
+      expect(findSourceRoute(linked, "/{person}")).toEqual(
+        findSourceRoute(canonical, "/{person}"),
       );
     });
 
@@ -313,18 +361,16 @@ describe("buildPaths", () => {
       const paths = buildPaths(model, buildSchemas(model.representations), {
         me_link: `${model.baseUrl}/people/+me`,
       });
-      expect(sourceRoute(paths, "/people/+me")).toMatchObject({
-        get: { operationId: "person-get-me" },
+      expect(findSourceRoute(paths, "/people/+me")).toMatchObject({
+        get: { operationId: "person.me.get" },
       });
     });
 
-    it("retains a canonical semantic suffix when a root alias exactly matches it", async () => {
+    it("retains a canonical namespace when a root alias exactly matches it", async () => {
       await withRouteCorrections(
         {
           person: {
-            templates: [
-              { template: "people/+me", operationSuffix: "canonical" },
-            ],
+            templates: [{ template: "people/+me", namespace: ["canonical"] }],
           },
         },
         (builder) => {
@@ -334,13 +380,13 @@ describe("buildPaths", () => {
             buildSchemas(model.representations),
             serviceRootLinks,
           );
-          expect(sourceRoute(paths, "/people/+me")).toMatchObject({
-            get: { operationId: "person-get-canonical" },
+          expect(findSourceRoute(paths, "/people/+me")).toMatchObject({
+            get: { operationId: "person.canonical.get" },
           });
           expect(
-            sourceRoute(paths, "/people/+me?ws.op=getMembers"),
+            findSourceRoute(paths, "/people/+me?ws.op=getMembers"),
           ).toMatchObject({
-            get: { operationId: "person-getMembers-canonical" },
+            get: { operationId: "person.canonical.getMembers" },
           });
         },
       );
@@ -352,7 +398,7 @@ describe("buildPaths", () => {
       { name: "reordered variants", variants: ["distribution", "project"] },
       { name: "removed project variant", variants: ["distribution"] },
     ])(
-      "preserves IDs with $name, including an explicitly unsuffixed route",
+      "preserves IDs with $name, including a route without a namespace",
       async ({ variants }) => {
         await withRouteCorrections(
           {
@@ -361,7 +407,7 @@ describe("buildPaths", () => {
                 { template: "items/{item=one}" },
                 ...variants.map((variant) => ({
                   template: `{${variant}=example}/+items/{item=one}`,
-                  operationSuffix: variant,
+                  namespace: [variant],
                 })),
               ],
             },
@@ -375,23 +421,23 @@ describe("buildPaths", () => {
             const paths = builder(model, buildSchemas(model.representations));
             expectSemanticItem(paths, "/items/{item}");
             expect(
-              sourceRoute(paths, "/items/{item}/+child/{child}"),
+              findSourceRoute(paths, "/items/{item}/+child/{child}"),
             ).toMatchObject({
-              get: { operationId: "semantic_child-get" },
+              get: { operationId: "semanticChild.get" },
             });
             for (const variant of variants) {
               const path = `/{${variant}}/+items/{item}`;
               expectSemanticItem(paths, path, variant);
               expect(
-                sourceRoute(paths, `${path}/+child/{child}`),
+                findSourceRoute(paths, `${path}/+child/{child}`),
               ).toMatchObject({
-                get: { operationId: `semantic_child-get-${variant}` },
+                get: { operationId: `semanticChild.${variant}.get` },
               });
             }
             for (const variant of ["project", "distribution"]) {
               if (variants.includes(variant)) continue;
               expect(
-                sourceRoutes(paths).map((route) => route.path),
+                collectSourceRoutes(paths).map((route) => route.path),
               ).not.toContain(`/{${variant}}/+items/{item}`);
             }
           },
@@ -410,20 +456,20 @@ describe("buildPaths", () => {
         const templates = [
           {
             template: "{distribution=ubuntu}/+archive/{archive=primary}",
-            operationSuffix: "distribution",
+            namespace: ["distribution"],
           },
           {
             template:
               "{owner=~launchpad}/+archive/{distribution=ubuntu}/{archive=ppa}",
-            operationSuffix: "ppa",
+            namespace: ["ppa"],
           },
         ];
         const parents = [
-          { resourceType: "archive", operationSuffixPrefix: "archive" },
-          { resourceType: "project", operationSuffixPrefix: "project" },
+          { resourceType: "archive", namespace: ["archive"] },
+          { resourceType: "project", namespace: ["project"] },
           {
             resourceType: "distribution",
-            operationSuffixPrefix: "distribution",
+            namespace: ["distribution"],
           },
         ];
         await withRouteCorrections(
@@ -447,23 +493,23 @@ describe("buildPaths", () => {
           (builder) => {
             const model = parseWadl(semanticRoutesWadl).unwrap();
             const paths = builder(model, buildSchemas(model.representations));
-            for (const [path, suffix] of [
+            for (const [path, namespacePath] of [
               [
                 "/{distribution}/+archive/{archive}/+item/{item}",
-                "archive-distribution",
+                "archive.distribution",
               ],
               [
                 "/{owner}/+archive/{distribution}/{archive}/+item/{item}",
-                "archive-ppa",
+                "archive.ppa",
               ],
               ["/{project}/+item/{item}", "project"],
               ["/{distribution}/+item/{item}", "distribution"],
             ]) {
-              expectSemanticItem(paths, path, suffix);
+              expectSemanticItem(paths, path, namespacePath);
               expect(
-                sourceRoute(paths, `${path}/+child/{child}`),
+                findSourceRoute(paths, `${path}/+child/{child}`),
               ).toMatchObject({
-                get: { operationId: `semantic_child-get-${suffix}` },
+                get: { operationId: `semanticChild.${namespacePath}.get` },
               });
             }
           },
@@ -472,30 +518,31 @@ describe("buildPaths", () => {
     );
 
     it.each([undefined, "explicit"])(
-      "preserves missing source IDs and named fallbacks with suffix %s",
-      async (operationSuffix) => {
+      "uses declared HTTP and ws.op names when XML IDs are absent with namespace %s",
+      async (namespaceLabel) => {
         await withRouteCorrections(
           {
             anonymous_route: {
-              templates: [{ template: "anonymous", operationSuffix }],
+              templates: [
+                {
+                  template: "anonymous",
+                  namespace:
+                    namespaceLabel === undefined ? [] : [namespaceLabel],
+                },
+              ],
             },
           },
           (builder) => {
             const model = parseWadl(semanticRoutesWadl).unwrap();
             const paths = builder(model, buildSchemas(model.representations));
-            const ending =
-              operationSuffix === undefined ? "" : `-${operationSuffix}`;
+            const namespacePrefix =
+              namespaceLabel === undefined ? "" : `${namespaceLabel}.`;
             const standard = paths["/anonymous"]?.get;
-            if (operationSuffix === undefined) {
-              expect(standard).toBeDefined();
-              expect(standard).not.toHaveProperty("operationId");
-            } else {
-              expect(standard?.operationId).toBe(
-                `anonymous_route-get${ending}`,
-              );
-            }
+            expect(standard?.operationId).toBe(
+              `anonymousRoute.${namespacePrefix}get`,
+            );
             expect(paths["/anonymous?ws.op=inspect"]?.get?.operationId).toBe(
-              `anonymous_route-inspect${ending}`,
+              `anonymousRoute.${namespacePrefix}inspect`,
             );
           },
         );
@@ -507,8 +554,8 @@ describe("buildPaths", () => {
         {
           semantic_item: {
             templates: [
-              { template: "items/{item=one}", operationSuffix: "item" },
-              { template: "items/{item=one}", operationSuffix: "item" },
+              { template: "items/{item=one}", namespace: ["item"] },
+              { template: "items/{item=one}", namespace: ["item"] },
             ],
           },
         },
@@ -522,13 +569,19 @@ describe("buildPaths", () => {
 
     it.each([undefined, "other"])(
       "rejects conflicting labels for one canonical template (%s)",
-      async (otherSuffix) => {
+      async (otherNamespaceLabel) => {
         await withRouteCorrections(
           {
             semantic_item: {
               templates: [
-                { template: "items/{item=one}", operationSuffix: "item" },
-                { template: "items/{item=one}", operationSuffix: otherSuffix },
+                { template: "items/{item=one}", namespace: ["item"] },
+                {
+                  template: "items/{item=one}",
+                  namespace:
+                    otherNamespaceLabel === undefined
+                      ? []
+                      : [otherNamespaceLabel],
+                },
               ],
             },
           },
@@ -544,31 +597,21 @@ describe("buildPaths", () => {
       },
     );
 
-    it("rejects reused final IDs and reports both route and method origins", async () => {
+    it("rejects normalized ID collisions and reports both route and method origins", async () => {
       await withRouteCorrections(
         {
           semantic_item: {
             templates: [
-              { template: "alpha/{item=one}", operationSuffix: "duplicate" },
-              { template: "beta/{item=one}", operationSuffix: "duplicate" },
+              { template: "alpha/{item=one}", namespace: ["source_package"] },
+              { template: "beta/{item=one}", namespace: ["source-package"] },
             ],
           },
         },
         (builder) => {
           const model = parseWadl(semanticRoutesWadl).unwrap();
-          let failure: unknown;
-          try {
-            builder(model, buildSchemas(model.representations));
-          } catch (error) {
-            failure = error;
-          }
-          expect(failure).toBeInstanceOf(Error);
-          if (!(failure instanceof Error))
-            throw new Error("Expected an operation ID conflict");
-          expect(failure.message).toContain("semantic_item-get-duplicate");
-          expect(failure.message).toContain("/alpha/{item}");
-          expect(failure.message).toContain("/beta/{item}");
-          expect(failure.message).toMatch(/get/i);
+          expect(() => builder(model, {})).toThrow(
+            /semanticItem.sourcePackage.get:.*GET \/alpha\/\{item\}.*GET \/beta\/\{item\}/,
+          );
         },
       );
     });
@@ -585,7 +628,7 @@ describe("buildPaths", () => {
 
       expect(paths["/people"]?.get?.summary).toBe("List people");
       expect(paths["/people?ws.op=getByName"]?.get?.operationId).toBe(
-        "people-getByName",
+        "people.getByName",
       );
       expect(paths["/people?ws.op=newTeam"]?.post?.requestBody).toBeDefined();
       expect(paths["/people/+me"]).toMatchObject({
@@ -603,8 +646,8 @@ describe("buildPaths", () => {
       const standard = paths["/bugs/{id}"]?.get;
       const named = paths["/bugs/{id}?ws.op=isActive"]?.get;
 
-      expect(standard?.operationId).toBe("bug-get");
-      expect(named?.operationId).toBe("bug-isActive");
+      expect(standard?.operationId).toBe("bug.get");
+      expect(named?.operationId).toBe("bug.isActive");
       for (const operation of [standard, named]) {
         const parameters = operation?.parameters?.filter(
           (parameter) => "in" in parameter && parameter.in === "path",

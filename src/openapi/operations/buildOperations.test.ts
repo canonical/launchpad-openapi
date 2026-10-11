@@ -10,10 +10,13 @@ import {
   generatorEdgeWadl,
   responseStatusWadl,
   sampleWadl,
-} from "../../testing/fixtures.js";
-import { parseWadl, type WadlMethod } from "../wadl/index.js";
-import { buildNamedOperation, buildStandardOperation } from "./operations.js";
-import buildSchemas from "./buildSchemas.js";
+} from "../../../testing/fixtures.js";
+import { parseWadl, type WadlMethod } from "../../wadl/index.js";
+import {
+  buildNamedOperation,
+  buildStandardOperation,
+} from "./buildOperations.js";
+import buildSchemas from "../schemas/buildSchemas.js";
 
 function findMethod(methods: WadlMethod[], wsOp: string): WadlMethod {
   const method = methods.find((candidate) => candidate.wsOp === wsOp);
@@ -45,6 +48,39 @@ function branchOperation(
 }
 
 describe("buildStandardOperation", () => {
+  describe("operation naming", () => {
+    it.each([
+      [undefined, "get"],
+      ["person-get", "get"],
+      ["getByURL", "getByUrl"],
+      ["people-get", "peopleGet"],
+      ["person_get", "personGet"],
+      ["person-person-get", "personGet"],
+    ])("uses the exact resource prefix or HTTP fallback for %s", (id, name) => {
+      const model = parseWadl(sampleWadl).unwrap();
+      const method = model.resourceTypes.person?.methods[0];
+      assert(method !== undefined);
+
+      expect(
+        buildStandardOperation({
+          method: { ...method, id },
+          verb: "get",
+          resourceTypeId: "person",
+          namespace: ["API_client", "source-package"],
+          pathParams: [],
+          schemas: {},
+        }),
+      ).toMatchObject({
+        operationId: `person.apiClient.sourcePackage.${name}`,
+        "x-launchpad-naming-path": {
+          subject: "person",
+          namespace: ["apiClient", "sourcePackage"],
+          operation: name,
+        },
+      });
+    });
+  });
+
   describe("read operations", () => {
     it("distinguishes collection lists from entry reads", () => {
       const sample = parseWadl(sampleWadl).unwrap();
@@ -71,7 +107,12 @@ describe("buildStandardOperation", () => {
         tags: ["people"],
         summary: "List people",
         description: "Collection of people.",
-        operationId: "people-get",
+        operationId: "people.get",
+        "x-launchpad-naming-path": {
+          subject: "people",
+          namespace: [],
+          operation: "get",
+        },
         parameters: [
           expect.objectContaining({
             name: "ws.start",
@@ -210,7 +251,12 @@ describe("buildStandardOperation", () => {
       ).toEqual({
         tags: ["person"],
         summary: "Delete person",
-        operationId: "person-delete",
+        operationId: "person.delete",
+        "x-launchpad-naming-path": {
+          subject: "person",
+          namespace: [],
+          operation: "delete",
+        },
         responses: { "200": { description: "Resource deleted." } },
       });
       const unresolved = buildStandardOperation({
@@ -277,6 +323,34 @@ describe("buildStandardOperation", () => {
 });
 
 describe("buildNamedOperation", () => {
+  describe("operation naming", () => {
+    it("uses ws.op rather than the XML method ID or description", () => {
+      const model = parseWadl(sampleWadl).unwrap();
+      const method = findMethod(
+        model.resourceTypes.people?.methods ?? [],
+        "getByName",
+      );
+
+      expect(
+        buildNamedOperation({
+          method: { ...method, id: "opaque-xml-id", doc: "An unrelated name." },
+          wsOp: "get_by_URL",
+          resourceTypeId: "people",
+          namespace: ["API_client"],
+          pathParams: [],
+          schemas: {},
+        }),
+      ).toMatchObject({
+        operationId: "people.apiClient.getByUrl",
+        "x-launchpad-naming-path": {
+          subject: "people",
+          namespace: ["apiClient"],
+          operation: "getByUrl",
+        },
+      });
+    });
+  });
+
   it("retains named POST success, error, and schema-less non-JSON statuses", () => {
     const model = parseWadl(responseStatusWadl).unwrap();
     const methods = model.resourceTypes.bug?.methods;
@@ -325,7 +399,7 @@ describe("buildNamedOperation", () => {
         tags: ["people"],
         summary: "Get by name",
         description: "Find a person by name. :return: a string URL",
-        operationId: "people-getByName",
+        operationId: "people.getByName",
         parameters: [
           {
             name: "name",
@@ -368,7 +442,7 @@ describe("buildNamedOperation", () => {
         schemas: buildSchemas(model.representations),
       });
 
-      expect(operation.operationId).toBe("bug-isActive");
+      expect(operation.operationId).toBe("bug.isActive");
       expect(operation.parameters).toEqual([
         pathParam,
         {

@@ -291,18 +291,25 @@ describe("generated WADL response statuses", () => {
     });
   });
 
-  it("honors an explicit service-root status without losing its operation metadata", () => {
-    const wadl = sampleWadl.replace(
-      '<wadl:response><wadl:representation href="#service-root-json"/></wadl:response>',
-      '<wadl:response status="201"><wadl:representation href="#service-root-json"/></wadl:response>',
-    );
+  it("honors an explicit service-root status independently of its opaque XML method ID", () => {
+    const wadl = sampleWadl
+      .replace('id="service-root-get"', 'id="opaque.root.get"')
+      .replace(
+        '<wadl:response><wadl:representation href="#service-root-json"/></wadl:response>',
+        '<wadl:response status="201"><wadl:representation href="#service-root-json"/></wadl:response>',
+      );
     const document = generateOpenApi(parseWadl(wadl).unwrap()).unwrap();
     const root = document.paths["/"]?.get;
     assert(root !== undefined);
 
     expect(root).toMatchObject({
       tags: ["service-root"],
-      operationId: "service-root-get",
+      operationId: "serviceRoot.get",
+      "x-launchpad-naming-path": {
+        subject: "serviceRoot",
+        namespace: [],
+        operation: "get",
+      },
     });
     expect(Object.keys(root.responses)).toEqual(["201"]);
     expect(root.responses["201"]?.content).toEqual({

@@ -15,11 +15,10 @@ import type {
   ParameterObject,
   ReferenceObject,
   RequestBodyObject,
-  ResponseObject,
   SchemaObject,
   SchemasObject,
 } from "openapi3-ts/oas30";
-import type { WadlMethod, WadlParam, WadlResponse } from "../wadl/index.js";
+import type { WadlMethod, WadlParam } from "../../wadl/index.js";
 import {
   BRANCH_FULL_SCHEMA_ID,
   COLLECTION_PAGING_PARAMETERS,
@@ -28,25 +27,33 @@ import {
   JSON_MEDIA_TYPE,
   NULLABLE_BRANCH_SCHEMA_ID,
   REVIEWED_NAMED_OPERATIONS,
-  type SupportedHttpMethod,
-} from "./constants.js";
-import buildParamSchema from "./buildParamSchema.js";
+} from "../constants.js";
+import buildParamSchema from "../schemas/buildParamSchema.js";
+import buildOperationNaming from "../naming/buildOperationNaming.js";
+import {
+  buildOkResponse,
+  buildResponses,
+  buildStandardResponses,
+  findResponseSchema,
+  isJsonMediaType,
+} from "../responses/buildResponses.js";
+import type { IdentifiedOperation, SupportedHttpMethod } from "../types.js";
 
-interface StandardOperationArgs {
+interface OperationArgs {
   method: WadlMethod;
-  verb: SupportedHttpMethod;
   resourceTypeId: string;
-  resourceTypeDoc?: string;
+  namespace?: readonly string[];
   pathParams: ParameterObject[];
   schemas: SchemasObject;
 }
 
-interface NamedOperationArgs {
-  method: WadlMethod;
+interface StandardOperationArgs extends OperationArgs {
+  verb: SupportedHttpMethod;
+  resourceTypeDoc?: string;
+}
+
+interface NamedOperationArgs extends OperationArgs {
   wsOp: string;
-  resourceTypeId: string;
-  pathParams: ParameterObject[];
-  schemas: SchemasObject;
 }
 
 /** Build a resource operation, retaining declared responses or a legacy 200. */
@@ -55,9 +62,10 @@ export function buildStandardOperation({
   verb,
   resourceTypeId,
   resourceTypeDoc,
+  namespace,
   pathParams,
   schemas,
-}: StandardOperationArgs): OperationObject {
+}: StandardOperationArgs): IdentifiedOperation {
   const responseId =
     verb === "get"
       ? findResponseSchema(
@@ -75,16 +83,16 @@ export function buildStandardOperation({
     verb === "get" && responseId?.endsWith("-page")
       ? "List"
       : ACTION_BY_VERB[verb];
-  const operation: OperationObject = {
+  const operation: IdentifiedOperation = {
     tags: [resourceTypeId],
     summary: `${action} ${toLowercaseWords(resourceTypeId)}`.trim(),
     description: resourceTypeDoc,
-    operationId: method.id,
-    responses: buildResponses(method.responses, schemas, (statusless) =>
-      verb === "delete"
-        ? { description: "Resource deleted." }
-        : buildOkResponse(findResponseSchema(statusless, schemas)),
-    ),
+    ...buildOperationNaming({
+      subject: resourceTypeId,
+      namespace: namespace ?? [],
+      operation: resolveStandardOperationName(method.id, resourceTypeId, verb),
+    }),
+    responses: buildStandardResponses(method.responses, schemas, verb),
   };
   if (pathParams.length) operation.parameters = [...pathParams];
   if (verb === "get") {
@@ -106,6 +114,17 @@ export function buildStandardOperation({
   return operation;
 }
 
+/** Use a declared method ID, stripping only the exact resource prefix once. */
+function resolveStandardOperationName(
+  methodId: string | undefined,
+  resourceTypeId: string,
+  verb: SupportedHttpMethod,
+): string {
+  if (methodId === undefined) return verb;
+  const prefix = `${resourceTypeId}-`;
+  return methodId.startsWith(prefix) ? methodId.slice(prefix.length) : methodId;
+}
+
 /** CRUD summary actions per HTTP verb; Launchpad routes POST through `ws.op`. */
 const ACTION_BY_VERB: Record<SupportedHttpMethod, string> = {
   get: "Get",
@@ -116,15 +135,21 @@ const ACTION_BY_VERB: Record<SupportedHttpMethod, string> = {
 };
 
 /** Build a named `ws.op` operation with declared or inferred responses. */
-export function buildNamedOperation(args: NamedOperationArgs): OperationObject {
-  const { method, wsOp, resourceTypeId, schemas } = args;
+export function buildNamedOperation(
+  args: NamedOperationArgs,
+): IdentifiedOperation {
+  const { method, wsOp, resourceTypeId, namespace, pathParams, schemas } = args;
   const reviewed =
     method.id === undefined ? undefined : REVIEWED_NAMED_OPERATIONS[method.id];
-  const operation: OperationObject = {
+  const operation: IdentifiedOperation = {
     tags: [resourceTypeId],
     summary: toSentenceCase(wsOp),
     description: method.doc,
-    operationId: method.id ?? `${resourceTypeId}-${wsOp}`,
+    ...buildOperationNaming({
+      subject: resourceTypeId,
+      namespace: namespace ?? [],
+      operation: wsOp,
+    }),
     responses: {},
   };
   if (method.formEncoded) {
@@ -179,7 +204,6 @@ export function buildNamedOperation(args: NamedOperationArgs): OperationObject {
     },
     nullableBranch,
   );
-  const { pathParams } = args;
   if (method.formEncoded) {
     if (pathParams.length) operation.parameters = [...pathParams];
   } else {
@@ -421,152 +445,6 @@ function buildQueryParameter(
     parameter.explode = true;
   }
   return parameter;
-}
-
-/** Retain the legacy first-known response reference regardless of media. */
-function findResponseSchema(
-  responses: WadlResponse[],
-  schemas: SchemasObject,
-): ReferenceObject | undefined {
-  for (const response of responses) {
-    for (const representation of response.representations) {
-      if (representation.id !== undefined && representation.id in schemas) {
-        return { $ref: `#/components/schemas/${representation.id}` };
-      }
-    }
-  }
-  return undefined;
-}
-
-/**
- * Keep declared statuses and their media together; infer a legacy 200 only
- * when a WADL response has no status or no response was declared at all.
- */
-function buildResponses(
-  wadlResponses: WadlResponse[],
-  schemas: SchemasObject,
-  legacyResponse: (statusless: WadlResponse[]) => ResponseObject,
-  nullableBranch?: SchemaObject | ReferenceObject,
-): Record<string, ResponseObject> {
-  const responses: Record<string, ResponseObject> = {};
-  const statusless: WadlResponse[] = [];
-  for (const wadlResponse of wadlResponses) {
-    if (wadlResponse.statusCodes.length === 0) {
-      statusless.push(wadlResponse);
-      continue;
-    }
-    for (const status of wadlResponse.statusCodes) {
-      const response = (responses[status] ??= {
-        description: wadlResponse.doc ?? "Response",
-      });
-      if (wadlResponse.doc && response.description === "Response") {
-        response.description = wadlResponse.doc;
-      }
-      addRepresentations(
-        response,
-        wadlResponse,
-        schemas,
-        status.startsWith("2") ? nullableBranch : undefined,
-      );
-    }
-  }
-  if (statusless.length > 0 || Object.keys(responses).length === 0) {
-    const fallback = legacyResponse(statusless);
-    const doc = statusless.find((response) => response.doc)?.doc;
-    if (doc !== undefined) fallback.description = doc;
-    const existing = responses["200"];
-    if (existing === undefined) {
-      responses["200"] = fallback;
-    } else {
-      if (existing.description === "Response") {
-        existing.description = fallback.description;
-      }
-      for (const [media, value] of Object.entries(fallback.content ?? {})) {
-        mergeResponseMedia(existing, media, value.schema);
-      }
-    }
-  }
-  return responses;
-}
-
-/** Recognize JSON media types, including structured suffixes and parameters. */
-function isJsonMediaType(media: string): boolean {
-  return /^application\/(?:json|[^/;\s]+\+json)(?:\s*;|$)/i.test(media);
-}
-
-/**
- * Merge schemas as alternatives when WADL declares the same status/media twice.
- * @note - Mutates the response being assembled by the caller.
- */
-function mergeResponseMedia(
-  response: ResponseObject,
-  media: string,
-  schema: SchemaObject | ReferenceObject | undefined,
-): void {
-  const content = (response.content ??= {});
-  const current = content[media];
-  if (schema === undefined) {
-    content[media] ??= {};
-    return;
-  }
-  const previous = current?.schema;
-  if (previous === undefined) {
-    content[media] = { schema };
-    return;
-  }
-  const alternatives = "$ref" in previous ? undefined : previous.anyOf;
-  const candidates = alternatives ?? [previous];
-  const duplicate = candidates.some(
-    (candidate) =>
-      candidate === schema ||
-      ("$ref" in candidate &&
-        "$ref" in schema &&
-        candidate.$ref === schema.$ref),
-  );
-  if (!duplicate) {
-    content[media] = { schema: { anyOf: [...candidates, schema] } };
-  }
-}
-
-/**
- * Attach advertised media and resolved JSON references without guessing unknown types.
- * @note - Mutates the response being assembled by the caller.
- */
-function addRepresentations(
-  response: ResponseObject,
-  wadlResponse: WadlResponse,
-  schemas: SchemasObject,
-  nullableBranch?: SchemaObject | ReferenceObject,
-): void {
-  for (const representation of wadlResponse.representations) {
-    const media =
-      representation.mediaType ??
-      (representation.id !== undefined && representation.id in schemas
-        ? JSON_MEDIA_TYPE
-        : undefined);
-    if (!media) continue;
-    const schema =
-      isJsonMediaType(media) &&
-      representation.id !== undefined &&
-      representation.id in schemas
-        ? representation.id === BRANCH_FULL_SCHEMA_ID && nullableBranch
-          ? nullableBranch
-          : { $ref: `#/components/schemas/${representation.id}` }
-        : undefined;
-    mergeResponseMedia(response, media, schema);
-  }
-}
-
-/** Build a successful response with an optional JSON schema. */
-function buildOkResponse(
-  schema?: SchemaObject | ReferenceObject,
-  description = "Successful response",
-): ResponseObject {
-  const response: ResponseObject = { description };
-  if (schema !== undefined) {
-    response.content = { [JSON_MEDIA_TYPE]: { schema } };
-  }
-  return response;
 }
 
 /** Match a normalized Sphinx `return:` field up to the next field label. */

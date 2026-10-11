@@ -15,4 +15,5 @@ Read the applicable guides in [docs/code-standards/](docs/code-standards/). Cons
   the implementation agent passes tests without weakening them;
   independent QA checks the contract and actual behavior.
   Report verification. Do not commit or push unless explicitly requested.
-- Run a focused test for changed behavior, then the relevant `pnpm` checks before finishing.
+- Focus tests on meaningful contracts rather than every implementation detail.
+- Write documentation that explains decisions and behavior, not code inventories.

@@ -14,13 +14,13 @@ import {
   type SerializedFieldMetadata,
   type WadlParam,
   type WadlRepresentation,
-} from "../wadl/index.js";
+} from "../../wadl/index.js";
 import {
   BRANCH_FULL_SCHEMA_ID,
   ENTRY_SELF_LINK_PATH,
   NULLABLE_BRANCH_SCHEMA_ID,
   RESOURCE_ENUM_CORRECTIONS,
-} from "./constants.js";
+} from "../constants.js";
 import buildParamSchema from "./buildParamSchema.js";
 
 /** Build reusable component schemas from WADL JSON representations. */
