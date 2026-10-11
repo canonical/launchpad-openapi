@@ -51,7 +51,7 @@ function buildRepresentationSchema(
   schemaIds: Set<string>,
 ): SchemaObject {
   const properties: Record<string, SchemaObject> = {};
-  const required: string[] = [];
+  const required = new Set<string>();
   const entryItems = findEntryItemsSchema(representation.fields, schemaIds);
   const serializedFields = resolveRepresentationMetadata(id);
   const enumCorrections = RESOURCE_ENUM_CORRECTIONS[id];
@@ -76,17 +76,22 @@ function buildRepresentationSchema(
     if (property.type === "array" && field.name === "entries" && entryItems) {
       property.items = entryItems;
     }
+    // This response guarantee is independent of WADL type overrides. OpenAPI
+    // readOnly keeps required serializer fields out of shared PUT inputs.
+    if (metadata?.responseRequired === true) property.readOnly = true;
     properties[field.name] = property;
-    if (field.required) required.push(field.name);
+    if (field.required || metadata?.responseRequired === true) {
+      required.add(field.name);
+    }
   }
 
   const schema: SchemaObject = { type: "object" };
   if (Object.keys(properties).length) schema.properties = properties;
-  if (required.length) schema.required = required;
+  if (required.size) schema.required = [...required];
   return schema;
 }
 
-/** Fill absent types from serialized metadata; retain WADL shape and presence. */
+/** Fill absent types from serialized metadata; retain WADL shape and type precedence. */
 function buildResourceFieldSchema(
   field: WadlParam,
   metadata: SerializedFieldMetadata | undefined,

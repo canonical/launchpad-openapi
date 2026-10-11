@@ -241,6 +241,81 @@ export const sampleWadl = `<?xml version="1.0"?>
   <wadl:resource_type><wadl:method name="GET"/></wadl:resource_type>
 </wadl:application>`;
 
+/** Serializer fields declared without required flags, including synthetic input names. */
+export const serializerFieldsWadl = sampleWadl
+  .replace(
+    '<wadl:representation mediaType="application/json" id="person-full">',
+    `<wadl:representation mediaType="application/json" id="person-full">
+    <wadl:param name="web_link"><wadl:doc>The browser URL.</wadl:doc><wadl:link/></wadl:param>
+    <wadl:param name="resource_type_link"><wadl:link/></wadl:param>
+    <wadl:param name="http_etag"/>
+    <wadl:param name="web_link_alias"/>
+    <wadl:param name="self_linked"/>`,
+  )
+  .replace(
+    '<wadl:representation mediaType="application/json" id="person-page">',
+    `<wadl:representation mediaType="application/json" id="person-page">
+    <wadl:param name="resource_type_link"><wadl:link/></wadl:param>
+    <wadl:param name="total_size_link"/>
+    <wadl:param name="next_collection_link"/>
+    <wadl:param name="prev_collection_link"/>`,
+  )
+  .replace(
+    'name="total_size" path="$[\'total_size\']" required="true"',
+    'name="total_size" path="$[\'total_size\']"',
+  )
+  .replace(
+    '<wadl:representation mediaType="application/json" id="service-root-json">',
+    `<wadl:representation mediaType="application/json" id="service-root-json">
+    <wadl:param name="resource_type_link"><wadl:link/></wadl:param>
+    <wadl:param name="self_link"/>
+    <wadl:param name="web_link"/>
+    <wadl:param name="http_etag"/>`,
+  )
+  .replace(
+    "</wadl:application>",
+    `<wadl:representation mediaType="application/json" id="imaginary-full">
+    <wadl:param name="self_link"><wadl:link resource_type="#imaginary"/></wadl:param>
+    <wadl:param name="web_link"/>
+    <wadl:param name="resource_type_link"/>
+    <wadl:param name="http_etag" required="true"/>
+    <wadl:param name="ordinary" required="true"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="imaginary-diff">
+    <wadl:param name="self_link"/>
+    <wadl:param name="web_link"/>
+    <wadl:param name="resource_type_link"/>
+    <wadl:param name="http_etag"/>
+    <wadl:param name="ordinary" required="true"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="imaginary-write">
+    <wadl:param name="self_link"/>
+    <wadl:param name="web_link"/>
+    <wadl:param name="resource_type_link"/>
+    <wadl:param name="http_etag" required="true"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="unrecognized-json">
+    <wadl:param name="self_link"/>
+    <wadl:param name="web_link"/>
+    <wadl:param name="resource_type_link"/>
+    <wadl:param name="http_etag" required="true"/>
+  </wadl:representation>
+  </wadl:application>`,
+  );
+
+/** Complete entry response and PUT input intentionally excluding serializer-owned fields. */
+export const serializerEntryBodies = {
+  response: {
+    self_link: "https://api.launchpad.test/1.0/~tester",
+    web_link: "https://launchpad.test/~tester",
+    resource_type_link: "https://api.launchpad.test/1.0/#person",
+    http_etag: '"test-etag"',
+    name: "tester",
+    subscription_policy: "Open",
+  },
+  input: { name: "tester", subscription_policy: "Open" },
+};
+
 /** Runtime links whose path segments differ from WADL field names. */
 export const serviceRootLinks: Record<string, string> = {
   people_collection_link: "https://api.launchpad.test/1.0/people/",

@@ -36,11 +36,11 @@ describe("generateOpenApi", () => {
       expect(result.value.components?.schemas?.["person-full"]).toMatchObject({
         type: "object",
         properties: {
-          self_link: { type: "string", format: "uri" },
+          self_link: { type: "string", format: "uri", readOnly: true },
           name: { description: "The name." },
           subscription_policy: { type: "string", enum: ["Open", "Moderated"] },
         },
-        required: ["name", "subscription_policy"],
+        required: ["self_link", "name", "subscription_policy"],
       });
       expect(
         result.value.paths["/people"]?.get?.responses["200"],

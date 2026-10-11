@@ -10,6 +10,7 @@ import {
   generatorEdgeWadl,
   metadataEnrichmentWadl,
   sampleWadl,
+  serializerFieldsWadl,
 } from "../../../testing/fixtures.js";
 import { parseWadl } from "../../wadl/index.js";
 import buildSchemas from "./buildSchemas.js";
@@ -55,6 +56,7 @@ describe("buildSchemas", () => {
             format: "uri",
             "x-lp-resource-type": "person",
             description: "The canonical URL.",
+            readOnly: true,
           },
           name: {
             description: "The name.",
@@ -65,7 +67,7 @@ describe("buildSchemas", () => {
             example: "Open",
           },
         },
-        required: ["name", "subscription_policy"],
+        required: ["self_link", "name", "subscription_policy"],
       });
     });
 
@@ -90,6 +92,72 @@ describe("buildSchemas", () => {
   });
 
   describe("response field contracts", () => {
+    it("retains serializer guarantees in nullable branch copies without duplicating explicit requirements", () => {
+      const schemas = buildSchemas(
+        parseWadl(
+          serializerFieldsWadl.replace(
+            'id="imaginary-full"',
+            'id="branch-full"',
+          ),
+        ).unwrap().representations,
+      );
+
+      for (const id of ["branch-full", "branch-full-nullable"]) {
+        expect(schemas[id]).toMatchObject({
+          required: expect.arrayContaining([
+            "self_link",
+            "web_link",
+            "resource_type_link",
+            "http_etag",
+            "ordinary",
+          ]),
+        });
+        for (const name of [
+          "self_link",
+          "web_link",
+          "resource_type_link",
+          "http_etag",
+        ]) {
+          expect(representationProperties(schemas, id)[name]).toMatchObject({
+            readOnly: true,
+          });
+        }
+        const schema = schemas[id];
+        if (schema === undefined || "$ref" in schema)
+          throw new Error(`Missing ${id}`);
+        expect(schema.required?.filter((name) => name === "http_etag")).toEqual(
+          ["http_etag"],
+        );
+      }
+      expect(schemas["branch-full"]).not.toHaveProperty("nullable");
+      expect(schemas["branch-full-nullable"]).toMatchObject({ nullable: true });
+    });
+
+    it.each(["xsd:integer", "foreign:string", "xsd:unsupported"])(
+      "preserves explicit serializer-field type %s while requiring response presence",
+      (type) => {
+        const schemas = buildSchemas(
+          parseWadl(
+            metadataEnrichmentWadl.replace(
+              'style="plain" name="web_link"',
+              `style="plain" name="web_link" type="${type}"`,
+            ),
+          ).unwrap().representations,
+        );
+        expect
+          .soft(schemas["project-full"])
+          .toMatchObject({ required: expect.arrayContaining(["web_link"]) });
+        expect(
+          representationProperties(schemas, "project-full").web_link,
+        ).toEqual({
+          ...(type === "xsd:integer" ? { type: "integer" } : {}),
+          description:
+            "The canonical human-addressable web link to this resource.",
+          readOnly: true,
+        });
+      },
+    );
+
     it("keeps a required nullable URI link typed and required", () => {
       const schemas = buildSchemas(
         parseWadl(metadataEnrichmentWadl).unwrap().representations,

@@ -385,7 +385,7 @@ describe("authoritative response field enrichment", () => {
     );
   });
 
-  it("types serializer-provided entry fields wherever WADL declares them, without requiring them", () => {
+  it("requires declared serializer-provided entry fields as read-only response fields", () => {
     const schemas = convert();
 
     // lazr.restful adds these to every entry, catalogued or not.
@@ -396,24 +396,35 @@ describe("authoritative response field enrichment", () => {
         format: "uri",
         description:
           "The canonical human-addressable web link to this resource.",
+        readOnly: true,
       });
       expect(properties?.resource_type_link).toEqual({
         type: "string",
         format: "uri",
         description: "The link to the WADL description of this resource.",
+        readOnly: true,
       });
       expect(properties?.http_etag).toEqual({
         type: "string",
         description: "The value of the HTTP ETag for this resource.",
+        readOnly: true,
       });
       for (const name of ["web_link", "resource_type_link", "http_etag"]) {
-        expect(required).not.toContain(name);
+        expect(required).toContain(name);
       }
     }
     // A WADL link target remains more specific than serializer metadata.
     expect(
       representation(schemas, "project-full").properties?.self_link,
-    ).toMatchObject({ format: "uri", "x-lp-resource-type": "project" });
+    ).toMatchObject({
+      type: "string",
+      format: "uri",
+      "x-lp-resource-type": "project",
+      readOnly: true,
+    });
+    expect(representation(schemas, "project-full").required).toContain(
+      "self_link",
+    );
     // Undeclared fields, such as an unpublished web_link, are not added.
     expect(
       representation(schemas, "person-full").properties,
@@ -425,8 +436,9 @@ describe("authoritative response field enrichment", () => {
 
     expect(
       representation(schemas, "person-page").properties?.resource_type_link,
-    ).toEqual({ type: "string", format: "uri" });
+    ).toEqual({ type: "string", format: "uri", readOnly: true });
     expect(representation(schemas, "person-page").required).toEqual([
+      "resource_type_link",
       "total_size",
       "entries",
     ]);
@@ -437,10 +449,11 @@ describe("authoritative response field enrichment", () => {
       type: "string",
       format: "uri",
       description: "The link to the WADL description of this resource.",
+      readOnly: true,
     });
-    expect(
-      representation(schemas, "service-root-json").required,
-    ).toBeUndefined();
+    expect(representation(schemas, "service-root-json").required).toEqual([
+      "resource_type_link",
+    ]);
   });
 
   it("types timedelta durations by their registered string serializer", () => {
@@ -506,6 +519,9 @@ describe("authoritative response field enrichment", () => {
     ).toEqual({});
     expect(representation(schemas, "project-full").required).toContain("count");
     expect(representation(schemas, "imaginary_project-full").required).toEqual([
+      "web_link",
+      "resource_type_link",
+      "http_etag",
       "display_name",
     ]);
   });
@@ -531,6 +547,7 @@ describe("authoritative response field enrichment", () => {
       serializedValueField(schemas, "person-page", "entries"),
     ).not.toHaveProperty("nullable");
     expect(representation(schemas, "person-page").required).toEqual([
+      "resource_type_link",
       "total_size",
       "entries",
     ]);

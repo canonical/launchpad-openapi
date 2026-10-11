@@ -17,6 +17,12 @@ export type SerializedFieldMetadata = {
   readonly nullable?: boolean;
   /** Response marshaller permits None even when input validation requires a value. */
   readonly responseNullable?: boolean;
+  /**
+   * Serializer-owned field is always present when declared in this response
+   * representation. Emit required + readOnly so shared PUT schemas do not
+   * require clients to submit it; never attach this guarantee to diff/write.
+   */
+  readonly responseRequired?: boolean;
   readonly items?: SerializedFieldMetadata;
   readonly additionalProperties?: SerializedFieldMetadata;
 };
