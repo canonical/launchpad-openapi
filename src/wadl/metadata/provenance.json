@@ -6,7 +6,7 @@
     "zope.interface": "5.4.0",
     "zope.schema": "6.0.0"
   },
-  "method": "conservative Python AST/import/interface and ZCML adapter extraction",
+  "method": "conservative Python AST/import/interface and ZCML adapter extraction, plus digest-pinned reviews of values interfaces leave undeclared",
   "nullable_semantics": "declared required=False with None missing value accepts None for inputs and responses",
   "redaction": {
     "line": 830,
@@ -10439,6 +10439,7 @@
             "field": "time_zone",
             "interface": "lp.registry.interfaces.location.IHasLocation",
             "line": 61,
+            "reviewed": true,
             "source": "lib/lp/registry/interfaces/location.py"
           }
         ],
@@ -16130,6 +16131,7 @@
             "field": "time_zone",
             "interface": "lp.registry.interfaces.location.IHasLocation",
             "line": 61,
+            "reviewed": true,
             "source": "lib/lp/registry/interfaces/location.py"
           }
         ],
@@ -16264,6 +16266,7 @@
             "field": "landmarks",
             "interface": "lp.registry.interfaces.productseries.ITimelineProductSeries",
             "line": 435,
+            "reviewed": true,
             "source": "lib/lp/registry/interfaces/productseries.py"
           }
         ],
@@ -16989,7 +16992,42 @@
     }
   },
   "response_nullable_semantics": "reference marshaller explicitly serializes URL-or-None; response-only, independent of input validation",
-  "source_digest": "aaa7d1ef72d0215d554b62e07ed2de949a894610b2a2f227d7f80e728efad8cb",
+  "reviewed_values": [
+    {
+      "evidence": {
+        "lp.registry.interfaces.location.IHasLocation.time_zone": "7a8347203c1de3a3cf7a6b72fb2040dc03db6b3df3749ab23bfd4436d2f04be8",
+        "lp.registry.model.person.Person.time_zone": "f37c1c4f292dfcb468d5ce20caee8fa210a31b8ff86bde1201e60e636f85e5c5",
+        "lp.registry.model.personlocation.PersonLocation.time_zone": "505c1d33aa45f17ffdd4f269f366bdba1c54680bd5664e92be6eeb1aca7452b7"
+      },
+      "field": "time_zone",
+      "interface": "lp.registry.interfaces.location.IHasLocation",
+      "schema": {
+        "type": "string"
+      },
+      "semantics": "Person.time_zone returns 'UTC' or PersonLocation.time_zone, a non-null Storm Unicode column"
+    },
+    {
+      "evidence": {
+        "lp.registry.interfaces.productseries.ITimelineProductSeries.landmarks": "25b9010c6086da3389967f637f4cf896390fd3fa1877e652938d2a8112c8cb82",
+        "lp.registry.model.productseries.ProductSeries.getTimeline": "0d42e1d33e31a8036a546d6539c73929523c46d883d60d0b8d3055108271dde9",
+        "lp.registry.model.productseries.TimelineProductSeries.__init__": "fc0194e07ae19112b47d50c9d0d8897703aa582d368abd9fe5af6a413ea48c37"
+      },
+      "field": "landmarks",
+      "interface": "lp.registry.interfaces.productseries.ITimelineProductSeries",
+      "schema": {
+        "items": {
+          "additionalProperties": {
+            "nullable": true,
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "semantics": "ProductSeries.getTimeline, the only TimelineProductSeries constructor call, stores dicts whose name, code_name, type, ISO date, and uri values are str or None"
+    }
+  ],
+  "source_digest": "2fe137986345da63d29a84adaac5375f2743fb8d48733f0b448822651fc0cec0",
   "source_sha256": {
     "download-cache/dist/lazr.enum-1.2.1.tar.gz": "ee45a7e617e866d5a101293c6fd750a475303b66b648c46058e74026a298a087",
     "download-cache/dist/lazr.lifecycle-1.2.1.tar.gz": "cffc1a1e3a4431f11ea925a73c26c2e4bb1405fc4cfcfe9c3dbd2ef13e033160",
@@ -17010,6 +17048,9 @@
     "lib/lp/answers/interfaces/questiontarget.py": "8aee2acb4ae1fa79c644ba109bad1274d46da977a361620ae6bba2138ef8db3c",
     "lib/lp/answers/interfaces/webservice.py": "8abbf0a23562a2e344db7d5b5e2bf8c622cfdd6e9805e0fe44cb3a3b38cd0da2",
     "lib/lp/app/browser/configure.zcml": "6b61d8c620804483773a7f545e9351c9f91c5ba01480c99175b17ae06b385b6a",
+    "lib/lp/app/browser/tales.py": "52dc71c8b8209da1b9f6cd4be4859dfc15ccda391d41590fec967b4d7276e539",
+    "lib/lp/app/browser/vocabulary.py": "759062c7ae3f37bfe0d99d802057e367afa1474051d56bfa936c2a5f6db56cbd",
+    "lib/lp/app/browser/webservice.py": "eaa5f4f43bcc78fbce994e6094cc8cbd0799c3e81aab9e84ea276e51a4a2bf07",
     "lib/lp/app/configure.zcml": "be4255d1536d9a1621d5116fbee2d610629db7331c902da06adf4f7e9ff82253",
     "lib/lp/app/enums.py": "23cb2caaa29b6a4b951db04b8400a8a31144d0f3c73a44e1e1d13f98fca9ee35",
     "lib/lp/app/errors.py": "37091a4c1fd39cb2e3d73b25157dbefbe4eb686badb82e40e902da5c9da7e510",
@@ -17021,6 +17062,7 @@
     "lib/lp/app/widgets/configure.zcml": "32607dc80ca19b26e0edf465304d2fd5ee19fb4409ee018b289575e0ebdab7f7",
     "lib/lp/archivepublisher/configure.zcml": "8a536f2d845d08a68d31f560044a4d433d7e6f2dab6dc6b8e00fae3e9c577a9b",
     "lib/lp/blueprints/browser/configure.zcml": "6a243e42579bb39b9b7b6a2ab6996dc0b37fe7d8088847e3454660e032a89140",
+    "lib/lp/blueprints/browser/specification.py": "a8fdb11878170938c0684cd26b8fc8458f9db097095abc4f48e1dca41eb9d752",
     "lib/lp/blueprints/configure.zcml": "d591b8513b4cc7e5eb3c4808aaea124902a3e5a0443e9bde37be647dbc910f67",
     "lib/lp/blueprints/enums.py": "fc45f2b7325713ff67e1d8a51105f613779d435bb0d86e03b23008dd5187e708",
     "lib/lp/blueprints/interfaces/specification.py": "84e5c2af2d1fcdbce22166471b8b013ca97bcbd8a354cfcf121c85b325c38a3b",
@@ -17030,6 +17072,7 @@
     "lib/lp/blueprints/interfaces/sprint.py": "9498806bf895a385fc856d86dd9e5c6db21a4d6661b7ec1ddf80c2a5636cd5b1",
     "lib/lp/blueprints/interfaces/webservice.py": "2d8201421d76a90ba854db66e0880063878b72c6b0c5a95b5dd123cd3d64f7a5",
     "lib/lp/blueprints/vocabularies/configure.zcml": "d8f0071e2ad73fd113fb194c063a50cf94590b984385d0e0f7fc8eb8d05e4e59",
+    "lib/lp/bugs/browser/bugtask.py": "42bcd0024833ea93c80253cf0dcc9218769eb68f3b5d95b61091d65a4934b6f9",
     "lib/lp/bugs/browser/configure.zcml": "8c8cdff45daa704b15f086922346f884755e52d35c3d066c11df3137bbdeea24",
     "lib/lp/bugs/browser/widgets/configure.zcml": "483f084d65c446a6b2e4d4922634b73402ffb6f22d71b3fd77c1b0ac7aa2446e",
     "lib/lp/bugs/configure.zcml": "d43b4947ee4b4aca14bd973b2b6b8c8043d287e9988ecc339bce88edc78ae526",
@@ -17065,6 +17108,7 @@
     "lib/lp/buildmaster/enums.py": "d111959796ebe62d256ea81c811a0701995b3825600b39e9d75ac36b44b48332",
     "lib/lp/buildmaster/interfaces/builder.py": "706d5b974b78c6c2e0c75bcfeb219b4c2622d0871014f1c528842cf289a87149",
     "lib/lp/buildmaster/interfaces/buildfarmjob.py": "536eb1e298c24c392dbe98a78b3df76f31f162b5430071d3934b2106477f6aaa",
+    "lib/lp/buildmaster/interfaces/buildfarmjobbehaviour.py": "f8cbfc3488a22f6b9fb7f1b6d448b402380f8ec200f01bee7d8acfcdb4fa214e",
     "lib/lp/buildmaster/interfaces/packagebuild.py": "7a7b41f969d8f870469faaf9f1e93e081e81d7632ff06d8fa079b8a21c73916a",
     "lib/lp/buildmaster/interfaces/processor.py": "9b2bd76fcd8a5dae8d7dd123f554b0a3226dfb92705f93fa04218af675e4b855",
     "lib/lp/buildmaster/interfaces/webservice.py": "38da45c6f681e0a34fef6b4d57fb50d1e6c3e37d1554bc82200c45c21d306acd",
@@ -17077,6 +17121,7 @@
     "lib/lp/charms/interfaces/charmrecipebuild.py": "67aa135acfd997c0e3d0720123907745b0e4f9eb330c9ea5f683013c2d7e9ffb",
     "lib/lp/charms/interfaces/webservice.py": "faa04e9982512fade7a2ab969d2de8412c2ab8af9a7024f766453c7424742df7",
     "lib/lp/code/browser/configure.zcml": "ff99a7ddaac0ab863750000016020c7a1fc0e0ffc7e21255f7070ce256d4ad3d",
+    "lib/lp/code/browser/sourcepackagerecipe.py": "1f35a2fdca07e7794d4121c020a21d3edff7095ca7bceb7a12230b6f5eadf48d",
     "lib/lp/code/browser/widgets/configure.zcml": "efbb912622670d902134cbc2d24d1b2867d58831bcb5e584b59ed99b7ba4e416",
     "lib/lp/code/bzr.py": "11d161416a9258d4cf975d1f4a6497a21ab11038a20ebe1bd18230d1d9e59b8a",
     "lib/lp/code/configure.zcml": "4d17f842f64475f7549e06ecd82b846bbd7586c17d076de85eb0cac01213eaf2",
@@ -17084,6 +17129,7 @@
     "lib/lp/code/errors.py": "9f779eebb7b040df0bf5f39f52bb61980ea6ce2fd6af666bd099702a4906c489",
     "lib/lp/code/interfaces/branch.py": "f524d8d9290081ef03bc8c3282297c1d5ad611857054702a62435e10452f9f44",
     "lib/lp/code/interfaces/branchlink.py": "80da61e13420b9299993e2b769c0eeb8ec545884d978198bd902105a49c17b49",
+    "lib/lp/code/interfaces/branchlookup.py": "01d5fd6ce15c824393fb726efda1c11465a60fbdaa217495faf56aa34f2c8e86",
     "lib/lp/code/interfaces/branchmergeproposal.py": "648e2938ac07135aedf5ca1cd8b506971c26d68ffa409d06d4da28ea01fbfc4e",
     "lib/lp/code/interfaces/branchsubscription.py": "bfbfedf6fcb389ec6699d5cb33dba1b5047071e433617dde7292de2d78c49e2a",
     "lib/lp/code/interfaces/branchtarget.py": "355611ff4fef49f092f8c56ab3b4f75f769d89f7cb388dc94f6bf596112854aa",
@@ -17091,17 +17137,26 @@
     "lib/lp/code/interfaces/codeimport.py": "ba5618b773a32d6f747e7596929ef99708b6c2bf63629747f45baf106e2f9571",
     "lib/lp/code/interfaces/codereviewcomment.py": "cd89aadf072e99f654b9811eb6f201086433ea6154ff4d88a0b375a9d8479886",
     "lib/lp/code/interfaces/codereviewvote.py": "e101f36985df2b6fc8a7a909fe850f8537e4126f95e772137c1be1f7426e4c81",
+    "lib/lp/code/interfaces/defaultgit.py": "d34a34ca0ba1b9ba0e34360594f8b5dd05c043a004bb62c2bd4f0bc578d9aedf",
     "lib/lp/code/interfaces/diff.py": "4cb6ce27210e3928ef79ba4115c6c9d4a2ec941a89db3d27c601910a55dd19d8",
+    "lib/lp/code/interfaces/gitlookup.py": "0162c82fd82aefe64fec15e314b4d8e7082f2b27f2fff27a7ea58029660a4ee0",
     "lib/lp/code/interfaces/gitref.py": "90beb925a3fb859a0d24147b196e2d58919d2684ffd3098ca79b8be6cbe91c15",
     "lib/lp/code/interfaces/gitrepository.py": "b503c59e21c8b138d603fe6aa254e861151db7ab162b322664280e5a432498d0",
     "lib/lp/code/interfaces/gitsubscription.py": "5a333c0058268880b9051a499af15cc16e241a04fbf6f9f0c220776dfb6d2342",
     "lib/lp/code/interfaces/hasbranches.py": "d50fb51b97357eb337d4b2e261ecd40ab06f133eeb1249d8346a14619ce31a81",
     "lib/lp/code/interfaces/hasgitrepositories.py": "73442b72c80776cc161cdb54a886127d6cf5497a0a367a204ba49322b685341a",
     "lib/lp/code/interfaces/hasrecipes.py": "655dc718f6b1c6f7f9cc82905d9f7ef6088d3a7c557b5b4b05df85a398b190ec",
+    "lib/lp/code/interfaces/linkedbranch.py": "ca829d1d2299ca7de8bbd66ffb2d365576cd51ce745683857931ca2a6c7648c2",
     "lib/lp/code/interfaces/revisionstatus.py": "6198726bc459548ed732c5ff74d9df750ab068590b0a60e5b875ad2f928ec507",
     "lib/lp/code/interfaces/sourcepackagerecipe.py": "6ad64643628c3bb5c6cf095030124c13bdef7debd3f6624eecb9521c048151e5",
     "lib/lp/code/interfaces/sourcepackagerecipebuild.py": "96da131045e3a666b8a65de68d01b7f94222ec7773cfa822c061176d44226e92",
     "lib/lp/code/interfaces/webservice.py": "5cac2de3b7b9c4d1d6ae07f4a25499f125db39b637b5d7aeac9b1a3b9a5bf748",
+    "lib/lp/code/model/branchlookup.py": "aac6caf76fcf84cbf08fead4a1277cfa8a946ce421d8814becf65aaba32eb615",
+    "lib/lp/code/model/defaultgit.py": "c5210dca0f673c3650aafb3a1c754ae293fdb3d535579040235dab102f920252",
+    "lib/lp/code/model/gitlookup.py": "73d3bc90e6e9819a4ece2141868998f8aa100c82c84774923f03bcfb22f25ff7",
+    "lib/lp/code/model/gitrule.py": "98e3125c8320466dd99ba6839f5360cf05c9a620a377e39bd14d2fa643645da9",
+    "lib/lp/code/model/linkedbranch.py": "f4f21787389e909380eb786241c3be90ac43619b9daae854728cd6ad74f3b5d4",
+    "lib/lp/code/model/recipebuilder.py": "cefe03e06e7b01774bf4faf6a55ef626915bc91dce1ac67cd7548e4fad84d102",
     "lib/lp/code/vocabularies/configure.zcml": "fb24e4be94711cdda254e4bc0bb8deea279070b541712eefba4a76d21bc0af59",
     "lib/lp/configure.zcml": "81bb5eec4d89a41fe1c7e28a93f3c58efd959997246a7ab48df96e112c6fad6a",
     "lib/lp/coop/answersbugs/configure.zcml": "50e43faba9e776815f639b1f0cc0dd6b55a54a37fc6b02be015294e74e20a5af",
@@ -17120,6 +17175,7 @@
     "lib/lp/oci/vocabularies.zcml": "711b7306638412768a0fd2a9c108381577d12a0268d537ab6719f10b30806175",
     "lib/lp/permissions.zcml": "257cec0a5c177d2f49d5e4bca13c40932bb5b7376fdf7f3d4bb54b6e9581dee4",
     "lib/lp/registry/browser/configure.zcml": "e7b78c48c15e03fb736fdc0b74fe560c18b64b7f0cdbdf3456c36f8f11d8f2b5",
+    "lib/lp/registry/browser/nameblocklist.py": "a4de10e6b5cc7164c9464296931d8a3d794d709e2cfeb115c6cb800946cb5b43",
     "lib/lp/registry/configure.zcml": "0b7d9b80498ae68a95e337399d2ca70a48aa8c2b2b490b31e8705b6a5e543c73",
     "lib/lp/registry/enums.py": "3f9f1dc7082966c766e4d0e986b35c8b712505107fb9b5210fd0d7a6c6ce8db5",
     "lib/lp/registry/errors.py": "0d97c89900e2966b2c3994935a540a845f1330ca68c9474f4338dc591b5af3e4",
@@ -17159,6 +17215,10 @@
     "lib/lp/registry/interfaces/teammembership.py": "b5eb0673ea5dd325ae3af47eae43e0856accd3e40223b2fbc4813e021a87cc51",
     "lib/lp/registry/interfaces/webservice.py": "e65c91f4a021e7a10c18bedad512dd7d09101d476c6fa66d751391eef89b5bbc",
     "lib/lp/registry/interfaces/wikiname.py": "6cfb6b84b48e091b0c7757ab62d592515bbc9888b8137466b08ba730e896f7df",
+    "lib/lp/registry/model/person.py": "5bc24867d53992ba7be8280f58a57349348aea2f223cea1e38d581a768ab48be",
+    "lib/lp/registry/model/personlocation.py": "a007dcc89f5c853ae77c402ea154b443efcc8c846146d6d550468d4354666fd1",
+    "lib/lp/registry/model/pillaraffiliation.py": "f62430dc2edb8082571d495eb1d25ca64c69fa1aaed700e6a77f396a46d61fb2",
+    "lib/lp/registry/model/productseries.py": "22f2a591d08c61f39aaeee0918b6de1816b2589b92fd1b05b18daa7b1f917ab3",
     "lib/lp/registry/services/configure.zcml": "ef2c714dd8acd002e685a2cd59d1e2280b6c2004118b521ef871602447e09b8b",
     "lib/lp/registry/vocabularies.zcml": "8c9b781e28cec84dfa81a769f2905549711d663de208208526a77e9ea6b4a1d1",
     "lib/lp/rocks/browser/configure.zcml": "ed1c2805df0bdbd0dcdfe6a3fe9d363d6040d1434da88df0b281cb3eebfa5efc",
@@ -17221,8 +17281,10 @@
     "lib/lp/services/webapp/configure.zcml": "fd86de5823c6becc9e2c33e22b429103e956465a3ebcc1cd289364953b4567b5",
     "lib/lp/services/webapp/database.zcml": "cda4c7c6b8150323aef4acc76beab47d351f769b4a3246eeee873be34ad8cc11",
     "lib/lp/services/webapp/errorlog.zcml": "95ebfbd423925979459efd4e754af290b9db6a50c822b93573a9ed062195a3ff",
+    "lib/lp/services/webapp/interfaces.py": "2710df3cbe9afdc2b67c32563173f851eb2b24b7a8d93269a14f6c92d8ed7cd1",
     "lib/lp/services/webapp/meta-overrides.zcml": "f28358cd4b208093d27529fa476fe094ca7d88fed0fecf07e898f5bb6f15b7ec",
     "lib/lp/services/webapp/meta.zcml": "885944efa74dcc6a0fed3399addde6f702d9cdb093729763c104d960cb527f14",
+    "lib/lp/services/webapp/snapshot.py": "e98869b2ad30ebf4694fd0c09938eccca1f3fccb3257bb31a478f3c92ea47206",
     "lib/lp/services/webapp/vocabulary.py": "da23c202e6c9c382007d1a6097e9403eaa0a46b61db7329ffcd7de9e5c5e87a3",
     "lib/lp/services/webauthn/configure.zcml": "e6453b42f6e3ba7a29c77012be9a0adc08cce87ddc2d240e577ae591554361c7",
     "lib/lp/services/webauthn/interfaces.py": "1d451347d1fbea7163b74be873e88549b7d40c0366a23041797a75d07330a85e",
@@ -17233,6 +17295,7 @@
     "lib/lp/services/webservice/apihelpers.py": "b161c51b827455de1ab04384697b8d8184b5335728dd6f9426d1000546813794",
     "lib/lp/services/webservice/configure.zcml": "3bf80abbe74ce106b49297caf50cd4e7e5817e88dd357ac17ebec72b627f472e",
     "lib/lp/services/webservice/interfaces.py": "aa6bb331371996b25f0a6f0612d8ef9e886b3e3b93ac61d1ab2feb1ab52e3bd1",
+    "lib/lp/services/webservice/json.py": "6c1368da5994032ff59eddc493407572129b9b527824aa6ffb469fd1a9396ede",
     "lib/lp/services/webservice/webservice.py": "386df6ac10a8e6224ae90429ffc3b1f3ba98720af96104ce55a3806386a19638",
     "lib/lp/services/worlddata/browser/configure.zcml": "e471eaa4d1642295186f71767819e2a47e789116a867fe086f1024b31fa2358b",
     "lib/lp/services/worlddata/configure.zcml": "ed85fa96cae05566f022cef798ce9362184a34b2a68636bf7ae28e3cddefcf88",
@@ -17294,17 +17357,17 @@
     "requirements/launchpad.txt": "aacc89d6d081f9c2081664dcebf5ba7ec88e3ea4f1ed6e4b2471253614ea1c66"
   },
   "statistics": {
-    "fields": 1782,
+    "fields": 1798,
     "resources": 136,
     "types": {
-      "array": 47,
+      "array": 48,
       "boolean": 185,
       "integer": 66,
       "number": 4,
       "object": 35,
-      "string": 1445
+      "string": 1460
     },
-    "unresolved": 47
+    "unresolved": 31
   },
   "unresolved": [
     {
@@ -17342,42 +17405,6 @@
       "reason": "container value_type not declared",
       "resource": "snap_build",
       "source": "lib/lp/snappy/interfaces/snapbuild.py"
-    },
-    {
-      "constructor": "zope.schema._bootstrapfields.Field",
-      "field": "landmarks",
-      "interface": "lp.registry.interfaces.productseries.ITimelineProductSeries",
-      "line": 435,
-      "reason": "unsupported custom marshaller: lazr.restful.marshallers.SimpleFieldMarshaller",
-      "resource": "timeline_project_series",
-      "source": "lib/lp/registry/interfaces/productseries.py"
-    },
-    {
-      "constructor": "zope.schema._field.Choice",
-      "field": "permission",
-      "interface": "lp.soyuz.interfaces.archivepermission.IArchivePermission",
-      "line": 53,
-      "reason": "dynamic or unsupported choice vocabulary",
-      "resource": "archive_permission",
-      "source": "lib/lp/soyuz/interfaces/archivepermission.py"
-    },
-    {
-      "constructor": "zope.schema._field.Choice",
-      "field": "time_zone",
-      "interface": "lp.registry.interfaces.location.IHasLocation",
-      "line": 61,
-      "reason": "dynamic or unsupported choice vocabulary",
-      "resource": "person",
-      "source": "lib/lp/registry/interfaces/location.py"
-    },
-    {
-      "constructor": "zope.schema._field.Choice",
-      "field": "time_zone",
-      "interface": "lp.registry.interfaces.location.IHasLocation",
-      "line": 61,
-      "reason": "dynamic or unsupported choice vocabulary",
-      "resource": "team",
-      "source": "lib/lp/registry/interfaces/location.py"
     },
     {
       "constructor": "zope.schema._field.Dict",
@@ -17621,114 +17648,6 @@
       "reason": "container value_type not declared",
       "resource": "snap_build",
       "source": "lib/lp/snappy/interfaces/snapbuild.py"
-    },
-    {
-      "constructor": "zope.schema._field.Timedelta",
-      "field": "duration",
-      "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
-      "line": 160,
-      "reason": "unsupported custom marshaller: lazr.restful.marshallers.SimpleFieldMarshaller",
-      "resource": "build",
-      "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
-    },
-    {
-      "constructor": "zope.schema._field.Timedelta",
-      "field": "duration",
-      "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
-      "line": 160,
-      "reason": "unsupported custom marshaller: lazr.restful.marshallers.SimpleFieldMarshaller",
-      "resource": "build_farm_job",
-      "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
-    },
-    {
-      "constructor": "zope.schema._field.Timedelta",
-      "field": "duration",
-      "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
-      "line": 160,
-      "reason": "unsupported custom marshaller: lazr.restful.marshallers.SimpleFieldMarshaller",
-      "resource": "charm_recipe_build",
-      "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
-    },
-    {
-      "constructor": "zope.schema._field.Timedelta",
-      "field": "duration",
-      "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
-      "line": 160,
-      "reason": "unsupported custom marshaller: lazr.restful.marshallers.SimpleFieldMarshaller",
-      "resource": "ci_build",
-      "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
-    },
-    {
-      "constructor": "zope.schema._field.Timedelta",
-      "field": "duration",
-      "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
-      "line": 160,
-      "reason": "unsupported custom marshaller: lazr.restful.marshallers.SimpleFieldMarshaller",
-      "resource": "craft_recipe_build",
-      "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
-    },
-    {
-      "constructor": "zope.schema._field.Timedelta",
-      "field": "duration",
-      "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
-      "line": 160,
-      "reason": "unsupported custom marshaller: lazr.restful.marshallers.SimpleFieldMarshaller",
-      "resource": "livefs_build",
-      "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
-    },
-    {
-      "constructor": "zope.schema._field.Timedelta",
-      "field": "duration",
-      "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
-      "line": 160,
-      "reason": "unsupported custom marshaller: lazr.restful.marshallers.SimpleFieldMarshaller",
-      "resource": "oci_recipe_build",
-      "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
-    },
-    {
-      "constructor": "zope.schema._field.Timedelta",
-      "field": "duration",
-      "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
-      "line": 160,
-      "reason": "unsupported custom marshaller: lazr.restful.marshallers.SimpleFieldMarshaller",
-      "resource": "rock_recipe_build",
-      "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
-    },
-    {
-      "constructor": "zope.schema._field.Timedelta",
-      "field": "duration",
-      "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
-      "line": 160,
-      "reason": "unsupported custom marshaller: lazr.restful.marshallers.SimpleFieldMarshaller",
-      "resource": "snap_build",
-      "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
-    },
-    {
-      "constructor": "zope.schema._field.Timedelta",
-      "field": "duration",
-      "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
-      "line": 160,
-      "reason": "unsupported custom marshaller: lazr.restful.marshallers.SimpleFieldMarshaller",
-      "resource": "source_package_git_build",
-      "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
-    },
-    {
-      "constructor": "zope.schema._field.Timedelta",
-      "field": "duration",
-      "interface": "lp.buildmaster.interfaces.buildfarmjob.IBuildFarmJobView",
-      "line": 160,
-      "reason": "unsupported custom marshaller: lazr.restful.marshallers.SimpleFieldMarshaller",
-      "resource": "source_package_recipe_build",
-      "source": "lib/lp/buildmaster/interfaces/buildfarmjob.py"
-    },
-    {
-      "constructor": "zope.schema._field.URI",
-      "field": "url",
-      "interface": "lp.bugs.interfaces.bugattachment.IBugAttachmentView",
-      "line": 107,
-      "reason": "unresolved or ambiguous marshaller",
-      "resource": "bug_attachment",
-      "source": "lib/lp/bugs/interfaces/bugattachment.py"
     }
   ],
   "vocabulary_utilities": {

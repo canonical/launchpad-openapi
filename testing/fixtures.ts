@@ -536,6 +536,26 @@ export const observedBranchLookup = {
 };
 
 /** Source-backed Launchpad fields with WADL-owned presence and explicit-type variants. */
+/** lazr.restful's untyped entry header params; unpublished web_link is omitted. */
+const lazrEntryFrameworkParams = `
+    <wadl:param style="plain" name="web_link" path="$['web_link']">
+      <wadl:doc>
+        The canonical human-addressable web link to this resource.
+      </wadl:doc>
+      <wadl:link/>
+    </wadl:param>
+    <wadl:param style="plain" name="resource_type_link" path="$['resource_type_link']">
+      <wadl:doc>
+        The link to the WADL description of this resource.
+      </wadl:doc>
+      <wadl:link/>
+    </wadl:param>
+    <wadl:param style="plain" name="http_etag" path="$['http_etag']">
+      <wadl:doc>
+        The value of the HTTP ETag for this resource.
+      </wadl:doc>
+    </wadl:param>`;
+
 export const metadataEnrichmentWadl = `<?xml version="1.0"?>
 <wadl:application xmlns:wadl="http://research.sun.com/wadl/2006/10"
                   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -555,6 +575,10 @@ export const metadataEnrichmentWadl = `<?xml version="1.0"?>
     </wadl:method>
   </wadl:resource_type>
   <wadl:representation mediaType="application/json" id="project-full">
+    <wadl:param style="plain" name="self_link" path="$['self_link']">
+      <wadl:doc>The canonical link to this resource.</wadl:doc>
+      <wadl:link resource_type="https://api.launchpad.test/beta/#project"/>
+    </wadl:param>${lazrEntryFrameworkParams}
     <wadl:param name="display_name" required="true"/>
     <wadl:param name="owner_link" required="true"><wadl:link resource_type="#person"/></wadl:param>
     <wadl:param name="driver_link"><wadl:link resource_type="#person"/></wadl:param>
@@ -582,6 +606,22 @@ export const metadataEnrichmentWadl = `<?xml version="1.0"?>
   <wadl:representation mediaType="application/json" id="person-full">
     <wadl:param name="display_name"/>
     <wadl:param name="latitude" required="true"/>
+    <wadl:param name="time_zone" required="true"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="build-full">
+    <wadl:param name="duration" required="true"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="archive_permission-full">
+    <wadl:param name="permission" required="true"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="archive_permission-diff">
+    <wadl:param name="permission"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="bug_attachment-full">
+    <wadl:param name="url" required="true"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="timeline_project_series-full">
+    <wadl:param name="landmarks" required="true"/>
   </wadl:representation>
   <wadl:representation mediaType="application/json" id="archive-full">
     <wadl:param name="name"/>
@@ -604,7 +644,7 @@ export const metadataEnrichmentWadl = `<?xml version="1.0"?>
   <wadl:representation mediaType="application/json" id="git_repository-diff">
     <wadl:param name="builder_constraints"/>
   </wadl:representation>
-  <wadl:representation mediaType="application/json" id="imaginary_project-full">
+  <wadl:representation mediaType="application/json" id="imaginary_project-full">${lazrEntryFrameworkParams}
     <wadl:param name="display_name" required="true"/>
     <wadl:param name="active"/>
     <wadl:param name="tags"/>
@@ -633,12 +673,24 @@ export const metadataEnrichmentWadl = `<?xml version="1.0"?>
     <wadl:param name="target_architectures"/>
   </wadl:representation>
   <wadl:representation mediaType="application/json" id="person-page">
+    <wadl:param style="plain" name="resource_type_link" path="$['resource_type_link']">
+      <wadl:link/>
+    </wadl:param>
     <wadl:param name="total_size" required="true" type="xsd:int"/>
     <wadl:param name="entries" required="true"/>
     <wadl:param name="entry_self_link" path="$['entries'][*]['self_link']">
       <wadl:link resource_type="#person"/>
     </wadl:param>
     <wadl:param name="display_name"/>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="service-root-json">
+    <wadl:param style="plain" name="people_collection_link" path="$['people_collection_link']">
+      <wadl:link resource_type="https://api.launchpad.test/beta/#people"/>
+    </wadl:param>
+    <wadl:param style="plain" name="resource_type_link" path="$['resource_type_link']">
+      <wadl:doc>The link to the WADL description of this resource.</wadl:doc>
+      <wadl:link/>
+    </wadl:param>
   </wadl:representation>
 </wadl:application>`;
 

@@ -246,6 +246,9 @@ export const RESOURCE_FIELD_METADATA: Readonly<
     "package_set_name": {
       "type": "string"
     },
+    "permission": {
+      "type": "string"
+    },
     "person_link": {
       "format": "uri",
       "responseNullable": true,
@@ -993,6 +996,10 @@ export const RESOURCE_FIELD_METADATA: Readonly<
     "type": {
       "type": "string"
     },
+    "url": {
+      "nullable": true,
+      "type": "string"
+    },
     "vulnerability_patches": {
       "items": {
         "additionalProperties": {
@@ -1556,6 +1563,10 @@ export const RESOURCE_FIELD_METADATA: Readonly<
       "responseNullable": true,
       "type": "string"
     },
+    "duration": {
+      "nullable": true,
+      "type": "string"
+    },
     "external_dependencies": {
       "nullable": true,
       "type": "string"
@@ -1642,6 +1653,10 @@ export const RESOURCE_FIELD_METADATA: Readonly<
       "type": "string"
     },
     "dependencies": {
+      "nullable": true,
+      "type": "string"
+    },
+    "duration": {
       "nullable": true,
       "type": "string"
     },
@@ -1981,6 +1996,10 @@ export const RESOURCE_FIELD_METADATA: Readonly<
       "responseNullable": true,
       "type": "string"
     },
+    "duration": {
+      "nullable": true,
+      "type": "string"
+    },
     "log_url": {
       "nullable": true,
       "type": "string"
@@ -2134,6 +2153,10 @@ export const RESOURCE_FIELD_METADATA: Readonly<
     "distro_series_link": {
       "format": "uri",
       "responseNullable": true,
+      "type": "string"
+    },
+    "duration": {
+      "nullable": true,
       "type": "string"
     },
     "git_refs": {
@@ -2573,6 +2596,10 @@ export const RESOURCE_FIELD_METADATA: Readonly<
     "distro_series_link": {
       "format": "uri",
       "responseNullable": true,
+      "type": "string"
+    },
+    "duration": {
+      "nullable": true,
       "type": "string"
     },
     "log_url": {
@@ -3930,6 +3957,10 @@ export const RESOURCE_FIELD_METADATA: Readonly<
       "responseNullable": true,
       "type": "string"
     },
+    "duration": {
+      "nullable": true,
+      "type": "string"
+    },
     "livefs_link": {
       "format": "uri",
       "responseNullable": true,
@@ -4351,6 +4382,10 @@ export const RESOURCE_FIELD_METADATA: Readonly<
       "responseNullable": true,
       "type": "string"
     },
+    "duration": {
+      "nullable": true,
+      "type": "string"
+    },
     "estimate": {
       "type": "boolean"
     },
@@ -4753,6 +4788,10 @@ export const RESOURCE_FIELD_METADATA: Readonly<
       "format": "uri",
       "nullable": true,
       "responseNullable": true,
+      "type": "string"
+    },
+    "time_zone": {
+      "nullable": true,
       "type": "string"
     },
     "valid_specifications_collection_link": {
@@ -6000,6 +6039,10 @@ export const RESOURCE_FIELD_METADATA: Readonly<
       "responseNullable": true,
       "type": "string"
     },
+    "duration": {
+      "nullable": true,
+      "type": "string"
+    },
     "log_url": {
       "nullable": true,
       "type": "string"
@@ -6372,6 +6415,10 @@ export const RESOURCE_FIELD_METADATA: Readonly<
       "responseNullable": true,
       "type": "string"
     },
+    "duration": {
+      "nullable": true,
+      "type": "string"
+    },
     "log_url": {
       "nullable": true,
       "type": "string"
@@ -6645,6 +6692,10 @@ export const RESOURCE_FIELD_METADATA: Readonly<
     "distro_series_link": {
       "format": "uri",
       "responseNullable": true,
+      "type": "string"
+    },
+    "duration": {
+      "nullable": true,
       "type": "string"
     },
     "git_repository_link": {
@@ -6944,6 +6995,10 @@ export const RESOURCE_FIELD_METADATA: Readonly<
     "distro_series_link": {
       "format": "uri",
       "responseNullable": true,
+      "type": "string"
+    },
+    "duration": {
+      "nullable": true,
       "type": "string"
     },
     "log_url": {
@@ -7372,6 +7427,10 @@ export const RESOURCE_FIELD_METADATA: Readonly<
       "responseNullable": true,
       "type": "string"
     },
+    "time_zone": {
+      "nullable": true,
+      "type": "string"
+    },
     "valid_specifications_collection_link": {
       "format": "uri",
       "type": "string"
@@ -7428,6 +7487,16 @@ export const RESOURCE_FIELD_METADATA: Readonly<
   "timeline_project_series": {
     "is_development_focus": {
       "type": "boolean"
+    },
+    "landmarks": {
+      "items": {
+        "additionalProperties": {
+          "nullable": true,
+          "type": "string"
+        },
+        "type": "object"
+      },
+      "type": "array"
     },
     "name": {
       "type": "string"

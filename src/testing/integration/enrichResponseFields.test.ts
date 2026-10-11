@@ -385,6 +385,107 @@ describe("authoritative response field enrichment", () => {
     );
   });
 
+  it("types serializer-provided entry fields wherever WADL declares them, without requiring them", () => {
+    const schemas = convert();
+
+    // lazr.restful adds these to every entry, catalogued or not.
+    for (const id of ["project-full", "imaginary_project-full"]) {
+      const { properties, required } = representation(schemas, id);
+      expect(properties?.web_link).toEqual({
+        type: "string",
+        format: "uri",
+        description:
+          "The canonical human-addressable web link to this resource.",
+      });
+      expect(properties?.resource_type_link).toEqual({
+        type: "string",
+        format: "uri",
+        description: "The link to the WADL description of this resource.",
+      });
+      expect(properties?.http_etag).toEqual({
+        type: "string",
+        description: "The value of the HTTP ETag for this resource.",
+      });
+      for (const name of ["web_link", "resource_type_link", "http_etag"]) {
+        expect(required).not.toContain(name);
+      }
+    }
+    // A WADL link target remains more specific than serializer metadata.
+    expect(
+      representation(schemas, "project-full").properties?.self_link,
+    ).toMatchObject({ format: "uri", "x-lp-resource-type": "project" });
+    // Undeclared fields, such as an unpublished web_link, are not added.
+    expect(
+      representation(schemas, "person-full").properties,
+    ).not.toHaveProperty("web_link");
+  });
+
+  it("types serializer-provided collection and service-root fields", () => {
+    const schemas = convert();
+
+    expect(
+      representation(schemas, "person-page").properties?.resource_type_link,
+    ).toEqual({ type: "string", format: "uri" });
+    expect(representation(schemas, "person-page").required).toEqual([
+      "total_size",
+      "entries",
+    ]);
+    expect(
+      representation(schemas, "service-root-json").properties
+        ?.resource_type_link,
+    ).toEqual({
+      type: "string",
+      format: "uri",
+      description: "The link to the WADL description of this resource.",
+    });
+    expect(
+      representation(schemas, "service-root-json").required,
+    ).toBeUndefined();
+  });
+
+  it("types timedelta durations by their registered string serializer", () => {
+    const schemas = convert();
+
+    expect(
+      serializedValueField(schemas, "build-full", "duration"),
+    ).toMatchObject({ type: "string", nullable: true });
+    expect(representation(schemas, "build-full").required).toEqual([
+      "duration",
+    ]);
+  });
+
+  it("types enumerated choice values and URI text as strings", () => {
+    const schemas = convert();
+
+    for (const id of ["archive_permission-full", "archive_permission-diff"]) {
+      const permission = serializedValueField(schemas, id, "permission");
+      expect(permission).toMatchObject({ type: "string" });
+      expect(permission).not.toHaveProperty("nullable");
+    }
+    expect(
+      serializedValueField(schemas, "bug_attachment-full", "url"),
+    ).toMatchObject({ type: "string", nullable: true });
+  });
+
+  it("types reviewed model values that interfaces leave undeclared", () => {
+    const schemas = convert();
+
+    expect(
+      serializedValueField(schemas, "person-full", "time_zone"),
+    ).toMatchObject({ type: "string", nullable: true });
+    const landmarks = serializedValueField(
+      schemas,
+      "timeline_project_series-full",
+      "landmarks",
+    );
+    expect(landmarks).toMatchObject({ type: "array" });
+    expect(landmarks).not.toHaveProperty("nullable");
+    expect(landmarks.items).toEqual({
+      type: "object",
+      additionalProperties: { type: "string", nullable: true },
+    });
+  });
+
   it("leaves unknown fields and resource names unconstrained without guessing from names or prose", () => {
     const schemas = convert();
 

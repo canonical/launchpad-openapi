@@ -116,6 +116,10 @@ Both distribution and PPA routes describe the two homogeneous array shapes with 
 
 Missing response-property types are supplemented by bundled metadata extracted from Launchpad's exported Python interfaces and registered JSON field marshallers. The same catalog is used online and offline, including inherited fields, exported wire-name aliases, array items, and dictionary values.
 
+When a marshaller passes a value through unchanged, the value is typed from its JSON encoding: enumerated `Choice(values=...)` items and `Timedelta` values have registered `str()` serializers, so both are strings. A few values are left undeclared by interfaces: a person's `time_zone` is only a runtime vocabulary, and a timeline's `landmarks` field is a bare `Field`. These are typed from a review of the model code that produces them. The exporter pins digests of the reviewed definitions and reports the field as unresolved once any of them changes.
+
+Fields written by `lazr.restful`'s serializers, rather than by exported interfaces, are typed from those serializers. In entries, including entries missing from the catalog, `self_link`, `web_link`, and `resource_type_link` are URI strings and `http_etag` is a string. Collection pages and the service root type `resource_type_link` the same way. WADL still decides presence: entries that do not publish web links omit `web_link`, and none of these fields becomes required.
+
 Explicit WADL types always take precedence, including unsupported types that remain unconstrained. Unknown fields and unresolved serializers remain unconstrained; names, descriptions, and example responses are not used to guess types.
 
 Nullability is independent of WADL property-presence requirements. Declared optional fields with a `None` missing value permit null in both input and response schemas. Reference serializers additionally permit URL-or-null in `-full` responses, including nested references; that response-only allowance is excluded from `-diff` and `-write` inputs. These domains describe allowed values, not observations from sample responses.
@@ -159,7 +163,7 @@ pnpm metadata:export /path/to/launchpad
 pnpm metadata:export /path/to/launchpad --output /path/to/catalog
 ```
 
-The exporter resolves source declarations without importing or running Launchpad. `src/wadl/metadata/provenance.json` records dependency versions, source hashes, field origins, and unresolved declarations. Regenerate OpenAPI and downstream clients after refreshing the catalog; conversion itself requires neither Python nor a Launchpad checkout.
+The exporter resolves source declarations without importing or running Launchpad. `src/wadl/metadata/provenance.json` records dependency versions, source hashes, field origins, reviewed values, and unresolved declarations. A refresh that withdraws a review lists the changed definitions under `unresolved`; re-review them before updating the pinned digests in `export.py`. Regenerate OpenAPI and downstream clients after refreshing the catalog; conversion itself requires neither Python nor a Launchpad checkout.
 
 ## Static API reference page
 

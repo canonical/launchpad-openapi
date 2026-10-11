@@ -24,6 +24,11 @@ import xml.etree.ElementTree as ET
 
 UNKNOWN = object()
 DECLARATIONS = "lazr.restful.declarations."
+JSON_PUBLISHABLE = "lazr.restful.interfaces.IJSONPublishable"
+# lazr.enum's metaclass collects only BaseItem class attributes as items, so
+# iterating an enumerated type yields BaseItem instances.
+ENUM_TYPES = ("lazr.enum._enum.EnumeratedType", "lazr.enum._enum.DBEnumeratedType")
+ENUM_ITEM = "lazr.enum._enum.BaseItem"
 # Contracts of these implementations in pinned lazr.restful/marshallers.py.
 # The adapter registry selects them; these are NOT field-name overrides.
 MARSHALLERS = {
@@ -40,6 +45,29 @@ MARSHALLERS = {
     "SetFieldMarshaller": ("array", None, ""),
     "DictFieldMarshaller": ("object", None, ""),
     "SimpleVocabularyLookupFieldMarshaller": ("string", None, ""),
+}
+# Values interfaces leave undeclared (a bare Field, or a vocabulary computed at
+# runtime), reviewed in the cited source. A changed declaration or evidence
+# definition invalidates the review: the field is reported unresolved instead.
+REVIEWED_VALUES = {
+    ("lp.registry.interfaces.location.IHasLocation", "time_zone"): {
+        "schema": {"type": "string"},
+        "semantics": "Person.time_zone returns 'UTC' or PersonLocation.time_zone, a non-null Storm Unicode column",
+        "evidence": {
+            "lp.registry.interfaces.location.IHasLocation.time_zone": "7a8347203c1de3a3cf7a6b72fb2040dc03db6b3df3749ab23bfd4436d2f04be8",
+            "lp.registry.model.person.Person.time_zone": "f37c1c4f292dfcb468d5ce20caee8fa210a31b8ff86bde1201e60e636f85e5c5",
+            "lp.registry.model.personlocation.PersonLocation.time_zone": "505c1d33aa45f17ffdd4f269f366bdba1c54680bd5664e92be6eeb1aca7452b7",
+        },
+    },
+    ("lp.registry.interfaces.productseries.ITimelineProductSeries", "landmarks"): {
+        "schema": {"type": "array", "items": {"type": "object", "additionalProperties": {"type": "string", "nullable": True}}},
+        "semantics": "ProductSeries.getTimeline, the only TimelineProductSeries constructor call, stores dicts whose name, code_name, type, ISO date, and uri values are str or None",
+        "evidence": {
+            "lp.registry.interfaces.productseries.ITimelineProductSeries.landmarks": "25b9010c6086da3389967f637f4cf896390fd3fa1877e652938d2a8112c8cb82",
+            "lp.registry.model.productseries.ProductSeries.getTimeline": "0d42e1d33e31a8036a546d6539c73929523c46d883d60d0b8d3055108271dde9",
+            "lp.registry.model.productseries.TimelineProductSeries.__init__": "fc0194e07ae19112b47d50c9d0d8897703aa582d368abd9fe5af6a413ea48c37",
+        },
+    },
 }
 
 
@@ -81,8 +109,10 @@ class Source:
         self.specifications = {}
         self.hashes = {}
         self.adapters = []
+        self.json_publishers = []
         self.vocabulary_utilities = {}
         self.unresolved = []
+        self.reviewed = set()
         self.dependencies = {}
         requirements = self.read_file(root / "requirements/combined.txt")
         current = self.read_file(root / "requirements/launchpad.txt")
@@ -150,11 +180,15 @@ class Source:
 
     def register_adapters(self, document):
         for node in document.iter():
-            if node.tag.split("}")[-1] != "adapter" or node.get("provides") != "lazr.restful.interfaces.IFieldMarshaller":
+            if node.tag.split("}")[-1] != "adapter":
                 continue
+            provides = node.get("provides")
             interfaces = node.get("for", "").split()
-            if interfaces:
+            if provides == "lazr.restful.interfaces.IFieldMarshaller" and interfaces:
                 self.adapters.append((interfaces, node.get("factory", "")))
+            elif provides in (JSON_PUBLISHABLE, None) and node.get("factory"):
+                # Without ZCML provides/for, @implementer and @adapter decide.
+                self.json_publishers.append((interfaces or None, provides, node.get("factory")))
 
     def module(self, name):
         if name in self.modules:
@@ -174,7 +208,7 @@ class Source:
             text = self.read_file(path)
             origin = str(path.relative_to(self.root))
         tree = ast.parse(text, filename=origin)
-        result = {"tree": tree, "symbols": {}, "origin": origin, "all": None}
+        result = {"tree": tree, "symbols": {}, "origin": origin, "all": None, "text": text}
         self.modules[name] = result
         symbols = result["symbols"]
         for node in statements(tree.body):
@@ -224,7 +258,35 @@ class Source:
             return value if isinstance(value, str) else module + "." + node.id
         if isinstance(node, ast.Attribute):
             return self.reference(module, node.value) + "." + node.attr
+        if isinstance(node, ast.IfExp):
+            # Version-gated bases, such as zope.schema's `ITextLine if PY3
+            # else IBytesLine`, select one branch on Launchpad's Python 3.
+            is_python3 = self.python3_condition(module, node.test)
+            if is_python3 is not None:
+                return self.reference(module, node.body if is_python3 else node.orelse)
         return ""
+
+    def python3_condition(self, module, node, seen=()):
+        """Evaluate `sys.version_info[0] >= 3` flags and their negations."""
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
+            value = self.python3_condition(module, node.operand, seen)
+            return None if value is None else not value
+        if isinstance(node, (ast.Name, ast.Attribute)):
+            qualified, value = self.definition(self.reference(module, node))
+            if qualified in seen or not isinstance(value, ast.expr) or "." not in qualified:
+                return None
+            return self.python3_condition(qualified.rsplit(".", 1)[0], value, seen + (qualified,))
+        if (
+            isinstance(node, ast.Compare)
+            and len(node.ops) == 1
+            and isinstance(node.ops[0], ast.GtE)
+            and isinstance(node.left, ast.Subscript)
+            and literal(node.left.slice) == 0
+            and self.reference(module, node.left.value) == "sys.version_info"
+            and literal(node.comparators[0]) == 3
+        ):
+            return True
+        return None
 
     def definition(self, qualified):
         qualified = self.resolve(qualified)
@@ -491,14 +553,138 @@ class Source:
             return False
         return True
 
+    def decorator_arguments(self, qualified, decorator):
+        """Resolved arguments of a class decorator such as @implementer."""
+        qualified, node = self.definition(qualified)
+        if not isinstance(node, ast.ClassDef):
+            return []
+        module = qualified.rsplit(".", 1)[0]
+        return [
+            self.resolve(self.reference(module, argument))
+            for call in node.decorator_list
+            if isinstance(call, ast.Call) and self.resolve(self.reference(module, call.func)) in decorator
+            for argument in call.args
+        ]
+
+    def declares_implementation(self, interface, value_class):
+        """Whether the interface's module calls classImplements(value_class, interface)."""
+        module = interface.rsplit(".", 1)[0]
+        source = self.module(module) if "." in interface else None
+        if source is None:
+            return False
+        for statement in statements(source["tree"].body):
+            if not isinstance(statement, ast.Expr) or not isinstance(statement.value, ast.Call):
+                continue
+            call = statement.value
+            if not call.args or self.resolve(self.reference(module, call.func)) != "zope.interface.declarations.classImplements":
+                continue
+            arguments = [self.resolve(self.reference(module, argument)) for argument in call.args]
+            if arguments[0] == value_class and interface in arguments[1:]:
+                return True
+        return False
+
+    def string_publisher(self, value_class):
+        """Whether ResourceJSONEncoder serializes value_class as a string.
+
+        The encoder adapts non-JSON values to IJSONPublishable. Accept only one
+        matching registered adapter whose toDataForJSON always returns str().
+        """
+        provided = self.ancestry(value_class)
+        factories = set()
+        for interfaces, provides, factory in self.json_publishers:
+            if provides is None:
+                if self.resolve(JSON_PUBLISHABLE) not in self.decorator_arguments(factory, ("zope.interface.declarations.implementer",)):
+                    continue
+                if interfaces is None:
+                    interfaces = self.decorator_arguments(factory, ("zope.component.adapter", "zope.component._declaration.adapter"))
+            if interfaces is None or len(interfaces) != 1:
+                continue
+            interface = self.resolve(interfaces[0])
+            if interface in provided or self.declares_implementation(interface, value_class):
+                factories.add(self.resolve(factory))
+        if len(factories) != 1:
+            return False
+        method = self.method(factories.pop(), "toDataForJSON")
+        if method is None:
+            return False
+        module, definition = method
+        returned = [node.value for node in ast.walk(definition) if isinstance(node, ast.Return)]
+        return (
+            bool(returned)
+            and "str" not in self.module(module)["symbols"]
+            and all(isinstance(value, ast.Call) and isinstance(value.func, ast.Name) and value.func.id == "str" for value in returned)
+        )
+
+    def is_enumerated_type(self, expression):
+        module, node = expression
+        ancestry = self.ancestry(self.resolve(self.reference(module, node)))
+        return any(enum in ancestry for enum in ENUM_TYPES)
+
+    def definition_digest(self, qualified):
+        """SHA-256 of a module-level or class-member definition's source lines."""
+        parts = qualified.split(".")
+        source = None
+        for split in range(len(parts) - 1, 0, -1):
+            source = self.module(".".join(parts[:split]))
+            if source is not None:
+                break
+        if source is None:
+            return None
+        body, node = source["tree"].body, None
+        for name in parts[split:]:
+            node = next(
+                (
+                    statement
+                    for statement in statements(body)
+                    if (isinstance(statement, (ast.ClassDef, ast.FunctionDef)) and statement.name == name)
+                    or (isinstance(statement, ast.Assign) and any(isinstance(target, ast.Name) and target.id == name for target in statement.targets))
+                ),
+                None,
+            )
+            if node is None:
+                return None
+            body = node.body if isinstance(node, ast.ClassDef) else []
+        start = min([node.lineno] + [decorator.lineno for decorator in getattr(node, "decorator_list", [])])
+        lines = source["text"].splitlines()[start - 1:node.end_lineno]
+        return sha256("\n".join(lines).encode()).hexdigest()
+
+    def declared_nullable(self, constructor, attrs):
+        required = attrs.get("required")
+        missing = attrs.get("missing_value") or self.class_attribute(constructor, "missing_value")
+        # Optional with the normal None missing value is the declared nullable
+        # domain. Do not infer nullability from WADL presence or model samples.
+        return bool(required and literal(required[1]) is False and missing is not None and literal(missing[1]) is None)
+
+    def reviewed_value(self, interface, field, constructor, attrs):
+        """Apply a still-current review; otherwise explain why it is not applied."""
+        review = REVIEWED_VALUES.get((interface, field))
+        if review is None:
+            return None, None
+        changed = sorted(symbol for symbol, digest in review["evidence"].items() if self.definition_digest(symbol) != digest)
+        if changed:
+            return None, "reviewed value evidence changed: " + ", ".join(changed)
+        result = json.loads(json.dumps(review["schema"]))
+        if self.declared_nullable(constructor, attrs):
+            result["nullable"] = True
+        return result, None
+
     def schema(self, constructor, attrs):
         interfaces = [name for name in self.order(constructor, True) if not name.startswith("implements:")]
         candidates = [(self.resolve(ifaces[0]), factory) for ifaces, factory in self.adapters if len(ifaces) == 2 and self.resolve(ifaces[0]) in interfaces]
         winning_interface = next((interface for interface in interfaces if any(candidate == interface for candidate, _ in candidates)), None)
         factories = {factory for interface, factory in candidates if interface == winning_interface}
         vocabulary = None
+        value_class = None
         if factories == {"lazr.restful.marshallers.VocabularyLookupFieldMarshaller"}:
-            vocabulary = self.vocabulary(attrs.get("vocabulary"))
+            if "values" in attrs and "vocabulary" not in attrs:
+                # Choice(values=...) builds SimpleVocabulary.fromValues(values),
+                # whose terms keep the iterated values themselves.
+                if not self.is_enumerated_type(attrs["values"]):
+                    return {}, "", "dynamic or unsupported choice values"
+                vocabulary = "zope.schema.vocabulary.SimpleVocabulary"
+                value_class = ENUM_ITEM
+            else:
+                vocabulary = self.vocabulary(attrs.get("vocabulary"))
             if vocabulary is None:
                 return {}, "", "dynamic or unsupported choice vocabulary"
             # Adapter lookup iterates argument __sro__ in order, not as an
@@ -520,8 +706,20 @@ class Source:
         factory = factories.pop()
         name = factory.removeprefix("lazr.restful.marshallers.")
         if name == "TokenizedVocabularyFieldMarshaller":
-            if vocabulary is None or not self.tokenized_value_is_string(vocabulary):
+            # unmarshall returns the stored term value for ResourceJSONEncoder.
+            if value_class is not None:
+                if not self.string_publisher(value_class):
+                    return {}, "", "choice value serialization unresolved"
+            elif vocabulary is None or not self.tokenized_value_is_string(vocabulary):
                 return {}, "", "tokenized vocabulary value serialization unresolved"
+            kind, format_, suffix = "string", None, ""
+        elif name == "SimpleFieldMarshaller":
+            # unmarshall returns the attribute unchanged; only a declared
+            # value _type with a string IJSONPublishable adapter is known.
+            declared = self.class_attribute(constructor, "_type")
+            value_class = self.resolve(self.reference(*declared)) if declared else ""
+            if not value_class or not self.string_publisher(value_class):
+                return {}, "", "simple field value serialization unresolved"
             kind, format_, suffix = "string", None, ""
         elif name in MARSHALLERS:
             kind, format_, suffix = MARSHALLERS[name]
@@ -534,11 +732,7 @@ class Source:
         # when required=True governs input validation, not response values.
         if name == "ObjectLookupFieldMarshaller":
             result["responseNullable"] = True
-        required = attrs.get("required")
-        missing = attrs.get("missing_value") or self.class_attribute(constructor, "missing_value")
-        # Optional with the normal None missing value is the declared nullable
-        # domain. Do not infer nullability from WADL presence or model samples.
-        if required and literal(required[1]) is False and missing is not None and literal(missing[1]) is None:
+        if self.declared_nullable(constructor, attrs):
             result["nullable"] = True
         reason = None
         if kind in ("array", "object"):
@@ -610,9 +804,19 @@ class Source:
                         continue
                     constructor, attrs, aliases = expression
                     metadata, suffix, reason = self.schema(constructor, attrs)
+                    reviewed = False
+                    if not metadata.get("type"):
+                        value, review_reason = self.reviewed_value(declaring, field, constructor, attrs)
+                        if value is not None:
+                            metadata, reason, reviewed = value, None, True
+                            self.reviewed.add((declaring, field))
+                        elif review_reason:
+                            reason = review_reason
                     for alias in set(aliases):
                         wire = (alias or field) + suffix
                         provenance = {"interface": declaring, "field": field, "constructor": constructor, "source": self.module(module)["origin"], "line": node.lineno}
+                        if reviewed:
+                            provenance["reviewed"] = True
                         origins[resource]["fields"].setdefault(wire, []).append(provenance)
                         if wire in declarations and declarations[wire] != metadata:
                             conflicts.add(wire)
@@ -655,7 +859,7 @@ def main():
     stats = Counter(field["type"] for fields in catalog.values() for field in fields.values())
     source_digest = sha256(json.dumps(source.hashes, sort_keys=True).encode()).hexdigest()
     provenance = {
-        "method": "conservative Python AST/import/interface and ZCML adapter extraction",
+        "method": "conservative Python AST/import/interface and ZCML adapter extraction, plus digest-pinned reviews of values interfaces leave undeclared",
         "nullable_semantics": "declared required=False with None missing value accepts None for inputs and responses",
         "response_nullable_semantics": "reference marshaller explicitly serializes URL-or-None; response-only, independent of input validation",
         "redaction": {
@@ -665,6 +869,10 @@ def main():
             "semantics": "FieldUnmarshallerMixin._unmarshallField substitutes this exact string when field access or unmarshalling raises Unauthorized",
         },
         "dependency_versions": source.dependencies,
+        "reviewed_values": [
+            {"interface": interface, "field": field, **REVIEWED_VALUES[(interface, field)]}
+            for interface, field in sorted(source.reviewed)
+        ],
         "registered_modules": sorted(source.registered_modules),
         "vocabulary_utilities": {name: sorted(components) for name, components in sorted(source.vocabulary_utilities.items())},
         "source_sha256": dict(sorted(source.hashes.items())),
