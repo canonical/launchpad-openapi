@@ -163,8 +163,8 @@ The exporter resolves source declarations without importing or running Launchpad
 
 ## Static API reference page
 
-`site/index.html` is the Scalar page template. Build a self-contained page with
-fresh specs from both environments:
+`site/index.html` is the Scalar page template. Build a page with embedded fresh
+specs from both environments:
 
 ```console
 pnpm build
@@ -174,8 +174,11 @@ node dist/index.js --environment qastaging --format json --output site/dist/qast
 pnpm build:site site/dist/production.json site/dist/qastaging.json
 ```
 
-Deploy `site/dist/index.html` to a static web server. Generated files are ignored
-by Git; the builder preserves the OpenAPI documents unchanged.
+Deploy `site/dist/index.html` to a static web server and copy
+`assets/launchpad-favicon.png` into an `assets/` directory beside it. The favicon
+comes from [launchpad.net](https://launchpad.net/@@/favicon-32x32.png?v=2022).
+Generated files are ignored by Git; the builder preserves the OpenAPI documents
+unchanged.
 
 Search uses one embedded Web Worker to build and cache an index per environment
 and run fuzzy queries off the main thread. Only bounded result summaries return

@@ -13,7 +13,7 @@ import { describe, it } from "node:test";
 import { siteOpenApi } from "../testing/fixtures.ts";
 
 describe("static reference build", () => {
-  it("embeds both specs unchanged and safely escapes HTML script delimiters", async () => {
+  it("embeds both specs safely and links the Launchpad favicon", async () => {
     const directory = await mkdtemp(join(tmpdir(), "launchpad-site-build-"));
     try {
       const input = join(directory, "spec.json");
@@ -37,6 +37,12 @@ describe("static reference build", () => {
       }
       assert.ok(!html.includes('<script>alert("injected")</script>'));
       assert.ok(html.includes("Launchpad API docs"));
+      const favicon = html.match(
+        /<head>[\s\S]*?(<link\b[^>]*\brel="icon"[^>]*>)[\s\S]*?<\/head>/,
+      )?.[1];
+      assert.ok(favicon, "The generated page must declare its favicon");
+      assert.match(favicon, /\btype="image\/png"/);
+      assert.match(favicon, /\bhref="\.\/assets\/launchpad-favicon\.png"/);
     } finally {
       await rm(directory, { recursive: true, force: true });
     }

@@ -2,12 +2,12 @@
 <!--
   Standalone Launchpad OpenAPI reference.
 
-  A single, self-contained HTML file meant to be dropped onto any static file
-  server. The OpenAPI 3.0.3 documents for each Launchpad environment are
-  pre-generated from WADL (using @canonical/launchpad-openapi) and embedded
-  directly in this file, so no network access is required at load time beyond
-  the Scalar UI bundle and web fonts. Rendered with Scalar's API reference,
-  themed to match Canonical's Vanilla design system (light + dark).
+  An HTML page meant to be dropped onto any static file server alongside
+  assets/launchpad-favicon.png for the favicon. The OpenAPI 3.0.3 documents for
+  each Launchpad environment are pre-generated from WADL (using
+  @canonical/launchpad-openapi) and embedded directly in this file, so no API
+  fetch is required at load time. Rendered with Scalar's API reference, themed
+  to match Canonical's Vanilla design system (light + dark).
 
   This file is the page template. site/build.mjs embeds both generated specs
   and writes the deployable page to site/dist/index.html.
@@ -20,6 +20,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Launchpad API reference</title>
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="./assets/launchpad-favicon.png"
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
