@@ -104,7 +104,7 @@ for normalization, namespace inheritance, aliases, and stability guarantees.
 
 Resolved collection GET responses include optional `ws.start` and `ws.size` integer query parameters, plus the `memo` and `direction` string controls used by pagination links. Default and maximum page sizes are server-configured. Non-positive sizes fall back to the configured default; `direction=backwards` selects backward navigation. Existing WADL parameter declarations take precedence.
 
-Named collection GETs additionally support `ws.show=total_size`, returning a non-negative JSON integer instead of a page. Omission or other values retain the page response. Their HTTP 200 JSON response schemas use `anyOf` for the existing page and the count, without changing shared page components. Standard collection GETs do not implement the count switch, and other statuses and non-JSON responses are not widened.
+Named collection GETs additionally support `ws.show=total_size`, returning a non-negative JSON integer instead of a page. The optional query schema documents only the `total_size` literal; the server still ignores other strings. Omission or other values retain the page response. Their HTTP 200 JSON response schemas use `anyOf` for the existing page and the count, without changing shared page components. Standard collection GETs do not implement the count switch, and other statuses and non-JSON responses are not widened.
 
 ### Publication file responses
 

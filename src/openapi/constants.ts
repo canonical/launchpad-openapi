@@ -46,14 +46,14 @@ export const COLLECTION_PAGING_PARAMETERS: readonly ParameterObject[] = [
   },
 ];
 
-/** Only exact total_size selects a count; other strings leave the normal page. */
+/** Document only total_size; the server ignores other strings and returns a page. */
 export const COLLECTION_SHOW_PARAMETER: ParameterObject = {
   name: "ws.show",
   in: "query",
   required: false,
   description:
     "ws.show=total_size returns the collection count instead of a page; other values return the normal page.",
-  schema: { type: "string" },
+  schema: { type: "string", enum: ["total_size"] },
 };
 
 export const EXAMPLE_BY_PARAM: Record<string, string> = {

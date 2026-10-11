@@ -122,6 +122,13 @@ function expectOptionalControl(
   return parameter;
 }
 
+function expectOptionalShowControl(operation: OperationObject) {
+  const parameter = getQueryParameter(operation, "ws.show");
+  expect(parameter.required).toBe(false);
+  expect(parameter.schema).toEqual({ type: "string", enum: ["total_size"] });
+  return parameter;
+}
+
 function expectCountUnion(
   operation: OperationObject,
   refs: string[],
@@ -168,7 +175,7 @@ describe("generated collection controls", () => {
         for (const [name, type] of pagingControls) {
           expectOptionalControl(operation, name, type);
         }
-        expectOptionalControl(operation, "ws.show", "string");
+        expectOptionalShowControl(operation);
         expect(
           getQueryParameters(operation).map((parameter) => parameter.name),
         ).toEqual([
@@ -256,7 +263,6 @@ describe("generated collection controls", () => {
     it.each([
       { name: "memo", values: ["", "2", "opaque cursor /+=="] },
       { name: "direction", values: ["", "backwards", "forwards", "unknown"] },
-      { name: "ws.show", values: ["", "total_size", "TOTAL_SIZE", "other"] },
     ])(
       "keeps $name an unrestricted string rather than a guessed enum",
       ({ name, values }) => {
@@ -271,6 +277,16 @@ describe("generated collection controls", () => {
           expect(validate(value)).toBe(false);
       },
     );
+
+    it("documents only the total_size literal for optional ws.show", () => {
+      const parameter = expectOptionalShowControl(
+        findOperation("archive.distribution.getPublishedSources"),
+      );
+      const validate = ajv.compile(parameter.schema ?? {});
+      expect(validate("total_size")).toBe(true);
+      for (const value of ["", "TOTAL_SIZE", "other", 1, false, null, [], {}])
+        expect(validate(value), JSON.stringify(value)).toBe(false);
+    });
   });
 
   describe("standard collections and declaration precedence", () => {
@@ -447,7 +463,7 @@ describe("generated collection controls", () => {
       const operation = findOperation("archive.distribution.mixedResponses");
       for (const [name, type] of pagingControls)
         expectOptionalControl(operation, name, type);
-      expectOptionalControl(operation, "ws.show", "string");
+      expectOptionalShowControl(operation);
       expectCountUnion(operation, [
         "source_package_publishing_history-page",
         "processor-page",
