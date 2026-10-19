@@ -7,6 +7,13 @@ coverage/
 .env.*
 compose.local.yaml
 
+# Python metadata exporter
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
 # Rockcraft build artefacts
 *.rock
 packdex-docker.tar

@@ -270,6 +270,71 @@ describe("buildSchemas", () => {
       }
     });
 
+    it.each([
+      { options: ["another format"], expected: ["another format", null] },
+      {
+        options: ["another format", "Bazaar-NG meta directory, format 1 "],
+        expected: [
+          "another format",
+          "Bazaar-NG meta directory, format 1\n",
+          null,
+        ],
+      },
+    ])(
+      "corrects only known wire values without replacing the first enum example: $options",
+      ({ options, expected }) => {
+        const schemas = buildSchemas(
+          parseWadl(
+            `<application xmlns="http://wadl.dev.java.net/2009/02"
+              xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+              <representation id="branch-full" mediaType="application/json">
+                <param name="control_format" type="xsd:string" required="true">
+                  ${options.map((value) => `<option value="${value}"/>`).join("")}
+                </param>
+              </representation>
+            </application>`,
+          ).unwrap().representations,
+        );
+
+        for (const id of ["branch-full", "branch-full-nullable"]) {
+          expect(representationProperties(schemas, id).control_format).toEqual({
+            type: "string",
+            enum: expected,
+            nullable: true,
+            example: "another format",
+          });
+        }
+      },
+    );
+
+    it("keeps a required numeric example and description on the redaction union", () => {
+      const schemas = buildSchemas(
+        parseWadl(
+          `<application xmlns="http://wadl.dev.java.net/2009/02">
+            <representation id="bug-full" mediaType="application/json">
+              <param name="message_count" required="true">
+                <doc>Number of messages.</doc>
+              </param>
+            </representation>
+          </application>`,
+        ).unwrap().representations,
+      );
+
+      expect(
+        representationProperties(schemas, "bug-full").message_count,
+      ).toEqual({
+        oneOf: [
+          { type: "integer" },
+          { type: "string", enum: ["tag:launchpad.net:2008:redacted"] },
+        ],
+        description: "Number of messages.",
+        example: 1,
+      });
+      expect(schemas["bug-full"]).toMatchObject({
+        required: ["message_count"],
+      });
+    });
+
     it("does not make collection start or entries nullable", () => {
       const schemas = buildSchemas(
         parseWadl(sampleWadl).unwrap().representations,

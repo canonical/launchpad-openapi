@@ -131,6 +131,163 @@ describe("buildParamSchema", () => {
       });
     });
   });
+  describe("additional scalar and enum contracts", () => {
+    it.each(["decimal", "double", "float", "base64Binary"])(
+      "maps XSD %s with a type-compatible required example",
+      (type) => {
+        const fields = parseWadl(
+          `<application xmlns="http://wadl.dev.java.net/2009/02"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+            <representation id="scalar" mediaType="application/json">
+              <param name="value" type="xsd:${type}" required="true"/>
+            </representation>
+          </application>`,
+        ).unwrap().representations.scalar?.fields;
+        assert(fields !== undefined);
+
+        expect(buildParamSchema(fields[0])).toEqual(
+          type === "base64Binary"
+            ? { type: "string", format: "byte", example: "YQ==" }
+            : { type: "number", example: 1 },
+        );
+      },
+    );
+
+    it.each([
+      {
+        type: "int",
+        options: ["-2", "3"],
+        schemaType: "integer",
+        values: [-2, 3],
+      },
+      {
+        type: "double",
+        options: ["1.5", "2e2"],
+        schemaType: "number",
+        values: [1.5, 200],
+      },
+      {
+        type: "int",
+        options: ["1", "2.5"],
+        schemaType: "string",
+        values: ["1", "2.5"],
+      },
+      {
+        type: "double",
+        options: ["1", "Infinity"],
+        schemaType: "string",
+        values: ["1", "Infinity"],
+      },
+      {
+        type: "boolean",
+        options: ["false", "true"],
+        schemaType: "boolean",
+        values: [false, true],
+      },
+      {
+        type: "boolean",
+        options: ["true", "unknown"],
+        schemaType: "string",
+        values: ["true", "unknown"],
+      },
+      {
+        type: "string",
+        options: ["Open", "Closed"],
+        schemaType: "string",
+        values: ["Open", "Closed"],
+      },
+    ])(
+      "converts $type options $options without losing unrepresentable wire values",
+      ({ type, options, schemaType, values }) => {
+        const fields = parseWadl(
+          `<application xmlns="http://wadl.dev.java.net/2009/02"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+            <representation id="choice" mediaType="application/json">
+              <param name="value" type="xsd:${type}" required="true">
+                ${options.map((value) => `<option value="${value}"/>`).join("")}
+              </param>
+            </representation>
+          </application>`,
+        ).unwrap().representations.choice?.fields;
+        assert(fields !== undefined);
+
+        expect(buildParamSchema(fields[0])).toEqual({
+          type: schemaType,
+          enum: values,
+          example: values[0],
+        });
+      },
+    );
+
+    it("keeps unknown XSD types unconstrained by their names while retaining options", () => {
+      const fields = parseWadl(
+        `<application xmlns="http://wadl.dev.java.net/2009/02"
+          xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+          <representation id="unknown" mediaType="application/json">
+            <param name="value" type="xsd:unsupported" required="true"/>
+            <param name="choice" type="xsd:unsupported" required="true">
+              <option value="custom"/>
+            </param>
+          </representation>
+        </application>`,
+      ).unwrap().representations.unknown?.fields;
+      assert(fields !== undefined);
+
+      expect(buildParamSchema(fields[0])).toEqual({
+        type: "string",
+        example: "value",
+      });
+      expect(buildParamSchema(fields[1])).toEqual({
+        type: "string",
+        enum: ["custom"],
+        example: "custom",
+      });
+    });
+  });
+
+  describe("required example compatibility", () => {
+    it.each([{}, { type: "object" as const }])(
+      "omits scalar examples for fallback schema %j",
+      (fallback) => {
+        const fields =
+          parseWadl(sampleWadl).unwrap().representations["person-full"]?.fields;
+        assert(fields !== undefined);
+        const name = fields.find((field) => field.name === "name");
+        assert(name !== undefined);
+
+        expect(buildParamSchema(name, fallback)).toEqual({
+          ...fallback,
+          description: "The name.",
+        });
+      },
+    );
+
+    it.each([
+      { name: "url", example: "https://git.launchpad.net/launchpad" },
+      { name: "owner", example: undefined },
+      { name: "unrecognized_uri", example: undefined },
+    ])(
+      "uses a curated URI only with a real scheme for $name",
+      ({ name, example }) => {
+        const fields = parseWadl(
+          `<application xmlns="http://wadl.dev.java.net/2009/02"
+          xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+          <representation id="uri" mediaType="application/json">
+            <param name="${name}" type="xsd:anyURI" required="true"/>
+          </representation>
+        </application>`,
+        ).unwrap().representations.uri?.fields;
+        assert(fields !== undefined);
+
+        expect(buildParamSchema(fields[0])).toEqual({
+          type: "string",
+          format: "uri",
+          ...(example === undefined ? {} : { example }),
+        });
+      },
+    );
+  });
+
   describe("explicit WADL types and repetition", () => {
     it("maps scalar XML Schema types and required examples", () => {
       const schemas = typedSchemas();

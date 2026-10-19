@@ -618,6 +618,88 @@ describe("buildPaths", () => {
   });
 
   describe("resource paths", () => {
+    it("omits canonical and alias paths when no callable methods remain", () => {
+      const model = parseWadl(sampleWadl).unwrap();
+      const people = model.resourceTypes.people!;
+      people.methods.splice(
+        0,
+        people.methods.length,
+        ...people.methods
+          .filter((method) => method.httpMethod === "POST")
+          .map((method) => ({ ...method, wsOp: undefined })),
+      );
+      const paths = buildPaths(model, buildSchemas(model.representations), {
+        people_collection_link: `${model.baseUrl}/directory`,
+      });
+
+      expect(
+        Object.keys(paths).some((path) => path.startsWith("/people")),
+      ).toBe(false);
+      expect(paths).not.toHaveProperty("/directory");
+      expect(paths["/{person}"]?.get).toBeDefined();
+    });
+
+    it("preserves duplicate verb declarations and their distinct request models as alternatives", () => {
+      const model = parseWadl(sampleWadl).unwrap();
+      const person = model.resourceTypes.person!;
+      const put = person.methods.find((method) => method.httpMethod === "PUT")!;
+      person.methods.push({
+        ...put,
+        id: "person-replace",
+        requestRepresentationId: "person-diff",
+      });
+      const paths = buildPaths(model, buildSchemas(model.representations));
+
+      expect(paths["/{person}"]?.put).toMatchObject({
+        operationId: "person.put",
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/person-full" },
+            },
+          },
+        },
+      });
+      expect(paths["/{person}"]?.["x-launchpad-route-alternatives"]).toEqual([
+        {
+          path: "/{person}",
+          resourceTypeId: "person",
+          item: {
+            put: expect.objectContaining({
+              operationId: "person.replace",
+              requestBody: {
+                required: true,
+                content: {
+                  "application/json": {
+                    schema: { $ref: "#/components/schemas/person-diff" },
+                  },
+                },
+              },
+            }),
+          },
+        },
+      ]);
+    });
+
+    it.each([undefined, "missing-model"])(
+      "keeps PUT callable without inventing a request body for model %s",
+      (requestRepresentationId) => {
+        const model = parseWadl(sampleWadl).unwrap();
+        const methods = model.resourceTypes.person!.methods;
+        const putIndex = methods.findIndex(
+          (method) => method.httpMethod === "PUT",
+        );
+        methods.splice(putIndex, 1, {
+          ...methods[putIndex]!,
+          requestRepresentationId,
+        });
+        const paths = buildPaths(model, buildSchemas(model.representations));
+
+        expect(paths["/{person}"]?.put?.operationId).toBe("person.put");
+        expect(paths["/{person}"]?.put).not.toHaveProperty("requestBody");
+      },
+    );
+
     it("builds standard and named operations on top-level paths", () => {
       const model = parseWadl(sampleWadl).unwrap();
       const paths = buildPaths(

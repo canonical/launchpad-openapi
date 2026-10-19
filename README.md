@@ -87,9 +87,12 @@ The test suite covers WADL parsing, OpenAPI generation, CLI behavior, local-file
 
 ### Refresh the field catalog
 
-Catalog refreshes require Python 3.9+ and a bootstrapped Launchpad checkout containing its pinned `lazr.restful`, `zope.schema`, `zope.interface`, `lazr.enum`, and `lazr.lifecycle` source archives in `download-cache/dist`:
+Catalog refreshes require [uv](https://docs.astral.sh/uv/getting-started/installation/) and Git. The exporter automatically shallow-clones the public Launchpad repository and downloads its five pinned dependency source archives from PyPI; no sibling checkout or Launchpad bootstrap is needed. The separate [metadata exporter project](tools/metadata-exporter/README.md) declares Python 3.9+ in its own `pyproject.toml` and selects Python 3.12 for development in `.python-version`. uv installs the locked exporter dependencies (including `asttokens` for AST source ranges) in `tools/metadata-exporter/.venv`:
 
 ```console
+uv sync --locked --project tools/metadata-exporter
+pnpm metadata:test
+pnpm metadata:check
 pnpm metadata:export
 pnpm format
 pnpm check
@@ -98,16 +101,27 @@ pnpm test
 pnpm build
 ```
 
-The default checkout is `../launchpad`, next to this repository, and output defaults to `src/wadl/metadata/`. Override either path when needed:
+The managed checkout lives in the operating system's user cache and is reused without network access once its archives are present. Use `--refresh` to update it, or `--cache-dir` to choose another cache location. Output still defaults to `src/wadl/metadata/`:
 
 ```console
-pnpm metadata:export /path/to/launchpad
+pnpm metadata:export
+pnpm metadata:export --refresh
+pnpm metadata:export --cache-dir /path/to/cache --output /path/to/catalog
+```
+
+You can still pass an existing checkout explicitly. This bypasses cloning and downloading, so its pinned source archives must already be present in `download-cache/dist`:
+
+```console
 pnpm metadata:export /path/to/launchpad --output /path/to/catalog
 ```
 
-The exporter resolves source declarations without importing or running Launchpad. `src/wadl/metadata/provenance.json` records dependency versions, source hashes, field origins, reviewed values, and unresolved declarations.
+`pnpm metadata:export` runs `uv run --locked --project tools/metadata-exporter launchpad-metadata-export`. You can also run `uv run --locked --project tools/metadata-exporter python -m launchpad_metadata` with the same arguments. All Python source, tests, and configuration live in `tools/metadata-exporter/`; `src/wadl/metadata/` contains only the generated catalog and TypeScript metadata code.
 
-If a refresh withdraws a review, it lists the changed definitions under `unresolved`. Re-review those definitions before updating the pinned digests in `export.py`. Regenerate OpenAPI and downstream clients after refreshing the catalog.
+The exporter resolves source declarations without importing or running Launchpad. It uses the standalone resolution-order implementation from the pinned `zope.interface` archive, preserving Zope's interface precedence. `asttokens` tracks original source ranges while review hashes continue to cover complete lines, including decorators and trailing comments. `src/wadl/metadata/provenance.json` records dependency versions, source hashes, field origins, reviewed values, and unresolved declarations.
+
+The Python tests use a small source-only checkout fixture and do not require a real Launchpad checkout. To format Python files, run `uv run --locked --directory tools/metadata-exporter ruff format .`; the existing `pnpm check` and `pnpm test` commands continue to check the TypeScript application.
+
+If a refresh withdraws a review, it lists the changed definitions under `unresolved`. Re-review those definitions before updating the pinned digests in `tools/metadata-exporter/src/launchpad_metadata/reviews.py`. Regenerate OpenAPI and downstream clients after refreshing the catalog.
 
 ## License
 
