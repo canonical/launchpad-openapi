@@ -27,7 +27,8 @@ subject[.namespace...].operation
 ```
 
 - **Subject:** The WADL resource type ID, such as `archive`, `git_repository`, or
-  `projects`, normalized to lowerCamelCase.
+  `projects`, normalized to lowerCamelCase. Scoped collection GETs use their
+  parent entry's resource type.
 - **Namespace:** An explicitly declared context or variant, such as `ppa` or
   `sourcePackage`. A path may have no namespaces, one, or several.
 - **Operation:** For named methods, the declared `ws.op` value. For standard
@@ -124,6 +125,15 @@ A service-root link matching a canonical path deduplicates against that route
 and retains its catalog naming metadata and parameters. Runtime links supplement
 canonical routes rather than replacing them. Owners, identifiers, versions, and
 other instance data remain request inputs, not inferred namespaces.
+
+Scoped collection GETs inherit the parent route's namespace and append the
+exported collection field's name, removing only the terminal `_collection_link`.
+For example, `series_collection_link` on a distribution becomes
+`distribution.series.get`; a collection beneath a runtime `me` alias retains
+that context as `person.me.members.get`. The operation component comes from the
+page resource's standard WADL method, stripping its own resource-type prefix,
+not the parent's. Naming metadata never changes the declared page response or
+adds the named-operation count switch.
 
 The service-root GET retains the fixed name `serviceRoot.get` with an empty
 namespace, independent of its XML method ID or declared response statuses.

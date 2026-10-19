@@ -3260,6 +3260,7 @@ export const RESOURCE_FIELD_METADATA: Readonly<
       "type": "string"
     },
     "changeslist": {
+      "responseNullable": true,
       "type": "string"
     },
     "component_names": {
@@ -3286,6 +3287,7 @@ export const RESOURCE_FIELD_METADATA: Readonly<
     },
     "datereleased": {
       "format": "date-time",
+      "responseNullable": true,
       "type": "string"
     },
     "description": {

@@ -989,6 +989,109 @@ export const collectionControlsWadl = `<?xml version="1.0"?>
   </wadl:representation>
 </wadl:application>`;
 
+/** Scoped collection links, excluded lookalikes, and required nullable series responses. */
+export const scopedCollectionsWadl = `<?xml version="1.0"?>
+<wadl:application xmlns:wadl="http://research.sun.com/wadl/2006/10"
+                  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wadl:resources base="https://api.launchpad.test/devel/"/>
+  <wadl:representation mediaType="application/json" id="service-root-json">
+    <wadl:param name="me_link"><wadl:link resource_type="#person"/></wadl:param>
+  </wadl:representation>
+  <wadl:resource_type id="distribution">
+    <wadl:method name="GET" id="distribution-get">
+      <wadl:response><wadl:representation href="#distribution-full"/></wadl:response>
+    </wadl:method>
+  </wadl:resource_type>
+  <wadl:representation mediaType="application/json" id="distribution-full">
+    <wadl:param name="series_collection_link" path="$['series_collection_link']">
+      <wadl:link resource_type="https://api.launchpad.test/devel/#distro_series-page-resource"/>
+    </wadl:param>
+  </wadl:representation>
+  ${["person", "team", "archive_permission", "unknown"]
+    .map(
+      (id) => `<wadl:resource_type id="${id}">
+    <wadl:method name="GET" id="${id}-get">
+      <wadl:response><wadl:representation href="#${id}-full"/></wadl:response>
+    </wadl:method>
+  </wadl:resource_type>
+  <wadl:representation mediaType="application/json" id="${id}-full">
+    <wadl:param name="members_collection_link" path="$['members_collection_link']">
+      <wadl:link resource_type="#person-page-resource"/>
+    </wadl:param>
+  </wadl:representation>`,
+    )
+    .join("\n")}
+  <wadl:representation mediaType="application/json" id="distribution-diff">
+    <wadl:param name="diff_only_collection_link" path="$['diff_only_collection_link']">
+      <wadl:link resource_type="#person-page-resource"/>
+    </wadl:param>
+  </wadl:representation>
+  <wadl:representation mediaType="application/json" id="distribution-write">
+    <wadl:param name="write_only_collection_link" path="$['write_only_collection_link']">
+      <wadl:link resource_type="#person-page-resource"/>
+    </wadl:param>
+  </wadl:representation>
+  <wadl:resource_type id="distro_series">
+    <wadl:method name="GET" id="distro_series-get">
+      <wadl:response><wadl:representation href="#distro_series-full"/></wadl:response>
+    </wadl:method>
+  </wadl:resource_type>
+  ${["full", "diff", "write"]
+    .map(
+      (
+        kind,
+      ) => `<wadl:representation mediaType="application/json" id="distro_series-${kind}">
+    <wadl:param name="changeslist" path="$['changeslist']" type="xsd:string" required="${kind !== "diff"}"/>
+    <wadl:param name="datereleased" path="$['datereleased']" type="xsd:dateTime" required="${kind !== "diff"}"/>
+  </wadl:representation>`,
+    )
+    .join("\n")}
+  ${["distro_series", "person"]
+    .map(
+      (id) => `<wadl:resource_type id="${id}-page-resource">
+    <wadl:method name="GET" id="${id}-page-resource-get">
+      <wadl:response><wadl:representation href="#${id}-page"/></wadl:response>
+    </wadl:method>
+  </wadl:resource_type>
+  <wadl:representation mediaType="application/json" id="${id}-page">
+    <wadl:param name="start" path="$['start']" type="xsd:int" required="true"/>
+    <wadl:param name="entries" path="$['entries']" required="true"/>
+    <wadl:param name="entry_links" path="$['entries'][*]['self_link']">
+      <wadl:link resource_type="#${id}"/>
+    </wadl:param>
+    <wadl:param name="next_collection_link" path="$['next_collection_link']">
+      <wadl:link resource_type="#${id}-page-resource"/>
+    </wadl:param>
+    <wadl:param name="prev_collection_link" path="$['prev_collection_link']">
+      <wadl:link resource_type="#${id}-page-resource"/>
+    </wadl:param>
+    <wadl:param name="nested_collection_link" path="$['entries'][*]['nested_collection_link']">
+      <wadl:link resource_type="#person-page-resource"/>
+    </wadl:param>
+  </wadl:representation>`,
+    )
+    .join("\n")}
+  <wadl:resource_type id="no_get-page-resource">
+    <wadl:method name="GET" id="no_get-page-resource-search">
+      <wadl:request><wadl:param name="ws.op" fixed="search"/></wadl:request>
+      <wadl:response><wadl:representation href="#person-page"/></wadl:response>
+    </wadl:method>
+  </wadl:resource_type>
+  <wadl:representation mediaType="application/json" id="project-full">
+    <wadl:param name="plain_collection_link" path="$['plain_collection_link']"/>
+    <wadl:param name="owner_link" path="$['owner_link']"><wadl:link resource_type="#person-page-resource"/></wadl:param>
+    <wadl:param name="missing_collection_link" path="$['missing_collection_link']"><wadl:link resource_type="#missing-page-resource"/></wadl:param>
+    <wadl:param name="entry_collection_link" path="$['entry_collection_link']"><wadl:link resource_type="#person"/></wadl:param>
+    <wadl:param name="no_get_collection_link" path="$['no_get_collection_link']"><wadl:link resource_type="#no_get-page-resource"/></wadl:param>
+    <wadl:param name="nested_collection_link" path="$['entries'][*]['nested_collection_link']"><wadl:link resource_type="#person-page-resource"/></wadl:param>
+  </wadl:representation>
+  <wadl:resource_type id="project">
+    <wadl:method name="GET" id="project-get">
+      <wadl:response><wadl:representation href="#project-full"/></wadl:response>
+    </wadl:method>
+  </wadl:resource_type>
+</wadl:application>`;
+
 /** Selected fields from read-only production pages, plus a source-backed empty page. */
 export const collectionPageBodies = {
   normal: {

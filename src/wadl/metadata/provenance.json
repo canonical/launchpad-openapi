@@ -6,7 +6,7 @@
     "zope.interface": "5.4.0",
     "zope.schema": "6.0.0"
   },
-  "method": "conservative Python AST/import/interface and ZCML adapter extraction, plus digest-pinned reviews of values interfaces leave undeclared",
+  "method": "conservative Python AST/import/interface and ZCML adapter extraction, plus digest-pinned reviews of serialized values interfaces leave undeclared or constrain only for input",
   "nullable_semantics": "declared required=False with None missing value accepts None for inputs and responses",
   "redaction": {
     "line": 830,
@@ -7020,6 +7020,7 @@
             "field": "changeslist",
             "interface": "lp.registry.interfaces.distroseries.IDistroSeriesPublic",
             "line": 374,
+            "reviewed": true,
             "source": "lib/lp/registry/interfaces/distroseries.py"
           }
         ],
@@ -7056,6 +7057,7 @@
             "field": "datereleased",
             "interface": "lp.registry.interfaces.distroseries.IDistroSeriesPublic",
             "line": 328,
+            "reviewed": true,
             "source": "lib/lp/registry/interfaces/distroseries.py"
           }
         ],
@@ -16991,8 +16993,40 @@
       "interfaces": ["lp.registry.interfaces.wikiname.IWikiName"]
     }
   },
-  "response_nullable_semantics": "reference marshaller explicitly serializes URL-or-None; response-only, independent of input validation",
+  "response_nullable_semantics": "reference marshaller or digest-pinned model/serializer review permits None in responses, independent of input validation",
   "reviewed_values": [
+    {
+      "evidence": {
+        "lazr.restful._resource.FieldUnmarshallerMixin._unmarshallField": "9bb41267da098341521ae2448c935fb6122d6ae7f24603947bb77b071822e1d4",
+        "lazr.restful.marshallers.SimpleFieldMarshaller.unmarshall": "0f93dcbc8156596f79bb8038315d9be57ed434d1d61476280ef2276eacf19f03",
+        "lazr.restful.marshallers.TextFieldMarshaller": "0458f64c3b3230eadd7ee5ccb87f44831282b462036cfb1a861d31141ac8d91c",
+        "lp.registry.interfaces.distroseries.IDistroSeriesPublic.changeslist": "0f5e89ca45e2e8c340260e8eaa0523974a4089758a40673b580100e63b88c034",
+        "lp.registry.model.distroseries.DistroSeries.changeslist": "4b3b94dad66e8420de1af3d2f84268e05b3cd28c04c791960f4a1d4ef99aaee4"
+      },
+      "field": "changeslist",
+      "interface": "lp.registry.interfaces.distroseries.IDistroSeriesPublic",
+      "schema": {
+        "responseNullable": true,
+        "type": "string"
+      },
+      "semantics": "DistroSeries.changeslist is a nullable Storm Unicode column; the text marshaller returns its value unchanged without validating the input-only required flag"
+    },
+    {
+      "evidence": {
+        "lazr.restful._resource.FieldUnmarshallerMixin._unmarshallField": "9bb41267da098341521ae2448c935fb6122d6ae7f24603947bb77b071822e1d4",
+        "lazr.restful.marshallers.DateTimeFieldMarshaller.unmarshall": "a82d03cfdf12985fdd1a130c001a629eaae23c572d71d7992a0a1e1365922ed7",
+        "lp.registry.interfaces.distroseries.IDistroSeriesPublic.datereleased": "0b2cab2a76d024525eaaf302d6cbf02281e6f0bd9358fa852f9be9517bc4c0e2",
+        "lp.registry.model.distroseries.DistroSeries.datereleased": "f7ffb3bd6627b78122809322f32220694ebddcf6d1444829afb76b35477df67f"
+      },
+      "field": "datereleased",
+      "interface": "lp.registry.interfaces.distroseries.IDistroSeriesPublic",
+      "schema": {
+        "format": "date-time",
+        "responseNullable": true,
+        "type": "string"
+      },
+      "semantics": "DistroSeries.datereleased is a nullable Storm DateTime column; the datetime marshaller explicitly returns None for None without validating the input-only required flag"
+    },
     {
       "evidence": {
         "lp.registry.interfaces.location.IHasLocation.time_zone": "7a8347203c1de3a3cf7a6b72fb2040dc03db6b3df3749ab23bfd4436d2f04be8",
@@ -17027,7 +17061,7 @@
       "semantics": "ProductSeries.getTimeline, the only TimelineProductSeries constructor call, stores dicts whose name, code_name, type, ISO date, and uri values are str or None"
     }
   ],
-  "source_digest": "2fe137986345da63d29a84adaac5375f2743fb8d48733f0b448822651fc0cec0",
+  "source_digest": "c29cc50307f7b8742179dca6c3e30c888e7e43b6ea08ed83bec9cb259ad72b63",
   "source_sha256": {
     "download-cache/dist/lazr.enum-1.2.1.tar.gz": "ee45a7e617e866d5a101293c6fd750a475303b66b648c46058e74026a298a087",
     "download-cache/dist/lazr.lifecycle-1.2.1.tar.gz": "cffc1a1e3a4431f11ea925a73c26c2e4bb1405fc4cfcfe9c3dbd2ef13e033160",
@@ -17215,6 +17249,7 @@
     "lib/lp/registry/interfaces/teammembership.py": "b5eb0673ea5dd325ae3af47eae43e0856accd3e40223b2fbc4813e021a87cc51",
     "lib/lp/registry/interfaces/webservice.py": "e65c91f4a021e7a10c18bedad512dd7d09101d476c6fa66d751391eef89b5bbc",
     "lib/lp/registry/interfaces/wikiname.py": "6cfb6b84b48e091b0c7757ab62d592515bbc9888b8137466b08ba730e896f7df",
+    "lib/lp/registry/model/distroseries.py": "3640efb3213151428e13f33c6b596a6c8cc5e97af6cb9848d85a9a04a3eb2d20",
     "lib/lp/registry/model/person.py": "5bc24867d53992ba7be8280f58a57349348aea2f223cea1e38d581a768ab48be",
     "lib/lp/registry/model/personlocation.py": "a007dcc89f5c853ae77c402ea154b443efcc8c846146d6d550468d4354666fd1",
     "lib/lp/registry/model/pillaraffiliation.py": "f62430dc2edb8082571d495eb1d25ca64c69fa1aaed700e6a77f396a46d61fb2",

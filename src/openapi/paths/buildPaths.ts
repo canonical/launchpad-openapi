@@ -34,14 +34,16 @@ import type {
   RouteTemplate,
   SupportedHttpMethod,
 } from "../types.js";
+import buildScopedCollectionPaths from "./buildScopedCollectionPaths.js";
 import resolveResourceRoutes from "./resolveResourceRoutes.js";
 import resolveServiceRootLinks from "./resolveServiceRootLinks.js";
 
 /**
  * Build paths from the canonical route catalog and service-root links.
  *
- * Internal, collection-page, and unaddressable marker resource types are omitted.
- * Data-dependent naming conflicts throw ConversionError.
+ * Collection pages are addressed through exported fields on verified parents,
+ * not independent canonical routes. Internal and unaddressable marker types are
+ * omitted. Data-dependent naming conflicts throw ConversionError.
  */
 export default function buildPaths(
   model: WadlDocument,
@@ -55,10 +57,7 @@ export default function buildPaths(
   );
   const serviceRoot = model.resourceTypes[SERVICE_ROOT_TYPE];
   const paths: PathsObject = {};
-  const pathOwners = new Map<
-    string,
-    { path: string; resourceTypeId: string }
-  >();
+  const pathOwners = new Map<string, PathOwner>();
   const resolvedTemplates = new Map<string, readonly RouteTemplate[]>();
   const resolvingTypes = new Set<string>();
   const operationIdSources = new Map<string, string>();
@@ -95,48 +94,82 @@ export default function buildPaths(
         schemas,
         operationIdSources,
       );
-      if (entries.length === 0) continue;
-      const shape = getPathShape(route.base);
-      const owner = pathOwners.get(shape);
-      if (
-        owner !== undefined &&
-        (owner.resourceTypeId !== resourceType.id || owner.path !== route.base)
-      ) {
-        const primary = paths[owner.path];
-        if (primary === undefined)
-          throw new Error(`Missing path for ${owner.path}`);
-        for (const [path, item] of entries) {
-          addRouteAlternative(primary, {
-            path,
-            resourceTypeId: resourceType.id,
-            item,
-          });
-        }
-        continue;
-      }
-      for (const [path, item] of entries) {
-        const existing = paths[path];
-        if (existing === undefined) {
-          paths[path] = item;
-        } else {
-          mergePathItems(existing, item, path, resourceType.id);
-        }
-      }
-      if (owner === undefined) {
-        pathOwners.set(shape, {
-          path: paths[route.base] === undefined ? entries[0][0] : route.base,
-          resourceTypeId: resourceType.id,
-        });
+      insertRouteEntries(
+        paths,
+        pathOwners,
+        route.base,
+        resourceType.id,
+        entries,
+      );
+      for (const scoped of buildScopedCollectionPaths(
+        model,
+        resourceType,
+        route,
+        schemas,
+        operationIdSources,
+      )) {
+        insertRouteEntries(
+          paths,
+          pathOwners,
+          scoped.path,
+          scoped.resourceTypeId,
+          [[scoped.path, scoped.item]],
+        );
       }
     }
   }
   return paths;
 }
 
-interface RouteAlternative {
+interface PathOwner {
   path: string;
   resourceTypeId: string;
+}
+
+interface RouteAlternative extends PathOwner {
   item: PathItemObject;
+}
+
+/**
+ * Insert a route's entries under the same ownership rules, including scoped GETs.
+ * @note - Updates the paths and shape ownership being assembled by the caller.
+ */
+function insertRouteEntries(
+  paths: PathsObject,
+  pathOwners: Map<string, PathOwner>,
+  base: string,
+  resourceTypeId: string,
+  entries: [string, PathItemObject][],
+): void {
+  if (entries.length === 0) return;
+  const shape = getPathShape(base);
+  const owner = pathOwners.get(shape);
+  if (
+    owner !== undefined &&
+    (owner.resourceTypeId !== resourceTypeId || owner.path !== base)
+  ) {
+    const primary = paths[owner.path];
+    if (primary === undefined)
+      throw new Error(`Missing path for ${owner.path}`);
+    for (const [path, item] of entries) {
+      addRouteAlternative(primary, { path, resourceTypeId, item });
+    }
+    return;
+  }
+  for (const [path, item] of entries) {
+    const existing = paths[path];
+    if (existing === undefined) {
+      paths[path] = item;
+    } else {
+      mergePathItems(existing, item, path, resourceTypeId);
+    }
+  }
+  if (owner === undefined) {
+    pathOwners.set(shape, {
+      path: paths[base] === undefined ? entries[0][0] : base,
+      resourceTypeId,
+    });
+  }
 }
 
 const ROUTE_ALTERNATIVES_EXTENSION = "x-launchpad-route-alternatives";

@@ -48,6 +48,7 @@ interface OperationArgs {
 }
 
 interface StandardOperationArgs extends OperationArgs {
+  subject?: string;
   verb: SupportedHttpMethod;
   resourceTypeDoc?: string;
 }
@@ -61,6 +62,7 @@ export function buildStandardOperation({
   method,
   verb,
   resourceTypeId,
+  subject = resourceTypeId,
   resourceTypeDoc,
   namespace,
   pathParams,
@@ -84,11 +86,11 @@ export function buildStandardOperation({
       ? "List"
       : ACTION_BY_VERB[verb];
   const operation: IdentifiedOperation = {
-    tags: [resourceTypeId],
-    summary: `${action} ${toLowercaseWords(resourceTypeId)}`.trim(),
+    tags: [subject],
+    summary: `${action} ${toLowercaseWords(subject)}`.trim(),
     description: resourceTypeDoc,
     ...buildOperationNaming({
-      subject: resourceTypeId,
+      subject,
       namespace: namespace ?? [],
       operation: resolveStandardOperationName(method.id, resourceTypeId, verb),
     }),

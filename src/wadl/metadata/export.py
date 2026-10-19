@@ -46,10 +46,31 @@ MARSHALLERS = {
     "DictFieldMarshaller": ("object", None, ""),
     "SimpleVocabularyLookupFieldMarshaller": ("string", None, ""),
 }
-# Values interfaces leave undeclared (a bare Field, or a vocabulary computed at
-# runtime), reviewed in the cited source. A changed declaration or evidence
+# Serialized values interfaces leave undeclared or constrain only for input,
+# reviewed against the model and marshaller. A changed declaration or evidence
 # definition invalidates the review: the field is reported unresolved instead.
 REVIEWED_VALUES = {
+    ("lp.registry.interfaces.distroseries.IDistroSeriesPublic", "changeslist"): {
+        "schema": {"type": "string", "responseNullable": True},
+        "semantics": "DistroSeries.changeslist is a nullable Storm Unicode column; the text marshaller returns its value unchanged without validating the input-only required flag",
+        "evidence": {
+            "lp.registry.interfaces.distroseries.IDistroSeriesPublic.changeslist": "0f5e89ca45e2e8c340260e8eaa0523974a4089758a40673b580100e63b88c034",
+            "lp.registry.model.distroseries.DistroSeries.changeslist": "4b3b94dad66e8420de1af3d2f84268e05b3cd28c04c791960f4a1d4ef99aaee4",
+            "lazr.restful.marshallers.TextFieldMarshaller": "0458f64c3b3230eadd7ee5ccb87f44831282b462036cfb1a861d31141ac8d91c",
+            "lazr.restful.marshallers.SimpleFieldMarshaller.unmarshall": "0f93dcbc8156596f79bb8038315d9be57ed434d1d61476280ef2276eacf19f03",
+            "lazr.restful._resource.FieldUnmarshallerMixin._unmarshallField": "9bb41267da098341521ae2448c935fb6122d6ae7f24603947bb77b071822e1d4",
+        },
+    },
+    ("lp.registry.interfaces.distroseries.IDistroSeriesPublic", "datereleased"): {
+        "schema": {"type": "string", "format": "date-time", "responseNullable": True},
+        "semantics": "DistroSeries.datereleased is a nullable Storm DateTime column; the datetime marshaller explicitly returns None for None without validating the input-only required flag",
+        "evidence": {
+            "lp.registry.interfaces.distroseries.IDistroSeriesPublic.datereleased": "0b2cab2a76d024525eaaf302d6cbf02281e6f0bd9358fa852f9be9517bc4c0e2",
+            "lp.registry.model.distroseries.DistroSeries.datereleased": "f7ffb3bd6627b78122809322f32220694ebddcf6d1444829afb76b35477df67f",
+            "lazr.restful.marshallers.DateTimeFieldMarshaller.unmarshall": "a82d03cfdf12985fdd1a130c001a629eaae23c572d71d7992a0a1e1365922ed7",
+            "lazr.restful._resource.FieldUnmarshallerMixin._unmarshallField": "9bb41267da098341521ae2448c935fb6122d6ae7f24603947bb77b071822e1d4",
+        },
+    },
     ("lp.registry.interfaces.location.IHasLocation", "time_zone"): {
         "schema": {"type": "string"},
         "semantics": "Person.time_zone returns 'UTC' or PersonLocation.time_zone, a non-null Storm Unicode column",
@@ -655,11 +676,13 @@ class Source:
         # domain. Do not infer nullability from WADL presence or model samples.
         return bool(required and literal(required[1]) is False and missing is not None and literal(missing[1]) is None)
 
-    def reviewed_value(self, interface, field, constructor, attrs):
+    def reviewed_value(self, interface, field, constructor, attrs, metadata):
         """Apply a still-current review; otherwise explain why it is not applied."""
         review = REVIEWED_VALUES.get((interface, field))
-        if review is None:
+        if review is None or (metadata.get("type") and not review["schema"].get("responseNullable")):
             return None, None
+        if review["schema"].get("responseNullable") and any(metadata.get(key) != review["schema"].get(key) for key in ("type", "format")):
+            return None, "reviewed response marshaller type changed"
         changed = sorted(symbol for symbol, digest in review["evidence"].items() if self.definition_digest(symbol) != digest)
         if changed:
             return None, "reviewed value evidence changed: " + ", ".join(changed)
@@ -805,13 +828,12 @@ class Source:
                     constructor, attrs, aliases = expression
                     metadata, suffix, reason = self.schema(constructor, attrs)
                     reviewed = False
-                    if not metadata.get("type"):
-                        value, review_reason = self.reviewed_value(declaring, field, constructor, attrs)
-                        if value is not None:
-                            metadata, reason, reviewed = value, None, True
-                            self.reviewed.add((declaring, field))
-                        elif review_reason:
-                            reason = review_reason
+                    value, review_reason = self.reviewed_value(declaring, field, constructor, attrs, metadata)
+                    if value is not None:
+                        metadata, reason, reviewed = value, None, True
+                        self.reviewed.add((declaring, field))
+                    elif review_reason:
+                        reason = review_reason
                     for alias in set(aliases):
                         wire = (alias or field) + suffix
                         provenance = {"interface": declaring, "field": field, "constructor": constructor, "source": self.module(module)["origin"], "line": node.lineno}
@@ -859,9 +881,9 @@ def main():
     stats = Counter(field["type"] for fields in catalog.values() for field in fields.values())
     source_digest = sha256(json.dumps(source.hashes, sort_keys=True).encode()).hexdigest()
     provenance = {
-        "method": "conservative Python AST/import/interface and ZCML adapter extraction, plus digest-pinned reviews of values interfaces leave undeclared",
+        "method": "conservative Python AST/import/interface and ZCML adapter extraction, plus digest-pinned reviews of serialized values interfaces leave undeclared or constrain only for input",
         "nullable_semantics": "declared required=False with None missing value accepts None for inputs and responses",
-        "response_nullable_semantics": "reference marshaller explicitly serializes URL-or-None; response-only, independent of input validation",
+        "response_nullable_semantics": "reference marshaller or digest-pinned model/serializer review permits None in responses, independent of input validation",
         "redaction": {
             "value": redacted_value,
             "source": source.module(redacted_attribute[0])["origin"],
