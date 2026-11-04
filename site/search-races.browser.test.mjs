@@ -173,10 +173,10 @@ describe("search worker races and responsiveness", () => {
         .click();
       const dialog = page.getByRole("dialog", { name: "Search", exact: true });
       await dialog.waitFor({ timeout: 3000 });
-      await dialog.getByRole("combobox").fill("revokeWebAuthnRegistration");
+      await dialog.getByRole("combobox").fill("getMergeProposals");
       await dialog
         .getByRole("option")
-        .filter({ hasText: "revokeWebAuthnRegistration" })
+        .filter({ hasText: "getMergeProposals" })
         .first()
         .waitFor();
       assert.equal(page.workers().length, 1);
@@ -190,7 +190,7 @@ describe("search worker races and responsiveness", () => {
       const page = await openPage();
       try {
         await holdReply(page);
-        let query = "revokeWebAuthnRegistration";
+        let query = "getMergeProposals";
         if (replacement !== "query") {
           await page.keyboard.press("Escape");
           if (replacement === "source") {

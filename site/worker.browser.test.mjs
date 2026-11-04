@@ -206,12 +206,12 @@ describe("Worker-backed reference search", () => {
       for (const query of [
         "archive",
         "getPublishedSources",
-        "revokeWebAuthnRegistration",
+        "getMergeProposals",
       ])
         await input.fill(query);
       const result = searchDialog(page)
         .getByRole("option")
-        .filter({ hasText: /revokeWebAuthnRegistration/ })
+        .filter({ hasText: /getMergeProposals/ })
         .first();
       await result.waitFor();
       const id = (await result.getAttribute("id")).replace(
@@ -222,7 +222,7 @@ describe("Worker-backed reference search", () => {
       await assertNavigation(page, id);
       assert.match(
         decodeURIComponent(new URL(page.url()).hash),
-        /revokeWebAuthnRegistration/,
+        /getMergeProposals/,
       );
     } finally {
       await page.close();
@@ -264,15 +264,15 @@ describe("Worker-backed reference search", () => {
   it("isolates source results when switching environments and returning to production", async () => {
     const page = await openReference();
     try {
-      await search(page, "revokeWebAuthnRegistration");
+      await search(page, "getMergeProposals");
       await searchDialog(page)
         .getByRole("option")
-        .filter({ hasText: /revokeWebAuthnRegistration/ })
+        .filter({ hasText: /getMergeProposals/ })
         .first()
         .waitFor();
       await page.keyboard.press("Escape");
       await switchEnvironment(page, "Production", "QA staging");
-      const input = await search(page, "revokeWebAuthnRegistration");
+      const input = await search(page, "getMergeProposals");
       // Immediately replace the old-environment query while the new index may still be building.
       await input.fill("buildSourcePackageFromGitRef");
       const result = searchDialog(page)
@@ -283,7 +283,7 @@ describe("Worker-backed reference search", () => {
       assert.equal(
         await searchDialog(page)
           .getByRole("option")
-          .filter({ hasText: /revokeWebAuthnRegistration/ })
+          .filter({ hasText: /getMergeProposals/ })
           .count(),
         0,
       );
@@ -294,10 +294,10 @@ describe("Worker-backed reference search", () => {
       await result.click();
       await assertNavigation(page, id);
       await switchEnvironment(page, "QA staging", "Production");
-      await search(page, "revokeWebAuthnRegistration");
+      await search(page, "getMergeProposals");
       await searchDialog(page)
         .getByRole("option")
-        .filter({ hasText: /revokeWebAuthnRegistration/ })
+        .filter({ hasText: /getMergeProposals/ })
         .first()
         .waitFor();
       assert.equal(
