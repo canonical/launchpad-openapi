@@ -123,6 +123,11 @@ The Python tests use a small source-only checkout fixture and do not require a r
 
 If a refresh withdraws a review, it lists the changed definitions under `unresolved`. Re-review those definitions before updating the pinned digests in `tools/metadata-exporter/src/launchpad_metadata/reviews.py`. Regenerate OpenAPI and downstream clients after refreshing the catalog.
 
+## Publishing
+
+Development stays on Launchpad. See [mirroring and npm publishing](docs/publishing.md)
+for the GitHub mirror, version-triggered releases, and npm trusted-publisher setup.
+
 ## License
 
 Licensed under the [GNU Lesser General Public License version 3](LICENSE), which incorporates the [GNU General Public License version 3](COPYING).
