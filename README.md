@@ -4,6 +4,13 @@ Generate an OpenAPI 3.0.3 document for the Launchpad API in YAML or JSON. `launc
 
 You can fetch WADL from a Launchpad instance or convert a local file. Running the converter requires Node.js 24 or later; you do not need Python or a Launchpad checkout.
 
+## API reference
+
+Browse the [Launchpad API reference](https://canonical.github.io/launchpad-openapi/)
+with production and qastaging specs. The raw documents are also available as
+[production JSON](https://canonical.github.io/launchpad-openapi/production.json)
+and [qastaging JSON](https://canonical.github.io/launchpad-openapi/qastaging.json).
+
 ## Quick start
 
 Install the CLI globally from npm:

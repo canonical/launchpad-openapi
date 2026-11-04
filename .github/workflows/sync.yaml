@@ -39,6 +39,27 @@ jobs:
     with:
       source_url: https://git.launchpad.net/launchpad-openapi
 
+  pages:
+    needs: [before, sync]
+    if: needs.sync.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      # Mirror pushes cannot trigger the Pages workflow's push event.
+      - name: Deploy the reference when mirrored main changed
+        env:
+          BEFORE: ${{ needs.before.outputs.sha }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          after=$(gh api "repos/$GH_REPO/git/ref/heads/main" --jq .object.sha)
+          if [[ "$BEFORE" != "$after" ]]; then
+            gh workflow run pages.yaml --ref main
+          fi
+
   publish:
     needs: [before, sync]
     if: needs.sync.outputs.changed == 'true'

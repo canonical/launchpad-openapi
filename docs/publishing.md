@@ -51,6 +51,25 @@ If the package does not yet exist on npm, create it with an initial authorized
 publish before configuring its trusted publisher. Once OIDC works, remove any
 obsolete automation tokens and restrict token-based publishing in npm.
 
+## API reference on GitHub Pages
+
+`pages.yaml` publishes `site/dist` to
+<https://canonical.github.io/launchpad-openapi/>. It builds the converter, runs
+the site tests, fetches the production and qastaging API descriptions, and embeds
+both generated specs using `site/build.mjs`. The same JSON specs are served at
+`production.json` and `qastaging.json`; the favicon is copied into the artifact.
+If either API is unavailable or generation fails, the existing deployment stays
+online rather than publishing an incomplete reference.
+
+Direct pushes to GitHub `main` deploy automatically. After a successful mirror,
+`sync.yaml` explicitly dispatches Pages only when `main` changed. This is
+independent of npm version bumps. Manual dispatch on `main` can refresh the
+reference from the live APIs without changing the package version.
+
+GitHub Pages must use **GitHub Actions** as its build source. The deployment job
+uses the `github-pages` environment and only has Pages write and OIDC permissions;
+it does not commit generated files or create a `gh-pages` branch.
+
 ## Retry a failed release
 
 Re-running sync after a successful mirror does not dispatch the same change
